@@ -17,7 +17,7 @@
  *                   On output, it will be updated to reflect the size of the serialized data.
  * @return void
  */
-void serialize_message(const Message *message, uint8_t *buffer, size_t *buffer_size);
+void ns_serialize_message(const Message *message, uint8_t *buffer, size_t *buffer_size);
 
 /**
  * @brief Deserializes a buffer into a Message structure.
@@ -30,6 +30,6 @@ void serialize_message(const Message *message, uint8_t *buffer, size_t *buffer_s
  * @param message Pointer to the Message structure where the deserialized data will be stored.
  * @return void
  */
-void deserialize_message(const uint8_t* buffer, Message *message);
+void ns_deserialize_message(const uint8_t* buffer, Message *message);
 
 #endif

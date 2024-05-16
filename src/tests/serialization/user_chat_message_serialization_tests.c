@@ -1,6 +1,6 @@
 #include "message.h"
-#include "message_serializer.h"
 #include "message_types.h"
+#include "net/serialization/net_message_serializer.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -21,13 +21,13 @@ int main()
 
     // Serializes into buffer
     printf("SERIALIZING CHAT MESSAGE\n");
-    serialize_message((Message*)&chat_message, serialized_message_buffer, &serialized_message_size);
+    ns_serialize_message((Message*)&chat_message, serialized_message_buffer, &serialized_message_size);
     printf("Serialized buffer size: %ld\n", serialized_message_size);
 
     // Deserializes and prints
     printf("DESERIALIZING CHAT MESSAGE\n");
     UserChatMsg deserialized_chat;
-    deserialize_message(serialized_message_buffer, (Message*)&deserialized_chat);
+    ns_deserialize_message(serialized_message_buffer, (Message*)&deserialized_chat);
     print_message((Message*)&deserialized_chat);
 
     bool correct = true;

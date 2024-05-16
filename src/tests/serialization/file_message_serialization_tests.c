@@ -1,9 +1,10 @@
 #include "message.h"
-#include "message_serializer.h"
 #include "message_types.h"
+#include "net/serialization/net_message_serializer.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+
 
 
 int main()
@@ -18,12 +19,12 @@ int main()
     print_message((Message*)&original_msg);
 
     // Serializes into buffer
-    serialize_message((Message*)&original_msg, serialized_message_buffer, &serialized_message_size);
+    ns_serialize_message((Message*)&original_msg, serialized_message_buffer, &serialized_message_size);
     printf("Serialized buffer size: %ld\n", serialized_message_size);
 
     // Deserializes and prints
     FileInfoMsg deserialized_msg;
-    deserialize_message(serialized_message_buffer, (Message*)&deserialized_msg);
+    ns_deserialize_message(serialized_message_buffer, (Message*)&deserialized_msg);
 
     bool correct = true;
     correct &= original_msg.base.type == deserialized_msg.base.type;

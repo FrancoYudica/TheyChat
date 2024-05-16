@@ -11,26 +11,26 @@ set(CMAKE_C_STANDARD_REQUIRED True)
 # Define the source files for the library
 set(SOURCES
     src/message.c
-    src/message_serializer.c
     src/messages/file_message.c
     src/messages/user_message.c
+    src/server/client.c
+    src/server/client_list.c
+    src/net/serialization/net_serializer.c
+    src/net/serialization/net_message_serializer.c
+
 )
 
-# Define the headers for the library
-set(HEADERS
-    src/message.h
-    src/message_serializer.h
-    src/messages/file_message.h
-    src/messages/user_message.h
-)
 
 # Add the library
-add_library(chat_lib ${SOURCES} ${HEADERS})
+add_library(chat_lib ${SOURCES})
 
 # Include directories for the library
 target_include_directories(chat_lib PUBLIC
-    "${PROJECT_SOURCE_DIR}/src"
-    "${PROJECT_SOURCE_DIR}/src/messages"
+    "${PROJECT_SOURCE_DIR}/include"
+    "${PROJECT_SOURCE_DIR}/include/messages"
+    "${PROJECT_SOURCE_DIR}/include/server"
+    "${PROJECT_SOURCE_DIR}/include/net"
+    "${PROJECT_SOURCE_DIR}/include/net/serialization"
 )
 
 # Optionally, add compiler warnings
@@ -46,11 +46,8 @@ endif()
 
 # Add the test executables
 
-
-
 # Enable testing
 enable_testing()
-
 
 # Set output directory for test executables
 set(TEST_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests)
