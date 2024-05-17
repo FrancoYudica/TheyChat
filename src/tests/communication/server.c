@@ -58,10 +58,20 @@ int main()
         exit(EXIT_FAILURE);
     }
 
+
     UserChatMsg message;
     init_user_chat_msg(&message, "Hola, como estas?", "Franco");
     send_message_to_socketfd((Message*)&message, client_sock_fd);
+    send_message_to_socketfd((Message*)&message, client_sock_fd);
+    send_message_to_socketfd((Message*)&message, client_sock_fd);
+    send_message_to_socketfd((Message*)&message, client_sock_fd);
+    send_message_to_socketfd((Message*)&message, client_sock_fd);
     printf("Message successfully sent\n");
+
+    sleep(5);
+
+    // @TODO FIX SERVER CLOSE
+    close(client_sock_fd);
     close(sockfd);
     return EXIT_SUCCESS;
 }

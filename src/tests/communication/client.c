@@ -11,7 +11,7 @@
 int main()
 {
 
-    // Create UDP socket
+    // Create TCP socket
     uint32_t sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) {
         perror("socket creation failed");
@@ -35,9 +35,25 @@ int main()
         exit(EXIT_FAILURE);
     }
 
+    NetworkStream network_stream;
+    network_stream.written_bytes = 0;
+    memset(&network_stream, 0, sizeof(NetworkStream));
+
+    // Receives stream endlesly
+    receive(&network_stream, sockfd);
+    printf("Data received\n");
+    // Pops message from stream
     Message *message;
-    receive_message_from_socketfd(&message, sockfd);
-    print_message(message);
+    while(pop_message_from_stream(&message, &network_stream))
+    {
+        printf("Message popped\n");
+        // Displays and frees memory
+        print_message(message);
+        free(message);
+    }
+
+
+
     close(sockfd);
     return EXIT_SUCCESS;
 }

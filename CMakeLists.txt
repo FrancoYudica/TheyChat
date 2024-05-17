@@ -16,6 +16,7 @@ set(SOURCES
     src/server/client.c
     src/server/client_list.c
     src/net/net_communication.c
+    src/net/net_stream.c
     src/net/serialization/net_serializer.c
     src/net/serialization/net_message_serializer.c
 
