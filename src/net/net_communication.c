@@ -24,3 +24,36 @@ void send_message_to_socketfd(const Message *msg, uint32_t socketfd)
     // Sends serialized buffer to socket
     send_buffer_to_socketfd(serialized_message, serialized_buffer_size, socketfd);
 }
+
+void receive_message_from_socketfd(Message** message, uint32_t sockfd)
+{
+    uint8_t receive_buffer[1024];
+
+    // Receive response from server
+    int bytes_read = recv(sockfd, receive_buffer, sizeof(receive_buffer), 0);
+
+    if (bytes_read < 0)
+    {
+        perror("read");
+        exit(EXIT_FAILURE);
+    }
+
+    // Connection closed by the peer
+    if (bytes_read == 0)
+    {
+        printf("Connection closed by peer\n");
+        exit(EXIT_SUCCESS);
+    }
+    // Data successfully read from the socket
+    // Access message type field and allocates memory for the type
+    uint8_t message_type = ns_access_message_type(receive_buffer);
+    printf("Message type: %i\n", message_type);
+    // @todo change this
+    uint32_t message_size = sizeof(UserChatMsg);
+
+    // Allocates memory for the message type
+    *message = (Message*)malloc(message_size);
+
+    // Deserializes onto message
+    ns_deserialize_message(receive_buffer, *message);
+}
