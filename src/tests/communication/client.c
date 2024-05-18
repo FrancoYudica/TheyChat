@@ -36,23 +36,20 @@ int main()
     }
 
     NetworkStream network_stream;
-    network_stream.written_bytes = 0;
-    memset(&network_stream, 0, sizeof(NetworkStream));
+    init_net_stream(&network_stream);
 
-    // Receives stream endlesly
+    // Receives stream endlessly
     receive(&network_stream, sockfd);
-    printf("Data received\n");
+    printf("Received %d bytes\n", network_stream.written_bytes);
     // Pops message from stream
     Message *message;
-    while(pop_message_from_stream(&message, &network_stream))
+    while(stream_pop_message_by_type(MESSAGE_TYPE_USER_CHAT, &message, &network_stream))
     {
         printf("Message popped\n");
         // Displays and frees memory
         print_message(message);
         free(message);
     }
-
-
 
     close(sockfd);
     return EXIT_SUCCESS;

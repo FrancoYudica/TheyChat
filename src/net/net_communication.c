@@ -38,8 +38,8 @@ void receive(NetworkStream* network_stream, uint32_t sockfd)
 
     if (empty_region_size == 0)
     {
-        printf("Errow when receiving message. Trying to receive data in a full NetworkStream...\n");
-        exit(EXIT_FAILURE);
+        printf("WARNING: Trying to receive data in a full NetworkStream...\n");
+        return;
     }
 
     // Blocks current thread until it receives data

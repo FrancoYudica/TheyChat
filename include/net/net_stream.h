@@ -9,14 +9,18 @@
 
 typedef struct
 {
+    /// @brief Buffer where unprocessed bytes are stored
     uint8_t stream[4096];
+
+    /// @brief Amount of unprocessed bytes
     uint32_t written_bytes;
 } NetworkStream;
 
 
-void init_net_stream(NetworkStream *ns){}
+void init_net_stream(NetworkStream *ns);
 
-bool pop_message_from_stream(Message **message, NetworkStream *ns);
+bool stream_pop_message(Message **message, NetworkStream *ns);
 
+bool stream_pop_message_by_type(uint8_t expected_type, Message **message, NetworkStream *ns);
 
 #endif
