@@ -14,7 +14,7 @@ static void send_buffer_to_socketfd(const uint8_t *buffer, size_t buffer_size, u
     }
 }
 
-void send_message_to_socketfd(const Message *msg, uint32_t socketfd)
+void send_message(const Message *msg, uint32_t socketfd)
 {
     // Allocates memory for serialized message
     uint8_t serialized_message[1024];
@@ -43,7 +43,7 @@ void receive(NetworkStream* network_stream, uint32_t sockfd)
     }
 
     // Blocks current thread until it receives data
-    uint32_t bytes_read = recv(sockfd, empty_region_ptr, empty_region_size, 0);
+    int32_t bytes_read = recv(sockfd, empty_region_ptr, empty_region_size, 0);
 
     if (bytes_read == -1)
     {

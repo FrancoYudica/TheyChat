@@ -43,7 +43,7 @@ int main()
     printf("Received %d bytes\n", network_stream.written_bytes);
     // Pops message from stream
     Message *message;
-    while(stream_pop_message_by_type(MESSAGE_TYPE_USER_CHAT, &message, &network_stream))
+    while((message = stream_pop_message_by_type(MESSAGE_TYPE_USER_CHAT, &network_stream)) != NULL)
     {
         printf("Message popped\n");
         // Displays and frees memory

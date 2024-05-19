@@ -8,18 +8,20 @@ project(ChatApp VERSION 1.0)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED True)
 
+add_subdirectory(libs)
+
 # Define the source files for the library
 set(SOURCES
-    src/message.c
+    src/messages/message.c
     src/messages/file_message.c
     src/messages/user_message.c
+    src/messages/messages_types.c
     src/server/client.c
     src/server/client_list.c
     src/net/net_communication.c
     src/net/net_stream.c
     src/net/serialization/net_serializer.c
     src/net/serialization/net_message_serializer.c
-
 )
 
 
@@ -42,9 +44,7 @@ else()
     target_compile_options(chat_lib PRIVATE -Wall -Wextra -Wpedantic)
 endif()
 
-# Add the main executable
-# add_executable(message_test src/message_test.c)
-#target_link_libraries(message_test PRIVATE chat_lib)
+
 
 # Add the test executables
 
@@ -60,6 +60,7 @@ foreach(TEST_SOURCE ${TEST_SOURCES})
     get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
     add_executable(${TEST_NAME} ${TEST_SOURCE})
     target_link_libraries(${TEST_NAME} PRIVATE chat_lib)
+    target_link_libraries(${TEST_NAME} PRIVATE dependencies_lib)
     set_target_properties(${TEST_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_OUTPUT_DIRECTORY}/${TEST_NAME})
 endforeach()

@@ -32,8 +32,4 @@ void ns_serialize_message(const Message *message, uint8_t *buffer, size_t *buffe
  */
 void ns_deserialize_message(const uint8_t* buffer, Message *message);
 
-uint8_t ns_access_message_type(const uint8_t *buffer);
-
-uint32_t ns_access_message_length(const uint8_t *buffer);
-
 #endif

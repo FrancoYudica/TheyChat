@@ -1,4 +1,4 @@
-#include "../message.h"
+#include "message.h"
 
 // Base struct for all user messages
 typedef struct

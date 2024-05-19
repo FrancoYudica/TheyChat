@@ -2,19 +2,6 @@
 #include "message_types.h"
 #include "net_serializer.h"
 
-uint8_t ns_access_message_type(const uint8_t *buffer)
-{
-    return buffer[0];
-}
-
-uint32_t ns_access_message_length(const uint8_t *buffer)
-{
-    uint32_t net_length;
-    memcpy(&net_length, buffer + sizeof(uint8_t), sizeof(uint32_t));
-
-    uint32_t host_length = ntohl(net_length);
-    return host_length;
-}
 
 
 void ns_serialize_message(const Message *message, uint8_t *buffer, size_t *buffer_size)

@@ -1,6 +1,6 @@
 #ifndef __FILE_MESSAGE_H__
 #define __FILE_MESSAGE_H__
-#include "../message.h"
+#include "message.h"
 
 /// @brief Stores descriptive data of the file
 typedef struct
