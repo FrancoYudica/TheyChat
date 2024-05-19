@@ -1,0 +1,3 @@
+[submodule "libs/thread_pool"]
+	path = libs/thread_pool
+	url = https://github.com/FrancoYudica/ThreadPool.git
