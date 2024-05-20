@@ -12,23 +12,6 @@ void init_net_stream(NetworkStream* ns)
     memset(ns, 0, sizeof(NetworkStream));
 }
 
-Message* stream_pop_message_by_type(uint8_t expected_type, NetworkStream* ns)
-{
-    Message *message = stream_pop_message(ns);
-    if (message == NULL)
-        return NULL;
-
-    if ((message)->base.type != expected_type)
-    {
-        printf("ERROR: Received unexpected message type. Expected %i, and received %i\n", expected_type, (message)->base.type);
-        printf("Received message: ");
-        print_message(message);
-        exit(EXIT_FAILURE);
-    }
-
-    return message;
-}
-
 Message* stream_pop_message(NetworkStream* ns)
 {
     static uint32_t base_message_size = 5;

@@ -70,8 +70,14 @@ int main()
 
     sleep(5);
 
+    printf("Closing sockets fd. Client %d, Server %d\n", client_sock_fd, sockfd);
+
     // @TODO FIX SERVER CLOSE
-    close(client_sock_fd);
-    close(sockfd);
+    if (close(client_sock_fd) == -1)
+        perror("close");
+
+    if (close(sockfd) == -1)
+        perror("close");
+
     return EXIT_SUCCESS;
 }
