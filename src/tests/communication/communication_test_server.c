@@ -58,7 +58,6 @@ int main()
         exit(EXIT_FAILURE);
     }
 
-
     UserChatMsg message;
     init_user_chat_msg(&message, "Hola, como estas?", "Franco");
     send_message((Message*)&message, client_sock_fd);
@@ -72,7 +71,6 @@ int main()
 
     printf("Closing sockets fd. Client %d, Server %d\n", client_sock_fd, sockfd);
 
-    // @TODO FIX SERVER CLOSE
     if (close(client_sock_fd) == -1)
         perror("close");
 

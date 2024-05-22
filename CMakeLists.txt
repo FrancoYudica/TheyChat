@@ -45,6 +45,13 @@ else()
 endif()
 
 
+add_executable(server src/server/server.c)
+target_link_libraries(server PRIVATE chat_lib)
+target_link_libraries(server PRIVATE dependencies_lib)
+
+add_executable(client src/client/client.c)
+target_link_libraries(client PRIVATE chat_lib)
+target_link_libraries(client PRIVATE dependencies_lib)
 
 # Add the test executables
 
