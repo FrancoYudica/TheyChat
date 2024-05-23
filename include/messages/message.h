@@ -9,11 +9,19 @@
 
 enum MessageTypes
 {
-    MESSAGE_TYPE_USER_CHAT,
-    MESSAGE_TYPE_USER_LOGIN,
-    MESSAGE_TYPE_USER_LOGOUT,
-    MESSAGE_TYPE_FILE_INFO,
-    MESSAGE_TYPE_ACK
+    // User
+    MSGT_USER_CHAT,
+    MSGT_USER_LOGIN,
+    MSGT_USER_LOGOUT,
+
+    // File
+    MSGT_FILE_HEADER,
+    MSGT_FILE_CONTENT,
+    MSGT_FILE_END,
+
+    // Client
+    MSGT_CLIENT_CONNECTED,
+    MSGT_CLIENT_ON_QUEUE
 };
 
 #define MAX_CHAT_TEXT_BYTES 256
@@ -24,12 +32,12 @@ typedef struct
 {
     uint8_t type;
     uint32_t payload_length;
-} BaseMessage;
+} MessageHeader;
 
 /// @brief Message basic data layout
 typedef struct 
 {
-    BaseMessage base;
+    MessageHeader header;
 } Message;
 
 

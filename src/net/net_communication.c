@@ -15,11 +15,21 @@ net_status_t send_message(const Message *msg, uint32_t socketfd)
     ns_serialize_message(msg, serialized_message, &serialized_buffer_size);
 
     // Sends serialized buffer to socket
-    if (send(socketfd, serialized_message, serialized_buffer_size, 0) == -1)
+    uint32_t total_bytes_sent = 0;
+
+    // Sends until the entire buffer is sent
+    while(total_bytes_sent < serialized_buffer_size)
     {
-        perror("`send` in `send_buffer_to_socketfd failed`");
-        return NET_ERROR_SEND_FAILED;
+        int32_t bytes_sent = send(socketfd, serialized_message + total_bytes_sent, serialized_buffer_size - total_bytes_sent, 0);
+
+        if (bytes_sent == -1)
+        {
+            perror("`send` in `send_buffer_to_socketfd failed`");
+            return NET_ERROR_SEND_FAILED;
+        }
+        total_bytes_sent += bytes_sent;
     }
+    
     return NET_SUCCESS;
 }
 
@@ -38,7 +48,7 @@ static net_status_t receive(NetworkStream* network_stream, uint32_t sockfd)
     if (empty_region_size == 0)
     {
         printf("WARNING: Trying to receive data in a full NetworkStream...\n");
-        return 1;
+        return NET_ERROR_STREAM_OVERFLOW;
     }
 
     // Blocks current thread until it receives data
@@ -85,9 +95,9 @@ net_status_t wait_for_message_type(NetworkStream* network_stream, uint32_t sockf
     if (IS_NET_ERROR(status))
         return status;
 
-    if ((*message)->base.type != type)
+    if ((*message)->header.type != type)
     {
-        printf("ERROR: Received unexpected message type. Expected %i, and received %i\n", type, (*message)->base.type);
+        printf("ERROR: Received unexpected message type. Expected %i, and received %i\n", type, (*message)->header.type);
         printf("Received message: ");
         print_message(*message);
 

@@ -11,7 +11,7 @@
 typedef struct
 {
     /// @brief Buffer where unprocessed bytes are stored.
-    uint8_t stream[4096];
+    uint8_t stream[1024];
 
     /// @brief Amount of unprocessed bytes.
     uint32_t written_bytes;

@@ -3,7 +3,7 @@
 // Base struct for all user messages
 typedef struct
 {
-    BaseMessage base;
+    MessageHeader header;
     char username[MAX_USERNAME_BYTES];
 } UserBaseMsg;
 
@@ -23,6 +23,6 @@ typedef struct
 } UserLoginMsg;
 
 
-void init_user_chat_msg(UserChatMsg *message, const char* text, const char* username);
+UserChatMsg* create_user_chat_msg(const char* text, const char* username);
 
-void init_user_login_msg(UserLoginMsg *message, const char *username);
+UserLoginMsg* create_user_login_msg(const char *username);

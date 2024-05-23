@@ -1,18 +1,22 @@
 #include "user_message.h"
+#include <stdlib.h>
 
-void init_user_chat_msg(UserChatMsg *message, const char *text, const char *username)
+
+UserChatMsg* create_user_chat_msg(const char* text, const char* username)
 {
-    // Initializes message data
-    message->user_base.base.type = MESSAGE_TYPE_USER_CHAT;
-    message->user_base.base.payload_length = sizeof(message->user_base.username) + sizeof(message->text);
-
+    UserChatMsg *message = (UserChatMsg*)malloc(sizeof(UserChatMsg));
+    message->user_base.header.type = MSGT_USER_CHAT;
+    message->user_base.header.payload_length = sizeof(message->user_base.username) + sizeof(message->text);
     strcpy(message->text, text);
     strcpy(message->user_base.username, username);
+    return message;
 }
 
-void init_user_login_msg(UserLoginMsg *message, const char *username)
+UserLoginMsg* create_user_login_msg(const char* username)
 {
-    message->user_base.base.type = MESSAGE_TYPE_USER_LOGIN;
-    message->user_base.base.payload_length = sizeof(message->user_base.username);
+    UserLoginMsg *message = (UserLoginMsg*)malloc(sizeof(UserLoginMsg));
+    message->user_base.header.type = MSGT_USER_LOGIN;
+    message->user_base.header.payload_length = sizeof(message->user_base.username);
     strcpy(message->user_base.username, username);
+    return message;
 }

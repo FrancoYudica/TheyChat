@@ -5,34 +5,42 @@ void print_message(Message *message)
 {
 
     // Prints type and length
-    printf("MESSAGE{type: %s, length: %d, ", msg_get_type_name(message->base.type),  message->base.payload_length);
+    printf("MESSAGE{type: %s, length: %d, ", msg_get_type_name(message->header.type),  message->header.payload_length);
 
     // Prints specific data to each message
-    switch (message->base.type)
+    switch (message->header.type)
     {
-    case MESSAGE_TYPE_USER_CHAT:
+    case MSGT_USER_CHAT:
     {
         UserChatMsg *chat_message = (UserChatMsg*)message;
         printf("username: %s, text: %s}\n", chat_message->user_base.username, chat_message->text);
         break;
     }
     
-    case MESSAGE_TYPE_FILE_INFO:
+    case MSGT_FILE_HEADER:
     {
-        FileInfoMsg *file_info_message = (FileInfoMsg*)message;
+        FileHeaderMsg *file_info_message = (FileHeaderMsg*)message;
         printf("name: %s, size: %d}\n", file_info_message->name, file_info_message->size);
         break;
     }
 
-    case MESSAGE_TYPE_USER_LOGIN:
+    case MSGT_USER_LOGIN:
     {
-        printf("type: LOGIN, ");
+        UserLoginMsg *login = (UserLoginMsg*)message;
+        printf("type: LOGIN, username: %s}\n", login->user_base.username);
         break;
     }
 
-    case MESSAGE_TYPE_USER_LOGOUT:
+    case MSGT_USER_LOGOUT:
     {
         printf("type: LOGOUT, ");
+        break;
+    }
+
+    case MSGT_CLIENT_CONNECTED:
+    case MSGT_CLIENT_ON_QUEUE:
+    {
+        printf("}\n");
         break;
     }
 

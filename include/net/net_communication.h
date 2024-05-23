@@ -1,5 +1,6 @@
 #ifndef __NET_COMMUNICATION_H__
 #define __NET_COMMUNICATION_H__
+#include <assert.h>
 #include "message.h"
 #include "net_stream.h"
 
@@ -8,7 +9,9 @@
 #define NET_ERROR_RECEIVE_FAILED -2
 #define NET_ERROR_INVALID_TYPE -3
 #define NET_ERROR_SEND_FAILED -4
+#define NET_ERROR_STREAM_OVERFLOW -5
 #define IS_NET_ERROR(X) (X < 0)
+#define ASSERT_NET_ERROR(X) assert(!IS_NET_ERROR(X))
 
 /// @brief Type used to retrieve status after network operations
 typedef int8_t net_status_t;

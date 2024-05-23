@@ -2,10 +2,37 @@
 
 
 static uint32_t messages_sizes[] = {
+    // User
     sizeof(UserChatMsg),
     sizeof(UserLoginMsg),
     0,
-    sizeof(FileInfoMsg)
+
+    // File
+    sizeof(FileHeaderMsg),
+    sizeof(FileContentMsg),
+    sizeof(FileEndMsg),
+
+    // Client
+    sizeof(Bytes128Msg),
+    sizeof(Bytes128Msg)
+};
+
+// Maps numeric type to string
+static const char* message_types[] = {
+
+    // User    
+    "CHAT",
+    "LOGIN",
+    "LOGOUT",
+
+    // File
+    "FILE_HEADER",
+    "FILE_CONTENT",
+    "FILE_END",
+
+    // Client
+    "CLIENT_CONNECTED",
+    "CLIENT_ON_QUEUE"
 };
 
 uint32_t msg_get_type_size(uint8_t type)
@@ -27,15 +54,6 @@ uint32_t msg_get_type_size(uint8_t type)
 
 const char* msg_get_type_name(uint8_t type)
 {
-    // Maps numeric type to string
-    static const char* message_types[] = {
-        "CHAT",
-        "LOGIN",
-        "LOGOUT",
-        "FILE"
-    };
-
-
     size_t array_size = sizeof(message_types) / sizeof(message_types[0]);
 
     // When it's out of bounds, not implemented

@@ -6,7 +6,8 @@ typedef struct
 {
     uint32_t id;
     uint32_t sockfd;
-    char* ip;
+    char *ip;
+    char *name;
     struct sockaddr_in address;
 } Client;
 

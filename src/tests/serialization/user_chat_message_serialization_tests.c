@@ -15,8 +15,8 @@ int main()
 
     // Creates and prints ChatMessage
     char chat_text[] = "Hey! How are you?";
-    UserChatMsg chat_message;
-    init_user_chat_msg(&chat_message, chat_text, "franco");
+    UserChatMsg *chat_message = create_user_chat_msg(chat_text, "franco");
+
     print_message((Message*)&chat_message);
 
     // Serializes into buffer
@@ -31,10 +31,10 @@ int main()
     print_message((Message*)&deserialized_chat);
 
     bool correct = true;
-    correct &= chat_message.user_base.base.type == deserialized_chat.user_base.base.type;
-    correct &= chat_message.user_base.base.payload_length == deserialized_chat.user_base.base.payload_length;
-    correct &= !strcmp(chat_message.user_base.username, deserialized_chat.user_base.username);
-    correct &= !strcmp(chat_message.text, deserialized_chat.text);
+    correct &= chat_message->user_base.header.type == deserialized_chat.user_base.header.type;
+    correct &= chat_message->user_base.header.payload_length == deserialized_chat.user_base.header.payload_length;
+    correct &= !strcmp(chat_message->user_base.username, deserialized_chat.user_base.username);
+    correct &= !strcmp(chat_message->text, deserialized_chat.text);
     
     return !correct;
 

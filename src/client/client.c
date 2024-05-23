@@ -1,6 +1,7 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <assert.h>
 #include "message.h"
 #include "message_types.h"
 #include "net/serialization/net_message_serializer.h"
@@ -62,19 +63,43 @@ int main(int argc, char** argv)
     NetworkStream network_stream;
     init_net_stream(&network_stream);
 
-    UserChatMsg message;
-    init_user_chat_msg(&message, "Received message!", "Unnamed client");
 
-    Message *server_message;
-
-    // Gets connection message
-    net_status_t status = wait_for_message_type(&network_stream, sockfd, &server_message, MESSAGE_TYPE_USER_CHAT);
-    print_message(server_message);
-    free(server_message);
-
-    while(1)
+    // Waits for connection
+    while (true)
     {
-        status = wait_for_message(&network_stream, sockfd, &server_message);
+        Message *server_message;
+        net_status_t status = wait_for_message(&network_stream, sockfd, &server_message);
+        assert(!IS_NET_ERROR(status));
+
+        // Client connected successfully;
+        if (server_message->header.type == MSGT_CLIENT_CONNECTED)
+        {
+            printf("%s\n", ((Bytes128Msg*)server_message)->bytes);
+            free(server_message);
+            break;
+        }
+
+        // Client in queue
+        if (server_message->header.type == MSGT_CLIENT_ON_QUEUE)
+            printf("%s\n", ((Bytes128Msg*)server_message)->bytes);
+        else
+            printf("Received unexpected file type %i\n", server_message->header.type);
+
+        free(server_message);
+
+    }
+    
+    // Sends message telling that the username
+    UserLoginMsg *login_msg = create_user_login_msg("Test client name");
+    send_message((const Message*)login_msg, sockfd);
+    free(login_msg);
+
+    Message *message = (Message*)create_user_chat_msg("Received message!", "Unnamed client");
+
+    while(true)
+    {
+        Message *server_message;
+        net_status_t status = wait_for_message(&network_stream, sockfd, &server_message);
 
         if (IS_NET_ERROR(status))
         {
@@ -88,11 +113,11 @@ int main(int argc, char** argv)
         print_message(server_message);
         free(server_message);
         
-        send_message((const Message*)&message, sockfd);
-        sleep(3);
+        send_message((const Message*)message, sockfd);
+        sleep(1);
 
     }
-
+    free(message);
     printf("Closing socket fd %d\n", sockfd);
 
     if (close(sockfd) == -1)

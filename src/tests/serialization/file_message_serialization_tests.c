@@ -14,8 +14,8 @@ int main()
     size_t serialized_message_size;
 
     // Creates and prints ChatMessage
-    FileInfoMsg original_msg;
-    init_file_info_message(&original_msg, "test_file.txt", 512);
+    FileHeaderMsg original_msg;
+    init_file_header_message(&original_msg, "test_file.txt", 512);
     print_message((Message*)&original_msg);
 
     // Serializes into buffer
@@ -23,7 +23,7 @@ int main()
     printf("Serialized buffer size: %ld\n", serialized_message_size);
 
     // Deserializes and prints
-    FileInfoMsg deserialized_msg;
+    FileHeaderMsg deserialized_msg;
     ns_deserialize_message(serialized_message_buffer, (Message*)&deserialized_msg);
 
     bool correct = true;

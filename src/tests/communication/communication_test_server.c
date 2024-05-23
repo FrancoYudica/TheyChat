@@ -58,13 +58,12 @@ int main()
         exit(EXIT_FAILURE);
     }
 
-    UserChatMsg message;
-    init_user_chat_msg(&message, "Hola, como estas?", "Franco");
-    send_message((Message*)&message, client_sock_fd);
-    send_message((Message*)&message, client_sock_fd);
-    send_message((Message*)&message, client_sock_fd);
-    send_message((Message*)&message, client_sock_fd);
-    send_message((Message*)&message, client_sock_fd);
+    Message *message = (Message*)create_user_chat_msg("Hola, como estas?", "Franco");
+    send_message(message, client_sock_fd);
+    send_message(message, client_sock_fd);
+    send_message(message, client_sock_fd);
+    send_message(message, client_sock_fd);
+    send_message(message, client_sock_fd);
     printf("Message successfully sent\n");
 
     sleep(5);
