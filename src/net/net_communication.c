@@ -97,7 +97,7 @@ net_status_t wait_for_message_type(NetworkStream* network_stream, uint32_t sockf
 
     if ((*message)->header.type != type)
     {
-        printf("ERROR: Received unexpected message type. Expected %i, and received %i\n", type, (*message)->header.type);
+        printf("ERROR: Received unexpected message type. Expected %i, and received %i. ", type, (*message)->header.type);
         printf("Received message: ");
         print_message(*message);
 

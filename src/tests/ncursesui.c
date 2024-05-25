@@ -3,6 +3,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <pthread.h>
+#include <signal.h>
 
 // Constants
 #define MAX_MESSAGES 100  // Maximum number of messages
@@ -27,8 +28,10 @@ void *receive_messages(void *arg);
 void draw_chat();
 void scroll_up();
 void scroll_down();
+void handle_resize();
 
 int main() {
+    return 0;
     pthread_t receiver_thread;  // Thread to simulate receiving messages
     char input[MESSAGE_LENGTH];  // Buffer to store user input
     int ch;  // Variable to store keyboard input
@@ -38,6 +41,7 @@ int main() {
     cbreak();  // Disable line buffering
     noecho();  // Disable echoing of typed characters
     keypad(stdscr, TRUE);  // Enable reading of function keys
+    signal(SIGWINCH, handle_resize);  // Handle window resize
 
     // Initialize windows
     init_windows();
@@ -45,30 +49,58 @@ int main() {
     // Create a thread to simulate receiving messages
     pthread_create(&receiver_thread, NULL, receive_messages, NULL);
 
+    const char type_hint[] = "Type a message: ";
+
+    // // Main loop for input
+    // while (1) {
+    //     // Clear input window and display prompt
+    //     wclear(input_win);
+    //     box(input_win, 0, 0);
+    //     mvwprintw(input_win, 1, 1, type_hint);
+    //     wrefresh(input_win);
+
+    //     echo();  // Enable echoing for input
+    //     mvwgetnstr(input_win, 1, sizeof(type_hint), input, sizeof(input) - 1);
+    //     noecho();  // Disable echoing after input
+    //     if (input[0] == KEY_UP) {
+    //         // Scroll up when the up arrow key is pressed
+    //         scroll_up();
+    //     } else if (input[0] == KEY_DOWN) {
+    //         // Scroll down when the down arrow key is pressed
+    //         scroll_down();
+    //     } else {
+
+    //         // Exit on "quit"
+    //         if (strcmp(input, "quit") == 0) {
+    //             break;
+    //         }
+
+    //         // Add message to chat window
+    //         add_message(input);
+    //         // Move cursor to input position and refresh input window to show typed characters
+    //         wmove(input_win, 1, sizeof(type_hint) + strlen(input));
+    //         wrefresh(input_win);
+    //     }
+    // }
+
     // Main loop for input
     while (1) {
         // Clear input window and display prompt
         wclear(input_win);
         box(input_win, 0, 0);
-
-        char prompt_message[] = "Type a message";
-        mvwprintw(input_win, 1, 1, prompt_message);
+        mvwprintw(input_win, 1, 1, type_hint);
         wrefresh(input_win);
 
-        // Get input
-        ch = wgetch(input_win);
-
-        if (ch == KEY_UP) {
+        echo();  // Enable echoing for input
+        mvwgetnstr(input_win, 1, sizeof(type_hint), input, sizeof(input) - 1);
+        noecho();  // Disable echoing after input
+        if (input[strlen(input) - 1] == KEY_UP) {
             // Scroll up when the up arrow key is pressed
             scroll_up();
-        } else if (ch == KEY_DOWN) {
+        } else if (input[strlen(input) - 1] == KEY_DOWN) {
             // Scroll down when the down arrow key is pressed
             scroll_down();
-        } else if (ch == '\n') {
-            // Read the input when Enter is pressed
-            echo();  // Enable echoing for input
-            mvwgetnstr(input_win, 1, sizeof(prompt_message), input, sizeof(input) - 1);
-            noecho();  // Disable echoing after input
+        } else {
 
             // Exit on "quit"
             if (strcmp(input, "quit") == 0) {
@@ -77,12 +109,6 @@ int main() {
 
             // Add message to chat window
             add_message(input);
-            // Ensure cursor visibility and position
-            wmove(input_win, 1, sizeof(prompt_message));
-            wrefresh(input_win);
-        } else {
-            // Move cursor to input position and refresh input window to show typed characters
-            wmove(input_win, 1, sizeof(prompt_message) + strlen(input));
             wrefresh(input_win);
         }
     }
@@ -177,7 +203,7 @@ void scroll_down() {
 void *receive_messages(void *arg) {
     char buffer[MESSAGE_LENGTH];
     int counter = 0;
-
+    
     while (1) {
         // Simulate receiving a message every 5 seconds
         sleep(5);
@@ -186,4 +212,17 @@ void *receive_messages(void *arg) {
     }
 
     return NULL;
+}
+
+// Handle window resize
+void handle_resize(int sig) {
+    endwin();  // End the current window
+    refresh();  // Refresh the screen to handle resize
+    clear();  // Clear the screen
+
+    // Reinitialize the windows
+    init_windows();
+
+    // Redraw the chat window content
+    draw_chat();
 }

@@ -9,7 +9,7 @@
 
 int main()
 {
-
+    return 0;
     struct sockaddr_in server_addr;
     socklen_t client_len = sizeof(struct sockaddr_in);
 

@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <string.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <arpa/inet.h>
 
@@ -21,7 +22,10 @@ enum MessageTypes
 
     // Client
     MSGT_CLIENT_CONNECTED,
-    MSGT_CLIENT_ON_QUEUE
+    MSGT_CLIENT_ON_QUEUE,
+
+    // Flow control
+    MSGT_STATUS
 };
 
 #define MAX_CHAT_TEXT_BYTES 256
@@ -39,7 +43,6 @@ typedef struct
 {
     MessageHeader header;
 } Message;
-
 
 
 void print_message(Message *message);

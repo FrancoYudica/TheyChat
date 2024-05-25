@@ -7,7 +7,7 @@
 // Node structure to hold client and the next pointer
 typedef struct Node 
 {
-    Client *client;
+    Client client;
     struct Node *next;
 } Node;
 
@@ -40,7 +40,6 @@ void client_list_destroy(ClientList *client_list)
     while (current != NULL) 
     {
         Node *next = current->next;
-        free(current->client);
         free(current);
         current = next;
     }
@@ -57,20 +56,11 @@ Client* client_list_add(ClientList *client_list)
         exit(EXIT_FAILURE);
     }
 
-    // Allocates memory for Client
-    new_node->client = malloc(client_list->element_size);
-    if (new_node->client == NULL) 
-    {
-        free(new_node);
-        perror("Failed to allocate memory for node client");
-        exit(EXIT_FAILURE);
-    }
-
-    memset(new_node->client, 0, client_list->element_size);
+    memset(&new_node->client, 0, client_list->element_size);
     new_node->next = NULL;
 
     // Sets client ID
-    new_node->client->id = client_list->next_client_id++;
+    new_node->client.id = client_list->next_client_id++;
 
     if (client_list->size == 0) 
         client_list->front = client_list->rear = new_node;
@@ -82,7 +72,7 @@ Client* client_list_add(ClientList *client_list)
     }
     client_list->size++;
     
-    return new_node->client;
+    return &new_node->client;
 }
 
 bool client_list_remove(ClientList* client_list, uint32_t client_id) 
@@ -100,7 +90,7 @@ bool client_list_remove(ClientList* client_list, uint32_t client_id)
     {
 
         // When node is found
-        if (current->client->id == client_id)
+        if (current->client.id == client_id)
         {
             
             // 1 - Unlinks node
@@ -122,10 +112,15 @@ bool client_list_remove(ClientList* client_list, uint32_t client_id)
                 previous->next = current->next;
             }
             
-            // 2 - Frees client and node memory
-            free(current->client);
+            // Frees node, alongside with client
             free(current);
-            client_list->size--;
+
+            if (--client_list->size == 0)
+            {
+                client_list->front = NULL;
+                client_list->rear = NULL;
+            }
+
             return true;
         }
 
@@ -144,8 +139,8 @@ Client* client_list_find_by_id(ClientList *client_list, uint32_t client_id)
     while (current != NULL) 
     {
         Node *next = current->next;
-        if (current->client->id == client_id)
-            return current->client;
+        if (current->client.id == client_id)
+            return &current->client;
 
         current = next;
     }

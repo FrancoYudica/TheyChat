@@ -16,6 +16,7 @@ set(SOURCES
     src/messages/file_message.c
     src/messages/user_message.c
     src/messages/client_message.c
+    src/messages/status_message.c
     src/messages/messages_types.c
     src/server/client.c
     src/server/client_list.c

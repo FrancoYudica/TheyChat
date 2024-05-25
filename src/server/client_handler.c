@@ -5,16 +5,22 @@
 
 #include "message_types.h"
 
-static void handle_login(NetworkStream *stream, Client *client);
-static void client_disconnected(Client *client);
+/// @brief Loops until client picks a valid username
+static net_status_t handle_login(Client *client);
 
-void handle_client_task(void *arg)
+/// @brief Removes client from client list
+static void disconnect_client(Server *server, Client *client);
+
+void handle_client_task(ClientHandlerData *handler_data)
 {
-    Client *client = (Client*)(arg);
+    Client *client = handler_data->client;
+    Server *server = handler_data->server;
+
+    free(handler_data);
+
     printf("Handling client %d\n", client->sockfd);
     
-    NetworkStream stream;
-    init_net_stream(&stream);
+    init_net_stream(&client->stream);
 
     {
         // Tells client that it's connected
@@ -23,8 +29,15 @@ void handle_client_task(void *arg)
         ASSERT_NET_ERROR(status);
         free(connected_message);
     }
+    printf("Connected message sent\n");
 
-    handle_login(&stream, client);
+    net_status_t login_status = handle_login(client);
+
+    if (IS_NET_ERROR(login_status))
+    {
+        disconnect_client(server, client);
+        return;
+    }
 
     UserChatMsg *msg = create_user_chat_msg("Hey!", "SERVER");
 
@@ -41,7 +54,7 @@ void handle_client_task(void *arg)
 
         // Waits for any message
         Message *client_msg;
-        net_status_t receive_status = wait_for_message(&stream, client->sockfd, &client_msg);
+        net_status_t receive_status = wait_for_message(&client->stream, client->sockfd, &client_msg);
 
         if (IS_NET_ERROR(receive_status))
         {
@@ -54,21 +67,65 @@ void handle_client_task(void *arg)
         print_message(client_msg);
         free(client_msg);
     }
+
     free(msg);
-    client_disconnected(client);
+    disconnect_client(server, client);
 }
 
-static void handle_login(NetworkStream *stream, Client *client)
+static net_status_t handle_login(Client *client)
 {
-    // Waits for login
-    UserLoginMsg *user_login_msg;
-    wait_for_message_type(stream, client->sockfd, (Message**)&user_login_msg, MSGT_USER_LOGIN);
-    printf("Client %d logged in with username %s\n", client->id, user_login_msg->user_base.username);
-    client->name = user_login_msg->user_base.username;
-    free(user_login_msg);
+    while(true)
+    {
+        UserLoginMsg *user_login_msg;
+
+        // Waits for login
+        net_status_t status = wait_for_message_type(&client->stream, client->sockfd, (Message**)&user_login_msg, MSGT_USER_LOGIN);
+
+        if (IS_NET_ERROR(status))
+            return status;
+
+        strncpy(client->name, user_login_msg->user_base.username, sizeof(client->name));
+        free(user_login_msg);
+
+        // @todo check if name is valid
+        bool is_valid = true;
+
+        if (is_valid)
+            break;
+
+        // Tell client that the username is invalid
+        else
+        {
+            char text_buffer[128];
+            sprintf(text_buffer, "A user named \"%s\" already exists", client->name);
+            StatusMsg *status_msg = create_status_msg(STATUS_MSG_FAILURE, text_buffer);
+            net_status_t status = send_message((Message*)status_msg, client->sockfd);
+            if (IS_NET_ERROR(status))
+                return status;
+            free(status_msg);
+        }
+
+    }
+
+    StatusMsg *status_msg = create_status_msg(STATUS_MSG_SUCCESS, "Login success");
+    net_status_t status = send_message((Message*)status_msg, client->sockfd);
+    
+    if (IS_NET_ERROR(status))
+        return status;
+
+    free(status_msg);
+
+
+    printf("Client %d logged in with username %s\n", client->id, client->name);
+    return NET_SUCCESS;
 }
 
-static void client_disconnected(Client *client)
+static void disconnect_client(Server *server, Client *client)
 {
     printf("Client %i disconnected\n", client->id);
+    // Removes client
+    pthread_mutex_lock(&server->client_list_mutex);
+    client_list_remove(server->client_list, client->id);
+    pthread_mutex_unlock(&server->client_list_mutex);
+
 }

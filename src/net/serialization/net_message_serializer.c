@@ -46,6 +46,14 @@ void ns_serialize_message(const Message *message, uint8_t *buffer, size_t *buffe
         break;
     }
     
+    case MSGT_STATUS:
+    {
+        StatusMsg *status_message = (StatusMsg*)message;
+        ns_push_byte_array(&buffer_ptr, (const uint8_t*)&status_message->status, sizeof(status_message->status));
+        ns_push_byte_array(&buffer_ptr, (const uint8_t*)status_message->text, sizeof(status_message->text));
+        break;
+    }
+
     default:
         printf("Unimplemented serialization for message type %i\n", message->header.type);
         exit(EXIT_FAILURE);
@@ -72,8 +80,8 @@ void ns_deserialize_message(const uint8_t* buffer, Message *message)
     case MSGT_USER_CHAT:
     {
         UserChatMsg *chat_message = (UserChatMsg*)message;
-        ns_pop_byte_array(&buffer_ptr, (uint8_t*)chat_message->user_base.username, MAX_USERNAME_BYTES);
-        ns_pop_byte_array(&buffer_ptr, (uint8_t*)chat_message->text, MAX_CHAT_TEXT_BYTES);
+        ns_pop_byte_array(&buffer_ptr, (uint8_t*)chat_message->user_base.username, sizeof(chat_message->user_base.username));
+        ns_pop_byte_array(&buffer_ptr, (uint8_t*)chat_message->text, sizeof(chat_message->text));
         break;
     }
 
@@ -97,6 +105,15 @@ void ns_deserialize_message(const uint8_t* buffer, Message *message)
     {
         Bytes128Msg *bytes_msg = (Bytes128Msg*)message;
         ns_pop_byte_array(&buffer_ptr, (uint8_t*)bytes_msg->bytes, sizeof(bytes_msg->bytes));
+        break;
+    }
+
+   
+    case MSGT_STATUS:
+    {
+        StatusMsg *status_message = (StatusMsg*)message;
+        ns_pop_byte_array(&buffer_ptr, (uint8_t*)&status_message->status, sizeof(status_message->status));
+        ns_pop_byte_array(&buffer_ptr, (uint8_t*)status_message->text, sizeof(status_message->text));
         break;
     }
 

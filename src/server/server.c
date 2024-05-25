@@ -45,8 +45,11 @@ int main(int argc, char** argv)
     // Initialize server address structure
     memset(&server_addr, 0, sizeof(server_addr));
 
+    // IPv4
     server_addr.sin_family = AF_INET;
-    server_addr.sin_addr.s_addr = INADDR_ANY;   // Sets the server ip to local ip
+
+    // Sets the server ip to local ip
+    server_addr.sin_addr.s_addr = INADDR_ANY;   
     server_addr.sin_port = htons(server.port);
 
     // Bind socket to the server address
@@ -67,9 +70,12 @@ int main(int argc, char** argv)
     socklen_t client_len = sizeof(struct sockaddr_in);
 
     thpool_t *thpool = thpool_create(1);
-    ClientList *client_list = client_list_create();
 
-    Bytes128Msg *client_connected_msg = create_client_connected();
+    // Initializes client list
+    server.client_list = client_list_create();
+
+    // Message sent to client in case there aren't any free
+    // threads, and stays in client queue
     Bytes128Msg *client_on_queue_msg = create_client_on_queue();
 
     while(true)
@@ -88,22 +94,21 @@ int main(int argc, char** argv)
         }
 
         // Registers client
-        Client *client = client_list_add(client_list);
+        Client *client = client_list_add(server.client_list);
 
         // Initializes client network data
         init_client_network(client, &client_address, client_sock_fd);
-
-        // Tells the client it's connected to the server
-        send_message((Message*)client_connected_msg, client_sock_fd);
 
         // Tells client that all threads are busy, and it's on queue
         if (thpool_all_threads_busy(thpool))
             send_message((Message*)client_on_queue_msg, client_sock_fd);
 
         // Queues a new task
-        thpool_submit(thpool, handle_client_task, client);
+        ClientHandlerData *handler_data = (ClientHandlerData*)malloc(sizeof(ClientHandlerData));
+        handler_data->server = &server;
+        handler_data->client = client;
+        thpool_submit(thpool, (thread_task_t)handle_client_task, handler_data);
     }
-    free(client_connected_msg);
     if (close(server.sockfd) == -1)
         perror("close");
 

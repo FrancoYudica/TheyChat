@@ -10,7 +10,7 @@
 
 int main()
 {
-
+    return 0;
     // Create TCP socket
     uint32_t sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) {

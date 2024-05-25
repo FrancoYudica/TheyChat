@@ -44,6 +44,12 @@ void print_message(Message *message)
         break;
     }
 
+    case MSGT_STATUS:
+    {
+        StatusMsg *status = (StatusMsg*)message;
+        printf("status: %i, text: %s}\n", status->status, status->text);
+    }
+
     default:
         break;
     }

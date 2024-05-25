@@ -5,6 +5,7 @@
 #include "user_message.h"
 #include "file_message.h"
 #include "client_message.h"
+#include "status_message.h"
 
 /// @return Size in memory of the Message type
 uint32_t msg_get_type_size(uint8_t type);
