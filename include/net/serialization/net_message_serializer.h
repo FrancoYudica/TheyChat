@@ -1,7 +1,7 @@
 #ifndef __MESSAGE_SERIALIZER_H__
 #define __MESSAGE_SERIALIZER_H__
 #include <stddef.h>
-#include "message.h"
+#include "messages/message.h"
 
 /**
  * @brief Serializes a Message structure into a buffer.

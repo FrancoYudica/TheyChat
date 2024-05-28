@@ -17,6 +17,8 @@ typedef enum
 
 #define IS_NET_ERROR(X) ((X) != ERR_NET_OK)
 #define ASSERT_NET_ERROR(X) assert(!IS_NET_ERROR(X))
+#define IS_MAYOR_ERROR(X) ((X) != ERR_NET_OK && (X) != ERR_PEER_DISCONNECTED)
+
 // #define ASSERT_NET_ERROR(X) (if (IS_NET_ERROR(X)) print_error())
 
 typedef struct

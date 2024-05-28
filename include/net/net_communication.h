@@ -1,7 +1,7 @@
 #ifndef __NET_COMMUNICATION_H__
 #define __NET_COMMUNICATION_H__
 #include <assert.h>
-#include "message.h"
+#include "messages/message.h"
 #include "net_stream.h"
 #include "net_error.h"
 

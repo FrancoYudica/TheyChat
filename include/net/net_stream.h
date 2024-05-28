@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "message.h"
+#include "messages/message.h"
 
 
 /// @brief Structure to manage a network stream buffer.

@@ -1,4 +1,4 @@
-#include "file_message.h"
+#include "messages/file_message.h"
 
 void init_file_header_message(FileHeaderMsg *message, const char* name, uint32_t size)
 {

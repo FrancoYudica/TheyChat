@@ -3,8 +3,8 @@
 #include <stddef.h>
 #include <unistd.h>
 #include <thread_pool.h>
-#include "message.h"
-#include "message_types.h"
+#include "messages/message.h"
+#include "messages/message_types.h"
 #include "net/net_communication.h"
 #include "net/net_stream.h"
 #include "client_handler.h"
@@ -81,7 +81,8 @@ int main(int argc, char** argv)
     while(true)
     {
         struct sockaddr_in client_address;
-        // Accepts connection
+
+        // Accepts client connection
         int32_t client_sock_fd = accept(
             server.sockfd, 
             (struct sockaddr*)&client_address, 
@@ -103,12 +104,13 @@ int main(int argc, char** argv)
         if (thpool_all_threads_busy(thpool))
             send_message((Message*)client_on_queue_msg, client_sock_fd);
 
-        // Queues a new task
+        // Creates handler data and queues a new task
         ClientHandlerData *handler_data = (ClientHandlerData*)malloc(sizeof(ClientHandlerData));
         handler_data->server = &server;
         handler_data->client = client;
         thpool_submit(thpool, (thread_task_t)handle_client_task, handler_data);
     }
+
     if (close(server.sockfd) == -1)
         perror("close");
 

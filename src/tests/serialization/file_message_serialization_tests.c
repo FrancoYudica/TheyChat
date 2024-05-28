@@ -1,5 +1,5 @@
-#include "message.h"
-#include "message_types.h"
+#include "messages/message.h"
+#include "messages/message_types.h"
 #include "net/serialization/net_message_serializer.h"
 #include <stdio.h>
 #include <stdlib.h>

@@ -1,8 +1,8 @@
 #include <stdbool.h>
 #include <arpa/inet.h>
 #include <stdlib.h>
-#include "net_communication.h"
-#include "serialization/net_message_serializer.h"
+#include "net/net_communication.h"
+#include "net/serialization/net_message_serializer.h"
 
 
 ErrorCode send_message(const Message *msg, uint32_t socketfd)

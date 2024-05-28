@@ -1,6 +1,6 @@
-#include "net_serializer.h"
+#include "net/serialization/net_serializer.h"
 #include "arpa/inet.h"
-
+#include <string.h>
 
 void ns_push_byte_array(uint8_t **dest, const uint8_t *src, size_t src_size) 
 {

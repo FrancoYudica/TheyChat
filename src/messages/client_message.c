@@ -1,4 +1,4 @@
-#include "client_message.h"
+#include "messages/client_message.h"
 #include <stdlib.h>
 
 Bytes128Msg* create_client_connected()

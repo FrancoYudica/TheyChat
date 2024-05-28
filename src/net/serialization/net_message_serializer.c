@@ -1,6 +1,6 @@
-#include "net_message_serializer.h"
-#include "message_types.h"
-#include "net_serializer.h"
+#include "messages/message_types.h"
+#include "net/serialization/net_message_serializer.h"
+#include "net/serialization/net_serializer.h"
 
 
 

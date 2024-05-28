@@ -2,8 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "message.h"
-#include "message_types.h"
+#include "messages/message.h"
+#include "messages/message_types.h"
 #include "net/serialization/net_message_serializer.h"
 #include "net/net_communication.h"
 #include "pthread.h"
@@ -17,6 +17,7 @@ struct
     uint32_t sockfd;
     char username[128];
 } data;
+
 
 
 void connect_to_server()
@@ -84,6 +85,9 @@ ErrorCode chat_login()
         printf("%s", "Enter username: ");
         fgets(data.username, sizeof(data.username), stdin);
 
+        // Replaces '\n'
+        data.username[strlen(data.username) - 1] = '\0';
+
         // Sends message telling that the username
         UserLoginMsg *login_msg = create_user_login_msg(data.username);
         send_message((const Message*)login_msg, data.sockfd);
@@ -98,11 +102,11 @@ ErrorCode chat_login()
             return status;
         }
 
-        print_message(status_message);
+        print_message((Message*)status_message);
 
         if (status_message->status == STATUS_MSG_FAILURE)
         {
-            printf(status_message->text);
+            printf("%s\n", status_message->text);
         }
         else
         {

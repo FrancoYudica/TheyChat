@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <stddef.h>
-#include "message.h"
-#include "message_types.h"
+#include "messages/message.h"
+#include "messages/message_types.h"
 #include "net/net_communication.h"
 #include <unistd.h>
 

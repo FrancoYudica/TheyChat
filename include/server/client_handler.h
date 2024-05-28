@@ -9,6 +9,7 @@ typedef struct
 } ClientHandlerData;
 
 
+/// @brief Handles all client interactions
 void handle_client_task(ClientHandlerData *client_handler_data);
 
 #endif

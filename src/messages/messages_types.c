@@ -1,4 +1,4 @@
-#include "message_types.h"
+#include "messages/message_types.h"
 
 
 static uint32_t messages_sizes[] = {

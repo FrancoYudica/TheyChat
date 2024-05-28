@@ -1,5 +1,5 @@
-#include "message.h"
-#include "message_types.h"
+#include "messages/message.h"
+#include "messages/message_types.h"
 
 void print_message(Message *message)
 {

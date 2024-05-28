@@ -1,4 +1,5 @@
-#include "status_message.h"
+#include "messages/status_message.h"
+#include <stdlib.h>
 
 StatusMsg* create_status_msg(bool status, const char *text)
 {
