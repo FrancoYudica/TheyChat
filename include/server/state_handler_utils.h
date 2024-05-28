@@ -15,6 +15,4 @@ typedef struct
     Client *client;
 } ServerStateData;
 
-
-
 #endif

@@ -3,28 +3,28 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "messages/message.h"
+#include "common/application_states.h"
 #include "messages/message_types.h"
 #include "net/serialization/net_message_serializer.h"
 #include "net/net_communication.h"
+#include "client/client_data.h"
 #include "pthread.h"
+
 
 uint32_t server_port = 8000;
 char *server_ip = "127.0.0.1";
-NetworkStream network_stream;
 
-struct
-{
-    uint32_t sockfd;
-    char username[128];
-} data;
+extern ErrorCode handle_state_connect(ClientData *data, AppState *next_state);
+extern ErrorCode handle_state_login(ClientData *data, AppState *next_state);
+extern ErrorCode handle_state_chat(ClientData *data, AppState *next_state);
+extern ErrorCode handle_state_disconnect(ClientData *data, AppState *next_state);
 
 
-
-void connect_to_server()
+void connect_to_server(ClientData *data)
 {
     // Create TCP socket
-    data.sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (data.sockfd < 0) {
+    data->sockfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (data->sockfd < 0) {
         perror("socket creation failed");
         exit(EXIT_FAILURE);
     }
@@ -39,7 +39,7 @@ void connect_to_server()
     inet_pton(AF_INET, server_ip, &server_addr.sin_addr);
 
     // Establishes connection with server
-    int32_t connection_status = connect(data.sockfd, (const struct sockaddr*)&server_addr, sizeof(const struct sockaddr_in));
+    int32_t connection_status = connect(data->sockfd, (const struct sockaddr*)&server_addr, sizeof(const struct sockaddr_in));
     if (connection_status == -1)
     {
         perror("Unable to connect");
@@ -47,75 +47,8 @@ void connect_to_server()
     }
 }
 
-ErrorCode wait_in_queue()
-{
 
-    // Waits for connection
-    while (true)
-    {
-        Message *server_message;
-        ErrorCode status = wait_for_message(&network_stream, data.sockfd, &server_message);
-        assert(!IS_NET_ERROR(status));
 
-        // Client connected successfully;
-        if (server_message->header.type == MSGT_CLIENT_CONNECTED)
-        {
-            printf("%s\n", ((Bytes128Msg*)server_message)->bytes);
-            free(server_message);
-            break;
-        }
-
-        // Client in queue
-        if (server_message->header.type == MSGT_CLIENT_ON_QUEUE)
-            printf("%s\n", ((Bytes128Msg*)server_message)->bytes);
-        else
-            printf("Received unexpected file type %i\n", server_message->header.type);
-
-        free(server_message);
-    }
-    return ERR_NET_OK;
-
-}
-
-ErrorCode chat_login()
-{
-    while (true)
-    {
-        // Gets username
-        printf("%s", "Enter username: ");
-        fgets(data.username, sizeof(data.username), stdin);
-
-        // Replaces '\n'
-        data.username[strlen(data.username) - 1] = '\0';
-
-        // Sends message telling that the username
-        UserLoginMsg *login_msg = create_user_login_msg(data.username);
-        send_message((const Message*)login_msg, data.sockfd);
-        free(login_msg);
-
-        StatusMsg *status_message;
-        ErrorCode status = wait_for_message_type(&network_stream, data.sockfd, (Message**)&status_message, MSGT_STATUS);
-
-        if (IS_NET_ERROR(status))
-        {
-            printf("Didn't receive StatusMsg\n");
-            return status;
-        }
-
-        print_message((Message*)status_message);
-
-        if (status_message->status == STATUS_MSG_FAILURE)
-        {
-            printf("%s\n", status_message->text);
-        }
-        else
-        {
-            break;
-        }
-
-    }
-    return ERR_NET_OK;
-}
 
 int main(int argc, char** argv)
 {
@@ -142,42 +75,15 @@ int main(int argc, char** argv)
             printf("Unrecognized parameters (%s, %s)", parameter, argv[i]);
         }
     }
-
-    connect_to_server();
-
-    init_net_stream(&network_stream);
-
-    ASSERT_NET_ERROR(wait_in_queue());
-    ASSERT_NET_ERROR(chat_login());
+    ClientData data;
+    init_net_stream(&data.stream);
+    AppState state = APP_STATE_CHAT;
+    connect_to_server(&data);
 
 
-    Message *message = (Message*)create_user_chat_msg("Received message!", data.username);
-
-    while(true)
-    {
-        Message *server_message;
-        ErrorCode status = wait_for_message(&network_stream, data.sockfd, &server_message);
-
-        if (IS_NET_ERROR(status))
-        {
-            if (status == ERR_PEER_DISCONNECTED)
-                printf("Server disconnected\n");
-            else   
-                printf("Error code: %i\n", status);
-
-            break;
-        }
-        print_message(server_message);
-        free(server_message);
-        
-        send_message((const Message*)message, data.sockfd);
-        sleep(1);
-    }
-    free(message);
-    printf("Closing socket fd %d\n", data.sockfd);
-
-    if (close(data.sockfd) == -1)
-        perror("close");
-
+    ASSERT_NET_ERROR(handle_state_connect(&data, &state));
+    ASSERT_NET_ERROR(handle_state_login(&data, &state));
+    ASSERT_NET_ERROR(handle_state_chat(&data, &state));
+    handle_state_disconnect(&data, &state);
     return EXIT_SUCCESS;
 }
