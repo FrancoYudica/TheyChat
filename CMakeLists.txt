@@ -23,6 +23,7 @@ set(SOURCES
     src/server/client_handler.c
     src/net/net_communication.c
     src/net/net_stream.c
+    src/net/net_error.c
     src/net/serialization/net_serializer.c
     src/net/serialization/net_message_serializer.c
 )

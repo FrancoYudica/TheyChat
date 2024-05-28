@@ -43,14 +43,14 @@ int main()
     init_net_stream(&network_stream);
 
     Message *message;
-    net_status_t status;
+    ErrorCode status;
     while(1)
     {
         status = wait_for_message(&network_stream, sockfd, &message);
 
         if (IS_NET_ERROR(status))
         {
-            if (status == NET_ERROR_PEER_DISCONNECTED)
+            if (status == ERR_PEER_DISCONNECTED)
                 printf("Server disconnected\n");
             else   
                 printf("Error code: %i\n", status);

@@ -6,6 +6,7 @@
 #include "message_types.h"
 #include "net/serialization/net_message_serializer.h"
 #include "net/net_communication.h"
+#include "pthread.h"
 
 uint32_t server_port = 8000;
 char *server_ip = "127.0.0.1";
@@ -45,14 +46,14 @@ void connect_to_server()
     }
 }
 
-net_status_t wait_in_queue()
+ErrorCode wait_in_queue()
 {
 
     // Waits for connection
     while (true)
     {
         Message *server_message;
-        net_status_t status = wait_for_message(&network_stream, data.sockfd, &server_message);
+        ErrorCode status = wait_for_message(&network_stream, data.sockfd, &server_message);
         assert(!IS_NET_ERROR(status));
 
         // Client connected successfully;
@@ -71,10 +72,11 @@ net_status_t wait_in_queue()
 
         free(server_message);
     }
+    return ERR_NET_OK;
 
 }
 
-net_status_t chat_login()
+ErrorCode chat_login()
 {
     while (true)
     {
@@ -88,7 +90,7 @@ net_status_t chat_login()
         free(login_msg);
 
         StatusMsg *status_message;
-        net_status_t status = wait_for_message_type(&network_stream, data.sockfd, (Message**)&status_message, MSGT_STATUS);
+        ErrorCode status = wait_for_message_type(&network_stream, data.sockfd, (Message**)&status_message, MSGT_STATUS);
 
         if (IS_NET_ERROR(status))
         {
@@ -108,7 +110,7 @@ net_status_t chat_login()
         }
 
     }
-    return NET_SUCCESS;
+    return ERR_NET_OK;
 }
 
 int main(int argc, char** argv)
@@ -145,16 +147,16 @@ int main(int argc, char** argv)
     ASSERT_NET_ERROR(chat_login());
 
 
-    Message *message = (Message*)create_user_chat_msg("Received message!", "Unnamed client");
+    Message *message = (Message*)create_user_chat_msg("Received message!", data.username);
 
     while(true)
     {
         Message *server_message;
-        net_status_t status = wait_for_message(&network_stream, data.sockfd, &server_message);
+        ErrorCode status = wait_for_message(&network_stream, data.sockfd, &server_message);
 
         if (IS_NET_ERROR(status))
         {
-            if (status == NET_ERROR_PEER_DISCONNECTED)
+            if (status == ERR_PEER_DISCONNECTED)
                 printf("Server disconnected\n");
             else   
                 printf("Error code: %i\n", status);

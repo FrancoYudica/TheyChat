@@ -69,7 +69,7 @@ int main(int argc, char** argv)
     printf("SERVER: Listening. Waiting for client connections...\n");
     socklen_t client_len = sizeof(struct sockaddr_in);
 
-    thpool_t *thpool = thpool_create(1);
+    thpool_t *thpool = thpool_create(2);
 
     // Initializes client list
     server.client_list = client_list_create();
