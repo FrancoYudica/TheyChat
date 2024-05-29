@@ -1,4 +1,4 @@
-#include "client/state_handler_utils.h"
+#include "state_handler_utils.h"
 
 ErrorCode handle_state_connect(ClientData *data, AppState *next_state)
 {

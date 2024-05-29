@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
-#include "client/states_fsm.h"
+#include "states_fsm.h"
 #include "net/net_error.h"
 
 

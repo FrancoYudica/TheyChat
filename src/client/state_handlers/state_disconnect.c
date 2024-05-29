@@ -1,5 +1,5 @@
 #include <unistd.h>
-#include "client/state_handler_utils.h"
+#include "state_handler_utils.h"
 
 extern ErrorCode handle_state_disconnect(ClientData *data, AppState *_)
 {

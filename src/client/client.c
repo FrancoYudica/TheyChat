@@ -3,12 +3,12 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "messages/message.h"
-#include "common/application_states.h"
+#include "application_states.h"
 #include "messages/message_types.h"
 #include "net/serialization/net_message_serializer.h"
 #include "net/net_communication.h"
-#include "client/client_data.h"
-#include "client/states_fsm.h"
+#include "client_data.h"
+#include "states_fsm.h"
 
 typedef struct
 {

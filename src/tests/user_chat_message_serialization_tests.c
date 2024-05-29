@@ -10,18 +10,15 @@
 int main()
 {   
 
-    uint8_t serialized_message_buffer[1024];
-    size_t serialized_message_size;
-
     // Creates and prints ChatMessage
-    char chat_text[] = "Hey! How are you?";
-    UserChatMsg *chat_message = create_user_chat_msg(chat_text, "franco");
-
-    print_message((Message*)&chat_message);
+    UserChatMsg *chat_message = create_user_chat_msg("Hey! How are you?", "franco");
+    print_message((Message*)chat_message);
 
     // Serializes into buffer
     printf("SERIALIZING CHAT MESSAGE\n");
-    ns_serialize_message((Message*)&chat_message, serialized_message_buffer, &serialized_message_size);
+    uint8_t serialized_message_buffer[1024];
+    size_t serialized_message_size;
+    ns_serialize_message((Message*)chat_message, serialized_message_buffer, &serialized_message_size);
     printf("Serialized buffer size: %ld\n", serialized_message_size);
 
     // Deserializes and prints

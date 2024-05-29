@@ -1,11 +1,11 @@
-#include "server/client_handler.h"
-#include "server/client.h"
-#include "server/state_handler_utils.h"
+#include "client_handler.h"
+#include "client.h"
+#include "state_handler_utils.h"
 #include "net/net_stream.h"
 #include "net/net_communication.h"
 #include "messages/message_types.h"
 #include "pthread.h"
-#include "common/application_states.h"
+#include "application_states.h"
 
 // Used external state handler functions
 extern ErrorCode handle_state_connect(ServerStateData*, AppState*);
