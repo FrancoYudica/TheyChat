@@ -15,7 +15,6 @@ typedef struct
     char bytes[512];
 } Bytes512Msg;
 
-
 Bytes128Msg* create_client_connected();
 Bytes128Msg* create_client_on_queue();
 

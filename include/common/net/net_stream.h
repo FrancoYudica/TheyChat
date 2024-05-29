@@ -6,7 +6,6 @@
 #include <stdlib.h>
 #include "messages/message.h"
 
-
 /// @brief Structure to manage a network stream buffer.
 typedef struct
 {
@@ -17,14 +16,13 @@ typedef struct
     uint32_t written_bytes;
 } NetworkStream;
 
-
 /// @brief Initializes the network stream.
 ///
 /// This function sets up a NetworkStream by clearing its buffer and resetting
 /// the count of written bytes.
 ///
 /// @param ns Pointer to the NetworkStream to initialize.
-void init_net_stream(NetworkStream *ns);
+void init_net_stream(NetworkStream* ns);
 
 /// @brief Reads network stream and pops a message if possible.
 ///
@@ -34,7 +32,6 @@ void init_net_stream(NetworkStream *ns);
 ///
 /// @param ns Pointer to the NetworkStream to read from.
 /// @return Pointer to the parsed Message if a complete message is found, NULL otherwise.
-Message* stream_pop_message(NetworkStream *ns);
-
+Message* stream_pop_message(NetworkStream* ns);
 
 #endif

@@ -11,8 +11,8 @@
 /// for state handler, in order to handle client
 typedef struct
 {
-    Server *server;
-    Client *client;
+    Server* server;
+    Client* client;
 } ServerStateData;
 
 #endif

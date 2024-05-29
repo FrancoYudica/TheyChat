@@ -3,8 +3,9 @@
 #include "client_list.h" // Include the header file for the client list
 
 // Test creating a new client list
-bool test_create_client_list() {
-    ClientList *list = client_list_create();
+bool test_create_client_list()
+{
+    ClientList* list = client_list_create();
     bool passed = list != NULL;
     if (passed) {
         printf("Test: Creating a new client list... PASSED\n");
@@ -15,10 +16,11 @@ bool test_create_client_list() {
 }
 
 // Test adding a client to the list
-bool test_add_client() {
-    ClientList *list = client_list_create();
+bool test_add_client()
+{
+    ClientList* list = client_list_create();
     // Initialize client...
-    Client *client = client_list_add(list);
+    Client* client = client_list_add(list);
     bool passed = client_list_length(list) == 1;
     if (passed) {
         printf("Test: Adding a client to the list... PASSED\n");
@@ -31,10 +33,11 @@ bool test_add_client() {
 }
 
 // Test removing a client from the list
-bool test_remove_client() {
-    ClientList *list = client_list_create();
+bool test_remove_client()
+{
+    ClientList* list = client_list_create();
     // Initialize client...
-    Client *client = client_list_add(list);
+    Client* client = client_list_add(list);
     bool removed = client_list_remove(list, client->id);
     bool passed = removed && client_list_length(list) == 0;
     if (passed) {
@@ -48,11 +51,12 @@ bool test_remove_client() {
 }
 
 // Test finding a client by ID
-bool test_find_client_by_id() {
-    ClientList *list = client_list_create();
+bool test_find_client_by_id()
+{
+    ClientList* list = client_list_create();
     // Initialize client...
-    Client *client = client_list_add(list);
-    Client *found_client = client_list_find_by_id(list, client->id);
+    Client* client = client_list_add(list);
+    Client* found_client = client_list_find_by_id(list, client->id);
     bool passed = found_client != NULL;
     if (passed) {
         printf("Test: Finding a client by ID... PASSED\n");
@@ -66,12 +70,13 @@ bool test_find_client_by_id() {
 }
 
 // Test getting the length of the client list
-bool test_client_list_length() {
-    ClientList *list = client_list_create();
+bool test_client_list_length()
+{
+    ClientList* list = client_list_create();
 
     // Initialize client1...
-    Client *client1 = client_list_add(list);
-    Client *client2 = client_list_add(list);
+    Client* client1 = client_list_add(list);
+    Client* client2 = client_list_add(list);
 
     bool passed = client_list_length(list) == 2;
     if (passed) {
@@ -86,7 +91,8 @@ bool test_client_list_length() {
     return passed;
 }
 
-int main() {
+int main()
+{
     // Run the test cases
     bool passed_all = true;
     passed_all &= test_create_client_list();
@@ -94,7 +100,7 @@ int main() {
     passed_all &= test_remove_client();
     passed_all &= test_find_client_by_id();
     passed_all &= test_client_list_length();
-    
+
     if (passed_all) {
         printf("All tests PASSED\n");
     } else {

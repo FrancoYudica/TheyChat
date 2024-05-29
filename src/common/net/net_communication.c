@@ -4,8 +4,7 @@
 #include "net/net_communication.h"
 #include "net/serialization/net_message_serializer.h"
 
-
-ErrorCode send_message(const Message *msg, uint32_t socketfd)
+ErrorCode send_message(const Message* msg, uint32_t socketfd)
 {
     // Allocates memory for serialized message
     uint8_t serialized_message[1024];
@@ -18,18 +17,16 @@ ErrorCode send_message(const Message *msg, uint32_t socketfd)
     uint32_t total_bytes_sent = 0;
 
     // Sends until the entire buffer is sent
-    while(total_bytes_sent < serialized_buffer_size)
-    {
+    while (total_bytes_sent < serialized_buffer_size) {
         int32_t bytes_sent = send(socketfd, serialized_message + total_bytes_sent, serialized_buffer_size - total_bytes_sent, 0);
 
-        if (bytes_sent == -1)
-        {
+        if (bytes_sent == -1) {
             perror("`send` in `send_buffer_to_socketfd failed`");
             return ERR_SEND_FAIL;
         }
         total_bytes_sent += bytes_sent;
     }
-    
+
     return ERR_NET_OK;
 }
 
@@ -40,26 +37,23 @@ ErrorCode send_message(const Message *msg, uint32_t socketfd)
 static ErrorCode receive(NetworkStream* network_stream, uint32_t sockfd)
 {
     // Pointer to the free space
-    uint8_t *empty_region_ptr = network_stream->stream + network_stream->written_bytes;
+    uint8_t* empty_region_ptr = network_stream->stream + network_stream->written_bytes;
 
     // Amount of free space in bytes
     uint32_t empty_region_size = sizeof(network_stream->stream) - network_stream->written_bytes;
 
-    if (empty_region_size == 0)
-    {
+    if (empty_region_size == 0) {
         printf("WARNING: Trying to receive data in a full NetworkStream...\n");
         return ERR_NET_STREAM_OVERFLOW;
     }
 
     // Blocks current thread until it receives data
     int32_t bytes_read = recv(sockfd, empty_region_ptr, empty_region_size, 0);
-    
-    if (bytes_read == -1)
-    {
+
+    if (bytes_read == -1) {
         return ERR_RECEIVE_FAIL;
     }
-    if (bytes_read == 0)
-    {
+    if (bytes_read == 0) {
         return ERR_PEER_DISCONNECTED;
     }
 
@@ -68,16 +62,15 @@ static ErrorCode receive(NetworkStream* network_stream, uint32_t sockfd)
     return ERR_NET_OK;
 }
 
-ErrorCode wait_for_message(NetworkStream* network_stream, uint32_t sockfd, Message **message)
+ErrorCode wait_for_message(NetworkStream* network_stream, uint32_t sockfd, Message** message)
 {
 
     // Tries to pop message
     *message = stream_pop_message(network_stream);
-    
+
     // If no messages are popped
     // Receives data until a complete message arrives
-    while (*message == NULL)
-    {
+    while (*message == NULL) {
         ErrorCode receive_status = receive(network_stream, sockfd);
         if (IS_NET_ERROR(receive_status))
             return receive_status;
@@ -88,15 +81,14 @@ ErrorCode wait_for_message(NetworkStream* network_stream, uint32_t sockfd, Messa
     return ERR_NET_OK;
 }
 
-ErrorCode wait_for_message_type(NetworkStream* network_stream, uint32_t sockfd, Message **message, uint8_t type)
+ErrorCode wait_for_message_type(NetworkStream* network_stream, uint32_t sockfd, Message** message, uint8_t type)
 {
 
     ErrorCode status = wait_for_message(network_stream, sockfd, message);
     if (IS_NET_ERROR(status))
         return status;
 
-    if ((*message)->header.type != type)
-    {
+    if ((*message)->header.type != type) {
         printf("ERROR: Received unexpected message type. Expected %i, and received %i. ", type, (*message)->header.type);
         printf("Received message: ");
         print_message(*message);

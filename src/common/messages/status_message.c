@@ -1,15 +1,15 @@
 #include "messages/status_message.h"
 #include <stdlib.h>
 
-StatusMsg* create_status_msg(bool status, const char *text)
+StatusMsg* create_status_msg(bool status, const char* text)
 {
-    StatusMsg *msg = (StatusMsg*)malloc(sizeof(StatusMsg));
+    StatusMsg* msg = (StatusMsg*)malloc(sizeof(StatusMsg));
     msg->header.type = MSGT_STATUS;
     msg->header.payload_length = sizeof(msg->status) + sizeof(msg->text);
     msg->status = status;
 
     memset(msg->text, '\0', sizeof(msg->text));
-    
+
     if (text != NULL)
         strcpy(msg->text, text);
 

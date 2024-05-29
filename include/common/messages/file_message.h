@@ -26,9 +26,8 @@ typedef struct
     MessageHeader base;
 } FileEndMsg;
 
-
-void init_file_header_message(FileHeaderMsg *message, const char* name, uint32_t size);
-void init_file_content_message(FileContentMsg *message, const uint8_t *content, uint32_t size);
-void init_file_end_message(FileEndMsg *message);
+void init_file_header_message(FileHeaderMsg* message, const char* name, uint32_t size);
+void init_file_content_message(FileContentMsg* message, const uint8_t* content, uint32_t size);
+void init_file_end_message(FileEndMsg* message);
 
 #endif

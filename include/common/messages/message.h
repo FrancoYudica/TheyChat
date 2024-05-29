@@ -7,9 +7,7 @@
 #include <stdio.h>
 #include <arpa/inet.h>
 
-
-enum MessageTypes
-{
+enum MessageTypes {
     // User
     MSGT_USER_CHAT,
     MSGT_USER_LOGIN,
@@ -39,12 +37,11 @@ typedef struct
 } MessageHeader;
 
 /// @brief Message basic data layout
-typedef struct 
+typedef struct
 {
     MessageHeader header;
 } Message;
 
-
-void print_message(Message *message);
+void print_message(Message* message);
 
 #endif

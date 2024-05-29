@@ -5,13 +5,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-
-
 int main()
-{   
+{
 
     // Creates and prints ChatMessage
-    UserChatMsg *chat_message = create_user_chat_msg("Hey! How are you?", "franco");
+    UserChatMsg* chat_message = create_user_chat_msg("Hey! How are you?", "franco");
     print_message((Message*)chat_message);
 
     // Serializes into buffer
@@ -32,8 +30,6 @@ int main()
     correct &= chat_message->user_base.header.payload_length == deserialized_chat.user_base.header.payload_length;
     correct &= !strcmp(chat_message->user_base.username, deserialized_chat.user_base.username);
     correct &= !strcmp(chat_message->text, deserialized_chat.text);
-    
-    return !correct;
 
-    
+    return !correct;
 }

@@ -4,12 +4,11 @@
 
 typedef struct
 {
-    Server *server;
-    Client *client;
+    Server* server;
+    Client* client;
 } ClientHandlerData;
 
-
 /// @brief Handles all client interactions
-void handle_client_task(ClientHandlerData *client_handler_data);
+void handle_client_task(ClientHandlerData* client_handler_data);
 
 #endif

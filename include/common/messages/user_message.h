@@ -7,14 +7,12 @@ typedef struct
     char username[MAX_USERNAME_BYTES];
 } UserBaseMsg;
 
-
 /// @brief Message that contains information about usual chat
-typedef struct 
+typedef struct
 {
     UserBaseMsg user_base;
     char text[MAX_CHAT_TEXT_BYTES];
 } UserChatMsg;
-
 
 typedef struct
 {
@@ -22,7 +20,6 @@ typedef struct
 
 } UserLoginMsg;
 
-
 UserChatMsg* create_user_chat_msg(const char* text, const char* username);
 
-UserLoginMsg* create_user_login_msg(const char *username);
+UserLoginMsg* create_user_login_msg(const char* username);

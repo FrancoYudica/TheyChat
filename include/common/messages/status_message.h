@@ -16,6 +16,6 @@ typedef struct
     char text[64];
 } StatusMsg;
 
-StatusMsg* create_status_msg(bool status, const char *text);
+StatusMsg* create_status_msg(bool status, const char* text);
 
 #endif

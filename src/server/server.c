@@ -9,7 +9,6 @@
 #include "net/net_stream.h"
 #include "client_handler.h"
 
-
 int main(int argc, char** argv)
 {
 
@@ -19,12 +18,10 @@ int main(int argc, char** argv)
 
     // Loads arguments
     int i = 0;
-    while (++i < argc - 1)
-    {
+    while (++i < argc - 1) {
         char* parameter = argv[i++];
 
-        if (!strcmp(parameter, "--port"))
-        {
+        if (!strcmp(parameter, "--port")) {
             char* port_str = argv[i];
             server.port = atoi(port_str);
         }
@@ -49,19 +46,18 @@ int main(int argc, char** argv)
     server_addr.sin_family = AF_INET;
 
     // Sets the server ip to local ip
-    server_addr.sin_addr.s_addr = INADDR_ANY;   
+    server_addr.sin_addr.s_addr = INADDR_ANY;
     server_addr.sin_port = htons(server.port);
 
     // Bind socket to the server address
-    if (bind(server.sockfd, (const struct sockaddr *)&server_addr, sizeof(server_addr)) < 0) {
+    if (bind(server.sockfd, (const struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
         perror("bind failed");
         exit(EXIT_FAILURE);
     }
 
     // Sets socket in passive mode, allowing future connections
     // in the previously bound port
-    if (listen(server.sockfd, 1) == -1)
-    {
+    if (listen(server.sockfd, 1) == -1) {
         perror("Listen failed");
         exit(EXIT_FAILURE);
     }
@@ -69,33 +65,31 @@ int main(int argc, char** argv)
     printf("SERVER: Listening. Waiting for client connections...\n");
     socklen_t client_len = sizeof(struct sockaddr_in);
 
-    thpool_t *thpool = thpool_create(2);
+    thpool_t* thpool = thpool_create(2);
 
     // Initializes client list
     server.client_list = client_list_create();
 
     // Message sent to client in case there aren't any free
     // threads, and stays in client queue
-    Bytes128Msg *client_on_queue_msg = create_client_on_queue();
+    Bytes128Msg* client_on_queue_msg = create_client_on_queue();
 
-    while(true)
-    {
+    while (true) {
         struct sockaddr_in client_address;
 
         // Accepts client connection
         int32_t client_sock_fd = accept(
-            server.sockfd, 
-            (struct sockaddr*)&client_address, 
-            &client_len
-        );
-    
+            server.sockfd,
+            (struct sockaddr*)&client_address,
+            &client_len);
+
         if (client_sock_fd == -1) {
             perror("accept failed");
             break;
         }
 
         // Registers client
-        Client *client = client_list_add(server.client_list);
+        Client* client = client_list_add(server.client_list);
 
         // Initializes client network data
         init_client_network(client, &client_address, client_sock_fd);
@@ -105,7 +99,7 @@ int main(int argc, char** argv)
             send_message((Message*)client_on_queue_msg, client_sock_fd);
 
         // Creates handler data and queues a new task
-        ClientHandlerData *handler_data = (ClientHandlerData*)malloc(sizeof(ClientHandlerData));
+        ClientHandlerData* handler_data = (ClientHandlerData*)malloc(sizeof(ClientHandlerData));
         handler_data->server = &server;
         handler_data->client = client;
         thpool_submit(thpool, (thread_task_t)handle_client_task, handler_data);

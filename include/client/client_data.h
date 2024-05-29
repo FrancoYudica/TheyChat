@@ -12,5 +12,4 @@ typedef struct
     NetworkStream stream;
 } ClientData;
 
-
 #endif

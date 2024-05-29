@@ -20,19 +20,17 @@ static void server_states_handler_fsm(ServerStateData* state_data, AppState init
     AppState curent_state = initial_state;
 
     // Function pointer of currently used state handler function
-    ErrorCode(*handler)(ServerStateData*, AppState*);
+    ErrorCode (*handler)(ServerStateData*, AppState*);
 
-    while (true)
-    {
+    while (true) {
         printf("Client %d entered state: ", state_data->client->id);
         // Gets next state handler
-        switch (curent_state)
-        {
+        switch (curent_state) {
         case APP_STATE_CONNECT:
             handler = handle_state_connect;
             printf("%s\n", "CONNECT");
             break;
-        
+
         case APP_STATE_LOGIN:
             handler = handle_state_login;
             printf("%s\n", "LOGIN");
@@ -60,15 +58,13 @@ static void server_states_handler_fsm(ServerStateData* state_data, AppState init
         ErrorCode error = handler(state_data, &next_state);
 
         // Manually sets disconnect state if there is any error
-        if (IS_NET_ERROR(error))
-        {
+        if (IS_NET_ERROR(error)) {
             printf("Net error code: %i\n", error);
             curent_state = APP_STATE_DISCONNECT;
         }
 
         // In case the handler didn't set the next state
-        else if (next_state == APP_STATE_NULL)
-        {
+        else if (next_state == APP_STATE_NULL) {
             printf("Forgot to set next_state in state handler of type %i\n", curent_state);
             exit(EXIT_FAILURE);
         }
@@ -76,12 +72,10 @@ static void server_states_handler_fsm(ServerStateData* state_data, AppState init
         // Usual case where all things were right
         else
             curent_state = next_state;
-
     }
 }
 
-
-void handle_client_task(ClientHandlerData *handler_data)
+void handle_client_task(ClientHandlerData* handler_data)
 {
 
     // Sets up state data
@@ -95,6 +89,3 @@ void handle_client_task(ClientHandlerData *handler_data)
     // Handle states
     server_states_handler_fsm(&state_data, APP_STATE_CONNECT);
 }
-
-
-

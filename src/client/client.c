@@ -13,13 +13,11 @@
 typedef struct
 {
     uint32_t port;
-    char *server_ip;
+    char* server_ip;
 } ConnectionDetails;
 
-
 /// @brief Sets up socket connection with server
-void connect_to_server(const ConnectionDetails *connection_details, ClientData *data);
-
+void connect_to_server(const ConnectionDetails* connection_details, ClientData* data);
 
 int main(int argc, char** argv)
 {
@@ -30,12 +28,10 @@ int main(int argc, char** argv)
 
     // Loads arguments
     int i = 0;
-    while (++i < argc - 1)
-    {
+    while (++i < argc - 1) {
         char* parameter = argv[i++];
 
-        if (!strcmp(parameter, "--port"))
-        {
+        if (!strcmp(parameter, "--port")) {
             char* port_str = argv[i];
             connection_details.port = atoi(port_str);
         }
@@ -43,8 +39,7 @@ int main(int argc, char** argv)
         else if (!strcmp(parameter, "--server_ip"))
             connection_details.server_ip = argv[i];
 
-        else
-        {
+        else {
             printf("Unrecognized parameters (%s, %s)", parameter, argv[i]);
         }
     }
@@ -61,8 +56,7 @@ int main(int argc, char** argv)
     return EXIT_SUCCESS;
 }
 
-
-void connect_to_server(const ConnectionDetails *connection_details, ClientData *data)
+void connect_to_server(const ConnectionDetails* connection_details, ClientData* data)
 {
     // Create TCP socket
     data->sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -82,8 +76,7 @@ void connect_to_server(const ConnectionDetails *connection_details, ClientData *
 
     // Establishes connection with server
     int32_t connection_status = connect(data->sockfd, (const struct sockaddr*)&server_addr, sizeof(const struct sockaddr_in));
-    if (connection_status == -1)
-    {
+    if (connection_status == -1) {
         perror("Unable to connect");
         exit(EXIT_FAILURE);
     }

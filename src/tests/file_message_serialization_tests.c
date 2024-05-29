@@ -5,10 +5,8 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-
-
 int main()
-{   
+{
 
     uint8_t serialized_message_buffer[1024];
     size_t serialized_message_size;
@@ -32,6 +30,4 @@ int main()
     correct &= !strcmp(original_msg.name, deserialized_msg.name);
     correct &= original_msg.size == deserialized_msg.size;
     return !correct;
-
-    
 }

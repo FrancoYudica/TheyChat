@@ -4,8 +4,7 @@
 #include <stdint.h>
 
 /// @brief Type used to retrieve status after network operations
-typedef enum
-{
+typedef enum {
     ERR_NET_OK = 0,
     ERR_PEER_DISCONNECTED,
     ERR_SEND_FAIL,
@@ -13,7 +12,6 @@ typedef enum
     ERR_RECEIVED_INVALID_TYPE,
     ERR_NET_STREAM_OVERFLOW
 } ErrorCode;
-
 
 #define IS_NET_ERROR(X) ((X) != ERR_NET_OK)
 #define ASSERT_NET_ERROR(X) assert(!IS_NET_ERROR(X))
@@ -24,16 +22,15 @@ typedef enum
 typedef struct
 {
     ErrorCode code;
-    const char *message;
-    const char *file;
+    const char* message;
+    const char* file;
     uint32_t line;
 } NetError;
 
 // Function prototypes
-NetError create_error(ErrorCode code, const char *message, const char *file, int line);
-void print_error(const NetError *err);
+NetError create_error(ErrorCode code, const char* message, const char* file, int line);
+void print_error(const NetError* err);
 
 #define CREATE_ERROR(code, msg) create_error((code), (msg), __FILE__, __LINE__)
-
 
 #endif
