@@ -1,3 +1,4 @@
+// Includes all the common dependencies of the state handlers
 #ifndef __CLIENT_STATE_HANDLER_UTILS_H__
 #define __CLIENT_STATE_HANDLER_UTILS_H__
 #include "messages/message_types.h"

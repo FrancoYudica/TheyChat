@@ -61,6 +61,7 @@ target_link_libraries(server PRIVATE chat_lib)
 # Creates client executable -----------------------------------------------------
 # Specific sources for server
 set(CLIENT_SOURCES
+    src/client/states_fsm.c
     src/client/state_handlers/state_connect.c
     src/client/state_handlers/state_login.c
     src/client/state_handlers/state_chat.c

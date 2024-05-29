@@ -34,6 +34,7 @@ ErrorCode handle_state_connect(ClientData *data, AppState *next_state)
     StatusMsg *status_message = create_status_msg(true, "");
     ErrorCode status = send_message((const Message*)status_message, data->sockfd);
     free(status_message);
+    *next_state = APP_STATE_LOGIN;
     return status;
 
 }
