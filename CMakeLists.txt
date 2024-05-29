@@ -73,7 +73,6 @@ target_include_directories(client PRIVATE "${PROJECT_SOURCE_DIR}/include/client"
 target_link_libraries(client PRIVATE chat_lib)
 
 # Creates test executables ------------------------------------------------------
-# Enable testing
 enable_testing()
 
 # Set output directory for test executables

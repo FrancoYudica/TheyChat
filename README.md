@@ -1,58 +1,90 @@
-# Chat Application
+# They Chat
 
-Welcome to our chat application project! This project aims to develop a simple yet powerful chat application that facilitates communication between users over TCP connections. With features like user authentication, message encryption, and file transfer, our goal is to provide a seamless chatting experience.
+## Overview
+
+TheyChat is a client-server chat application developed solely by me. The application allows multiple clients to connect to a server, join chat rooms, exchange messages, and transfer files. The project is built using CMake and is designed to run on POSIX systems, utilizing pthreads for multithreading and ncurses for a simple client UI. Communication between the client and server is encrypted using SSL.
 
 ## Features
 
-- **User Authentication:** Secure login system to authenticate users and protect their identities.
-- **Real-time Messaging:** Instant messaging functionality for real-time communication between users.
-- **File Transfer:** Ability to send and receive files securely within the chat interface.
-- **Message Encryption:** End-to-end encryption to ensure privacy and security of messages.
-- **Group Chat:** Support for group conversations, allowing multiple users to chat simultaneously.
-
-## Technologies Used
-
-- **C Programming Language:** Core language used for implementing the chat application.
-- **TCP/IP:** Communication protocol for transmitting data over the network.
-- **Cryptography:** Libraries or algorithms for message encryption and decryption.
-- **Multi-threading:** Utilization of multi-threading for handling multiple connections concurrently.
-- **File I/O:** Reading and writing files for storing user data and chat history.
-- **Makefile:** Building and managing the project with Makefile.
+- **Multithreaded Server**: Handles multiple clients concurrently using pthreads.
+- **Client UI**: Simple text-based interface built with ncurses.
+- **Encrypted Communication**: Ensures secure message and file transfer using SSL.
+- **Cross-platform**: Designed to run on POSIX-compliant systems.
+- **File Transfer**: Supports sending and receiving files between clients.
+- **CMake Build System**: Easy to build and manage the project.
+- **MIT Licensed**: Open-source and freely available for modification and distribution.
 
 ## Getting Started
 
-To get started with the chat application, follow these steps:
+### Prerequisites
 
-1. **Clone the Repository:**
-git clone <repository-url>
+- POSIX-compliant system (Linux, macOS, etc.)
+- CMake
+- OpenSSL
+- ncurses
 
+### Building the Project
 
-2. **Build the Project:**  
-cd chat-application make
+1. Clone the repository:
+    ```sh
+    git clone https://github.com/FrancoYudica/TheyChat.git
+    cd TheyChat
+    ```
 
-3. **Run the Application:**  
-./chat
+2. Create a build directory and navigate into it:
+    ```sh
+    mkdir build
+    cd build
+    ```
 
+3. Run CMake to configure the project:
+    ```sh
+    cmake ..
+    ```
 
-4. **Connect and Start Chatting:**  
-- Launch the chat application.
-- Enter your username and password to log in.
-- Start chatting with other users or join group conversations.
+4. Build the project:
+    ```sh
+    make
+    ```
 
-## Contributing
+### Running the Server
 
-We welcome contributions from the community to improve and enhance the chat application. If you'd like to contribute, please follow these steps:
+1. Navigate to the build directory:
+    ```sh
+    cd build
+    ```
 
-1. Fork the repository.
-2. Create a new branch (`git checkout -b feature/improvement`).
-3. Make your changes and commit them (`git commit -am 'Add new feature'`).
-4. Push your changes to the branch (`git push origin feature/improvement`).
-5. Create a new Pull Request.
+2. Run the server executable:
+    ```sh
+    ./server
+    ```
+
+### Running the Client
+
+1. Open a new terminal and navigate to the build directory:
+    ```sh
+    cd build
+    ```
+
+2. Run the client executable:
+    ```sh
+    ./client
+    ```
+
+## Usage
+
+- **Server**: The server application listens for incoming client connections, manages chat rooms, and handles message and file transfers.
+- **Client**: The client application connects to the server, allowing users to join chat rooms, send and receive messages, and transfer files.
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE).
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## Acknowledgements
+
+- [ncurses](https://invisible-island.net/ncurses/)
+- [OpenSSL](https://www.openssl.org/)
 
 ## Contact
 
-For any inquiries or feedback, please contact us at [email@example.com](mailto:email@example.com).
+If you have any questions or suggestions, feel free to contact me via GitHub.

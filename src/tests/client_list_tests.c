@@ -64,7 +64,7 @@ bool test_find_client_by_id()
         printf("Test: Finding a client by ID... FAILED\n");
     }
     // Clean up resources...
-    client_list_remove(list, client);
+    client_list_remove(list, client->id);
     client_list_destroy(list);
     return passed;
 }
@@ -85,8 +85,8 @@ bool test_client_list_length()
         printf("Test: Getting the length of the client list... FAILED\n");
     }
     // Clean up resources...
-    client_list_remove(list, client1);
-    client_list_remove(list, client2);
+    client_list_remove(list, client1->id);
+    client_list_remove(list, client2->id);
     client_list_destroy(list);
     return passed;
 }
