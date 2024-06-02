@@ -23,6 +23,7 @@ set(COMMON_SOURCES
     src/common/net/net_communication.c
     src/common/net/net_stream.c
     src/common/net/net_error.c
+    src/common/net/file_transfer.c
     src/common/net/serialization/net_serializer.c
     src/common/net/serialization/net_message_serializer.c
 )

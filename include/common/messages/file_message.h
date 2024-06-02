@@ -18,6 +18,10 @@ typedef struct
 typedef struct
 {
     MessageHeader base;
+
+    /// @brief Size in bytes of the actual content. This is necessary
+    /// since the last FileContentMsg won't fill the entire binary_payload buffer
+    uint32_t content_size;
     uint8_t binary_payload[512];
 } FileContentMsg;
 
@@ -26,8 +30,8 @@ typedef struct
     MessageHeader base;
 } FileEndMsg;
 
-void init_file_header_message(FileHeaderMsg* message, const char* name, uint32_t size);
-void init_file_content_message(FileContentMsg* message, const uint8_t* content, uint32_t size);
-void init_file_end_message(FileEndMsg* message);
+FileHeaderMsg* create_file_header_message(const char* name, uint32_t size);
+FileContentMsg* create_file_content_message(const uint8_t* content, uint32_t size);
+FileEndMsg* create_file_end_message();
 
 #endif

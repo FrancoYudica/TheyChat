@@ -33,6 +33,10 @@ enum MessageTypes {
 typedef struct
 {
     uint8_t type;
+
+    /// @brief Length in bytes of the message payload.
+    /// stores the total size of all the fields of the message
+    /// added, without considering padding.
     uint32_t payload_length;
 } MessageHeader;
 

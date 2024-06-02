@@ -8,7 +8,7 @@ void ns_serialize_message(const Message* message, uint8_t* buffer, size_t* buffe
 
     // Serializes message type
     ns_push_byte_array(&buffer_ptr, &message->header.type, sizeof(message->header.type));
-    ns_push_long(&buffer_ptr, &message->header.payload_length, sizeof(message->header.payload_length));
+    ns_push_long(&buffer_ptr, &message->header.payload_length);
 
     // Serializes properties for the corresponding message type
     switch (message->header.type) {
@@ -28,9 +28,17 @@ void ns_serialize_message(const Message* message, uint8_t* buffer, size_t* buffe
     case MSGT_FILE_HEADER: {
         FileHeaderMsg* file_message = (FileHeaderMsg*)message;
         ns_push_byte_array(&buffer_ptr, (const uint8_t*)file_message->name, sizeof(file_message->name));
-        ns_push_long(&buffer_ptr, &file_message->size, sizeof(file_message->size));
+        ns_push_long(&buffer_ptr, &file_message->size);
         break;
     }
+    case MSGT_FILE_CONTENT: {
+        FileContentMsg* file_message = (FileContentMsg*)message;
+        ns_push_long(&buffer_ptr, (const uint32_t*)&file_message->content_size);
+        ns_push_byte_array(&buffer_ptr, (const uint8_t*)file_message->binary_payload, sizeof(file_message->binary_payload));
+        break;
+    }
+    case MSGT_FILE_END:
+        break;
 
     case MSGT_CLIENT_CONNECTED:
     case MSGT_CLIENT_ON_QUEUE: {
@@ -64,7 +72,7 @@ void ns_deserialize_message(const uint8_t* buffer, Message* message)
     ns_pop_byte_array(&buffer_ptr, &message->header.type, sizeof(message->header.type));
 
     // Pops payload length
-    ns_pop_long(&buffer_ptr, &message->header.payload_length, sizeof(message->header.payload_length));
+    ns_pop_long(&buffer_ptr, &message->header.payload_length);
 
     // Serializes properties for the corresponding message type
     switch (message->header.type) {
@@ -84,7 +92,7 @@ void ns_deserialize_message(const uint8_t* buffer, Message* message)
     case MSGT_FILE_HEADER: {
         FileHeaderMsg* file_message = (FileHeaderMsg*)message;
         ns_pop_byte_array(&buffer_ptr, (uint8_t*)file_message->name, sizeof(file_message->name));
-        ns_pop_long(&buffer_ptr, &file_message->size, sizeof(file_message->size));
+        ns_pop_long(&buffer_ptr, &file_message->size);
         break;
     }
 
