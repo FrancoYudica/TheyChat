@@ -1,12 +1,13 @@
+#include <pthread.h>
 #include "state_handler_utils.h"
+#include "broadcast_message.h"
 
 ErrorCode handle_state_chat(ServerStateData* handler_data, AppState* next_state)
 {
     Client* client = handler_data->client;
+
     UserChatMsg* msg = create_user_chat_msg("Hey!", "SERVER");
-
     ErrorCode error = ERR_NET_OK;
-
     while (true) {
         ErrorCode send_status = send_message((const Message*)msg, client->sockfd);
 

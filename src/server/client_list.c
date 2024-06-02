@@ -13,6 +13,7 @@ typedef struct Node {
 struct ClientList {
     Node* front;
     Node* rear;
+    Node* iterator_node;
     size_t element_size;
     size_t size;
     uint32_t next_client_id;
@@ -40,6 +41,7 @@ void client_list_destroy(ClientList* client_list)
         free(current);
         current = next;
     }
+    client_list->iterator_node = NULL;
     free(client_list);
 }
 
@@ -100,6 +102,8 @@ bool client_list_remove(ClientList* client_list, uint32_t client_id)
             else {
                 previous->next = current->next;
             }
+            if (current == client_list->iterator_node)
+                client_list->iterator_node = current->next;
 
             // Frees node, alongside with client
             free(current);
@@ -139,4 +143,22 @@ Client* client_list_find_by_id(ClientList* client_list, uint32_t client_id)
 size_t client_list_length(ClientList* client_list)
 {
     return client_list->size;
+}
+
+Client* client_list_interator_next(ClientList* client_list)
+{
+    if (client_list->size == 0)
+        return NULL;
+
+    Node* current = client_list->iterator_node;
+    if (current == NULL)
+        return NULL;
+
+    client_list->iterator_node = current->next;
+    return &current->client;
+}
+
+void client_list_interator_rewind(ClientList* client_list)
+{
+    client_list->iterator_node = client_list->front;
 }

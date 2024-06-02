@@ -79,9 +79,9 @@ void handle_client_task(ClientHandlerData* handler_data)
 {
 
     // Sets up state data
-    ServerStateData state_data;
-    state_data.client = handler_data->client;
-    state_data.server = handler_data->server;
+    ServerStateData state_data = create_server_data(
+        handler_data->server,
+        handler_data->client);
 
     // handler_data it's no longer used
     free(handler_data);

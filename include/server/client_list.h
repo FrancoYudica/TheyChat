@@ -59,4 +59,17 @@ Client* client_list_find_by_id(ClientList* client_list, uint32_t client_id);
  */
 size_t client_list_length(ClientList* client_list);
 
+/**
+ * @brief Advances and returns client list iterator
+ *
+ * @param client_list The client list.
+ *
+ * @return Next client in the iterator.
+ */
+Client* client_list_interator_next(ClientList* client_list);
+
+/// @brief Sets the client iterator pointer to the front of the list
+/// @param client_list
+void client_list_interator_rewind(ClientList* client_list);
+
 #endif // __DS_CLIENT_LIST_H__

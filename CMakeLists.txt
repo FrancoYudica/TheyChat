@@ -49,6 +49,8 @@ set(SERVER_SOURCES
     src/server/client.c
     src/server/client_list.c
     src/server/client_handler.c
+    src/server/server_state_data.c
+    src/server/broadcast_message.c
     src/server/state_handlers/state_connect.c
     src/server/state_handlers/state_login.c
     src/server/state_handlers/state_chat.c

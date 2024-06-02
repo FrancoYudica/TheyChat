@@ -6,13 +6,5 @@
 #include "net/net_error.h"
 #include "server.h"
 #include "client.h"
-
-/// @brief Holds all the relevant information
-/// for state handler, in order to handle client
-typedef struct
-{
-    Server* server;
-    Client* client;
-} ServerStateData;
-
+#include "server_state_data.h"
 #endif

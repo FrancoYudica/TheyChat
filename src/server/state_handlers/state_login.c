@@ -1,4 +1,5 @@
 #include "state_handler_utils.h"
+#include "broadcast_message.h"
 
 ErrorCode handle_state_login(ServerStateData* handler_data, AppState* next_state)
 {
@@ -40,6 +41,15 @@ ErrorCode handle_state_login(ServerStateData* handler_data, AppState* next_state
         return status;
 
     free(status_msg);
+
+    // Tells all the clients that a new client connected
+    {
+        char text[128];
+        sprintf(text, "Used named \"%s\" logged in!", client->name);
+        UserChatMsg* msg = create_user_chat_msg(text, "SERVER");
+        send_broadcast((const Message*)msg, handler_data);
+        free(msg);
+    }
 
     printf("Client %d logged in with username %s\n", client->id, client->name);
     *next_state = APP_STATE_CHAT;
