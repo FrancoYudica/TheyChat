@@ -57,7 +57,7 @@ int main(int argc, char** argv)
 
     // Sets socket in passive mode, allowing future connections
     // in the previously bound port
-    if (listen(server.sockfd, 1) == -1) {
+    if (listen(server.sockfd, 5) == -1) {
         perror("Listen failed");
         exit(EXIT_FAILURE);
     }
@@ -89,7 +89,9 @@ int main(int argc, char** argv)
         }
 
         // Registers client
+        pthread_mutex_lock(&server.client_list_mutex);
         Client* client = client_list_add(server.client_list);
+        pthread_mutex_unlock(&server.client_list_mutex);
 
         // Initializes client network data
         init_client_network(client, &client_address, client_sock_fd);

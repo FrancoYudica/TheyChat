@@ -96,6 +96,7 @@ bool client_list_remove(ClientList* client_list, uint32_t client_id)
             // When current is rear
             else if (current == client_list->rear) {
                 previous->next = NULL;
+                client_list->rear = previous;
             }
 
             // When current is inside the edges of the list
@@ -154,7 +155,9 @@ Client* client_list_interator_next(ClientList* client_list)
     if (current == NULL)
         return NULL;
 
+    // Advances
     client_list->iterator_node = current->next;
+
     return &current->client;
 }
 
