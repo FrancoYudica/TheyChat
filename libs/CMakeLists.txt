@@ -1,4 +1,4 @@
-# Add the thread_pool library -----------------------------------------
+# Add the thread_pool library ----------------------------------------
 add_subdirectory(thread_pool)
 
 # Create a combined library for all dependencies
@@ -15,3 +15,8 @@ include_directories(${CURSES_INCLUDE_DIR})
 
 # Link the combined library to the new project executable
 target_link_libraries(dependencies_lib INTERFACE ${CURSES_LIBRARIES})
+
+# Add OpenSSL library ------------------------------------------------
+find_package(OpenSSL REQUIRED)
+include_directories(${OPENSSL_INCLUDE_DIR})
+target_link_libraries(dependencies_lib INTERFACE ${OPENSSL_LIBRARIES})
