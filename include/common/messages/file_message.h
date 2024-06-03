@@ -2,6 +2,9 @@
 #define __FILE_MESSAGE_H__
 #include "message.h"
 
+/// Amount of actual content bytes sent
+#define FILE_CONTENT_SIZE 512
+
 /// @brief Stores descriptive data of the file
 typedef struct
 {
@@ -22,7 +25,7 @@ typedef struct
     /// @brief Size in bytes of the actual content. This is necessary
     /// since the last FileContentMsg won't fill the entire binary_payload buffer
     uint32_t content_size;
-    uint8_t binary_payload[512];
+    uint8_t binary_payload[FILE_CONTENT_SIZE];
 } FileContentMsg;
 
 typedef struct

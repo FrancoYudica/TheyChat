@@ -1,71 +1,108 @@
 #include "net/file_transfer.h"
 #include "net/net_communication.h"
+#include <unistd.h>
 
 ErrorCode send_file(const char* filepath, uint32_t sockfd)
 {
 
-    // // Opens file
-    // FILE* file = fopen(filepath, "rb");
-    // if (file == NULL) {
-    //     perror("Error opening file");
-    //     exit(1);
-    // }
+    // Opens file
+    FILE* file = fopen(filepath, "rb");
+    if (file == NULL) {
+        perror("Error opening file");
+        return ERR_OPEN_FILE;
+    }
 
-    // // Calculates file size in bytes
-    // fseek(file, 0, SEEK_END);
-    // size_t file_size = ftell(file);
-    // fseek(file, 0, SEEK_SET);
+    // Calculates file size in bytes
+    fseek(file, 0, SEEK_END);
+    size_t file_size = ftell(file);
+    fseek(file, 0, SEEK_SET);
 
-    // char buffer[BUFFER_SIZE];
+    ErrorCode err = ERR_NET_OK;
 
-    // // Sends to client the header: filename/byte_size
-    // sprintf(buffer, "%s/%ld", filename, file_size);
-    // if (send(client_sockfd, buffer, strlen(buffer), 0) == -1) {
-    //     perror("Error sending file");
-    //     exit(EXIT_FAILURE);
-    // }
+    // Sends header
+    {
+        FileHeaderMsg* header = create_file_header_message("file", file_size);
+        err = send_message(header, sockfd);
 
-    // // Waits for header acknowledgment
-    // char ack;
-    // if (recv(client_sockfd, &ack, sizeof(ack), MSG_WAITALL) <= 0) {
-    //     perror("recv acknowledgment");
-    //     fclose(file);
-    //     exit(EXIT_FAILURE);
-    // }
+        if (IS_NET_ERROR(err)) {
+            fclose(file);
+            return err;
+        }
 
-    // printf("Sending file \"%s\" of size %ld\n", filename, file_size);
+        free(header);
+    }
 
-    // // Amount of bytes read from the file
-    // size_t bytes_read;
+    printf("Sending file \"%s\" of size %ld\n", filepath, file_size);
 
-    // do {
-    //     // Reads the file
-    //     bytes_read = fread(buffer, 1, sizeof(buffer), file);
+    uint8_t buffer[FILE_CONTENT_SIZE];
 
-    //     // Ensures that all bytes are sent by looping
-    //     size_t total_bytes_sent = 0;
-    //     while (total_bytes_sent < bytes_read) {
-    //         size_t bytes_sent = send(client_sockfd, buffer + total_bytes_sent, bytes_read - total_bytes_sent, 0);
-    //         if (bytes_sent == -1) {
-    //             perror("Error sending file");
-    //             fclose(file);
-    //             exit(1);
-    //         }
-    //         total_bytes_sent += bytes_sent;
-    //     }
+    // Amount of bytes read from the file
+    size_t bytes_read;
+    do {
+        // Reads the file
+        bytes_read = fread(buffer, 1, sizeof(buffer), file);
 
-    // } while (bytes_read > 0);
-    // printf("File sent!\n");
-    // fclose(file);
+        // Creates content message
+        FileContentMsg* content_msg = create_file_content_message((const uint8_t*)buffer, bytes_read);
 
-    return ERR_NET_OK;
+        // Sends content
+        err = send_message(content_msg, sockfd);
+
+        if (IS_NET_ERROR(err))
+            break;
+
+    } while (bytes_read > 0);
+
+    fclose(file);
+
+    return err;
 }
 bool file_exists(const char* filepath)
 {
-    return false;
+    return access(filepath, F_OK);
 }
 
 ErrorCode receive_file(uint32_t sockfd)
 {
-    return ERR_NET_OK;
+
+    char buffer[FILE_CONTENT_SIZE];
+    size_t file_size;
+
+    NetworkStream stream;
+    init_net_stream(&stream);
+
+    // Waits for header
+    FileHeaderMsg* header;
+    ErrorCode err = wait_for_message_type(&stream, sockfd, (Message*)&header, MSGT_FILE_HEADER);
+
+    if (IS_NET_ERROR(err))
+        return err;
+
+    printf("Receiving file \"%s\" of size %ld\n", header->name, header->size);
+
+    // Create file locally
+    FILE* file = fopen(header->name, "wb");
+    if (file == NULL) {
+        perror("Error opening file");
+        return ERR_OPEN_FILE;
+    }
+
+    // Receives all the bytes
+    size_t total_bytes_received = 0;
+    while (total_bytes_received < header->size) {
+        FileContentMsg* content;
+        err = wait_for_message_type(&stream, sockfd, &content, MSGT_FILE_CONTENT);
+
+        if (IS_NET_ERROR(err))
+            break;
+
+        total_bytes_received += content->content_size;
+
+        // Writes received content into file
+        fwrite(content->binary_payload, 1, content->content_size, file);
+    }
+
+    fclose(file);
+
+    return err;
 }
