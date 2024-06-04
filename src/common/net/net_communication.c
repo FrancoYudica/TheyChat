@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <arpa/inet.h>
 #include <stdlib.h>
+#include "net/network.h"
 #include "net/net_communication.h"
 #include "net/serialization/net_message_serializer.h"
 
@@ -17,9 +18,9 @@ ErrorCode send_message(const Message* msg, uint32_t socketfd)
     uint32_t total_bytes_sent = 0;
 
     // Sends until the entire buffer is sent
+    printf("send_message to socket%d\n", socketfd);
     while (total_bytes_sent < serialized_buffer_size) {
         int32_t bytes_sent = send(socketfd, serialized_message + total_bytes_sent, serialized_buffer_size - total_bytes_sent, 0);
-
         if (bytes_sent == -1) {
             perror("`send` in `send_buffer_to_socketfd failed`");
             return ERR_SEND_FAIL;

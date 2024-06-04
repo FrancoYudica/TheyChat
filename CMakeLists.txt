@@ -20,6 +20,7 @@ set(COMMON_SOURCES
     src/common/messages/messages_types.c
     
     # Networking
+    src/common/net/network.c
     src/common/net/net_communication.c
     src/common/net/net_stream.c
     src/common/net/net_error.c
