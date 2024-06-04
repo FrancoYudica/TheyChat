@@ -22,7 +22,7 @@ ErrorCode send_file(const char* filepath, uint32_t sockfd)
     // Sends header
     {
         FileHeaderMsg* header = create_file_header_message("file", file_size);
-        err = send_message(header, sockfd);
+        err = send_message((const Message*)header, sockfd);
 
         if (IS_NET_ERROR(err)) {
             fclose(file);
@@ -46,7 +46,7 @@ ErrorCode send_file(const char* filepath, uint32_t sockfd)
         FileContentMsg* content_msg = create_file_content_message((const uint8_t*)buffer, bytes_read);
 
         // Sends content
-        err = send_message(content_msg, sockfd);
+        err = send_message((const Message*)content_msg, sockfd);
 
         if (IS_NET_ERROR(err))
             break;
@@ -73,12 +73,12 @@ ErrorCode receive_file(uint32_t sockfd)
 
     // Waits for header
     FileHeaderMsg* header;
-    ErrorCode err = wait_for_message_type(&stream, sockfd, (Message*)&header, MSGT_FILE_HEADER);
+    ErrorCode err = wait_for_message_type(&stream, sockfd, (Message**)&header, MSGT_FILE_HEADER);
 
     if (IS_NET_ERROR(err))
         return err;
 
-    printf("Receiving file \"%s\" of size %ld\n", header->name, header->size);
+    printf("Receiving file \"%s\" of size %d\n", header->name, header->size);
 
     // Create file locally
     FILE* file = fopen(header->name, "wb");
@@ -91,7 +91,7 @@ ErrorCode receive_file(uint32_t sockfd)
     size_t total_bytes_received = 0;
     while (total_bytes_received < header->size) {
         FileContentMsg* content;
-        err = wait_for_message_type(&stream, sockfd, &content, MSGT_FILE_CONTENT);
+        err = wait_for_message_type(&stream, sockfd, (Message**)&content, MSGT_FILE_CONTENT);
 
         if (IS_NET_ERROR(err))
             break;

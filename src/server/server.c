@@ -67,7 +67,7 @@ int main(int argc, char** argv)
 
         // Tells client that all threads are busy, and it's on queue
         if (thpool_all_threads_busy(thpool))
-            send_message((Message*)client_on_queue_msg, client->connection_context.socketfd);
+            send_message((Message*)client_on_queue_msg, &client->connection_context);
 
         // Creates handler data and queues a new task
         ClientHandlerData* handler_data = (ClientHandlerData*)malloc(sizeof(ClientHandlerData));

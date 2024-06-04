@@ -7,11 +7,9 @@
 typedef struct
 {
     uint32_t id;
-    uint32_t sockfd;
     char* ip;
     char name[MAX_USERNAME_BYTES];
     ConnectionContext connection_context;
-    struct sockaddr_in address;
     NetworkStream stream;
 } Client;
 

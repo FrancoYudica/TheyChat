@@ -12,7 +12,7 @@ void* handle_messages(void* arg)
     ClientData* data = (ClientData*)arg;
     while (in_chat) {
         Message* server_message;
-        messages_error = wait_for_message(&data->stream, data->sockfd, &server_message);
+        messages_error = wait_for_message(&data->stream, &data->connection_context, &server_message);
 
         if (IS_NET_ERROR(messages_error))
             break;
@@ -40,7 +40,7 @@ void* handle_input(void* arg)
 
         if (input_buffer[0] != '/') {
             UserChatMsg* msg = create_user_chat_msg(input_buffer, data->username);
-            input_error = send_message((const Message*)msg, data->sockfd);
+            input_error = send_message((const Message*)msg, &data->connection_context);
             free(msg);
         }
 

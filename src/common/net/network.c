@@ -39,12 +39,11 @@ void net_server_init_socket(
     }
 }
 
-ConnectionContext net_client_create_socket(
+void net_client_init_socket(
     uint32_t server_port,
-    const char* server_ip)
+    const char* server_ip,
+    ConnectionContext* context)
 {
-    ConnectionContext context;
-    memset(&context, 0, sizeof(ConnectionContext));
 
     // Create TCP socket
     int32_t sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -53,27 +52,16 @@ ConnectionContext net_client_create_socket(
         exit(EXIT_FAILURE);
     }
 
-    context.socketfd = sockfd;
+    context->socketfd = sockfd;
 
     // IPv4
-    context.addr.sin_family = AF_INET;
+    context->addr.sin_family = AF_INET;
 
     // Sets server port
-    context.addr.sin_port = htons(server_port);
+    context->addr.sin_port = htons(server_port);
 
     // Sets the server ip to local ip
-    inet_pton(AF_INET, server_ip, &context.addr.sin_addr);
-
-    int32_t bind_status = bind(context.socketfd,
-        (const struct sockaddr*)&context.addr,
-        sizeof(context.addr));
-
-    // Bind socket to the server address
-    if (bind_status < 0) {
-        perror("bind failed");
-        exit(EXIT_FAILURE);
-    }
-    return context;
+    inet_pton(AF_INET, server_ip, &context->addr.sin_addr);
 }
 
 void net_listen(ConnectionContext* context, uint32_t n)
@@ -107,7 +95,8 @@ ErrorCode net_accept_connection(
 ErrorCode net_connect_to_server(ConnectionContext* context)
 {
     // Establishes connection with server
-    int32_t connection_status = connect(context->socketfd,
+    int32_t connection_status = connect(
+        context->socketfd,
         (const struct sockaddr*)&context->addr,
         sizeof(const struct sockaddr_in));
 
@@ -150,7 +139,7 @@ ErrorCode net_receive(
     return ERR_NET_OK;
 }
 
-void net_cleanup(ConnectionContext* context)
+void net_close(ConnectionContext* context)
 {
     close(context->socketfd);
 }

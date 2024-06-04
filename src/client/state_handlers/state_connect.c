@@ -7,7 +7,7 @@ ErrorCode handle_state_connect(ClientData* data, AppState* next_state)
     bool waiting_in_queue = true;
     while (waiting_in_queue) {
         Message* server_message;
-        ErrorCode status = wait_for_message(&data->stream, data->sockfd, &server_message);
+        ErrorCode status = wait_for_message(&data->stream, &data->connection_context, &server_message);
         assert(!IS_NET_ERROR(status));
 
         // Client connected successfully;
@@ -27,7 +27,7 @@ ErrorCode handle_state_connect(ClientData* data, AppState* next_state)
     }
     // Sends confirmation
     StatusMsg* status_message = create_status_msg(true, "");
-    ErrorCode status = send_message((const Message*)status_message, data->sockfd);
+    ErrorCode status = send_message((const Message*)status_message, &data->connection_context);
     free(status_message);
     *next_state = APP_STATE_LOGIN;
     return status;

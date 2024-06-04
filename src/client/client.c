@@ -48,36 +48,12 @@ int main(int argc, char** argv)
     ClientData data;
     init_net_stream(&data.stream);
 
-    connect_to_server((const ConnectionDetails*)&connection_details, &data);
+    // Initializes socket and connects to server
+    net_client_init_socket(connection_details.port, connection_details.server_ip, &data.connection_context);
+    net_connect_to_server(&data.connection_context);
 
     // Starts execution of FSM
     client_states_handler_fsm(&data, APP_STATE_CONNECT);
 
     return EXIT_SUCCESS;
-}
-
-void connect_to_server(const ConnectionDetails* connection_details, ClientData* data)
-{
-    // Create TCP socket
-    data->sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (data->sockfd < 0) {
-        perror("socket creation failed");
-        exit(EXIT_FAILURE);
-    }
-
-    struct sockaddr_in server_addr;
-    socklen_t server_len = sizeof(struct sockaddr_in);
-
-    // Initialize server address structure
-    memset(&server_addr, 0, sizeof(server_addr));
-    server_addr.sin_family = AF_INET;
-    server_addr.sin_port = htons(connection_details->port);
-    inet_pton(AF_INET, connection_details->server_ip, &server_addr.sin_addr);
-
-    // Establishes connection with server
-    int32_t connection_status = connect(data->sockfd, (const struct sockaddr*)&server_addr, sizeof(const struct sockaddr_in));
-    if (connection_status == -1) {
-        perror("Unable to connect");
-        exit(EXIT_FAILURE);
-    }
 }

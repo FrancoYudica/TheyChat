@@ -12,12 +12,12 @@ ErrorCode handle_state_login(ClientData* data, AppState* next_state)
 
         // Sends message telling that the username
         UserLoginMsg* login_msg = create_user_login_msg(data->username);
-        send_message((const Message*)login_msg, data->sockfd);
+        send_message((const Message*)login_msg, &data->connection_context);
         free(login_msg);
 
         // Waits confirmation of the login
         StatusMsg* status_message;
-        ErrorCode status = wait_for_message_type(&data->stream, data->sockfd, (Message**)&status_message, MSGT_STATUS);
+        ErrorCode status = wait_for_message_type(&data->stream, &data->connection_context, (Message**)&status_message, MSGT_STATUS);
 
         if (IS_NET_ERROR(status))
             return status;
