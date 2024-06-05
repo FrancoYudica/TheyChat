@@ -5,6 +5,14 @@
 #include <stdlib.h>
 #include <unistd.h>
 
+void net_init()
+{
+}
+
+void net_configure_certificate(ConnectionContext* context, const char* cert_file, const char* key_file)
+{
+}
+
 void net_server_init_socket(
     uint32_t port,
     ConnectionContext* context)

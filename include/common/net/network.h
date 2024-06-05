@@ -14,6 +14,12 @@ typedef struct {
     struct sockaddr_in addr;
 } ConnectionContext;
 
+/// @brief Initializes network context
+void net_init();
+
+/// @brief Configure certificates for authentication
+void net_configure_certificate(ConnectionContext* context, const char* cert_file, const char* key_file);
+
 /**
  * @brief Initializes a server socket and binds it to the specified port.
  *
