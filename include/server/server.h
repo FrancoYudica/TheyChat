@@ -7,9 +7,8 @@ typedef struct
 {
     ClientList* client_list;
     uint32_t port;
-    uint32_t sockfd;
     pthread_mutex_t client_list_mutex;
-    ConnectionContext context;
+    ConnectionContext* context;
 } Server;
 
 #endif

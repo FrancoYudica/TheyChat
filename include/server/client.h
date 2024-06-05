@@ -9,11 +9,11 @@ typedef struct
     uint32_t id;
     char* ip;
     char name[MAX_USERNAME_BYTES];
-    ConnectionContext connection_context;
+    ConnectionContext* connection_context;
     NetworkStream stream;
 } Client;
 
 /// @brief Sets client attributes
-void init_client_network(Client* client, ConnectionContext context);
+void init_client_network(Client* client, ConnectionContext* context);
 
 #endif

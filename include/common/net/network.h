@@ -6,19 +6,10 @@
 #include "net/net_error.h"
 
 // Structure to hold connection context information
-typedef struct {
-    /// @brief Socket file descriptor
-    uint32_t socketfd;
-
-    /// @brief Socket address structure
-    struct sockaddr_in addr;
-} ConnectionContext;
+typedef struct ConnectionContext ConnectionContext;
 
 /// @brief Initializes network context
 void net_init();
-
-/// @brief Configure certificates for authentication
-void net_configure_certificate(ConnectionContext* context, const char* cert_file, const char* key_file);
 
 /**
  * @brief Initializes a server socket and binds it to the specified port.
@@ -26,7 +17,7 @@ void net_configure_certificate(ConnectionContext* context, const char* cert_file
  * @param port The port number to bind the server socket to.
  * @param context Pointer to the ConnectionContext structure to initialize.
  */
-void net_server_init_socket(uint32_t port, ConnectionContext* context);
+ConnectionContext* net_server_create_socket(const char* cert_file, const char* key_file, uint32_t port);
 
 /**
  * @brief Creates a client socket and sets up its connection context.
@@ -35,7 +26,7 @@ void net_server_init_socket(uint32_t port, ConnectionContext* context);
  * @param server_ip The IP address of the server to connect to.
  * @param context Pointer to the ConnectionContext structure to initialize.
  */
-void net_client_init_socket(uint32_t server_port, const char* server_ip, ConnectionContext* context);
+ConnectionContext* net_client_create_socket(uint32_t server_port, const char* server_ip);
 
 /**
  * @brief Puts the server socket into listening mode.
@@ -52,16 +43,7 @@ void net_listen(ConnectionContext* context, uint32_t n);
  * @param client_context Pointer to the ConnectionContext structure to hold the new client connection.
  * @return ErrorCode Error code indicating success or failure.
  */
-ErrorCode net_accept_connection(ConnectionContext* context, ConnectionContext* client_context);
-
-/**
- * @brief Connects the client socket to the server.
- *
- * @param context Pointer to the ConnectionContext structure of the client.
- * @return ErrorCode Error code indicating success or failure.
- */
-ErrorCode net_connect_to_server(ConnectionContext* context);
-
+ErrorCode net_accept_connection(ConnectionContext* server_context, ConnectionContext** client_context_ref);
 /**
  * @brief Sends data over the connection.
  *
@@ -71,7 +53,7 @@ ErrorCode net_connect_to_server(ConnectionContext* context);
  * @param bytes_sent Pointer to a variable to hold the number of bytes actually sent.
  * @return ErrorCode Error code indicating success or failure.
  */
-ErrorCode net_send(ConnectionContext* context, const uint8_t* buffer, ssize_t len, uint32_t* bytes_sent);
+ErrorCode net_send(ConnectionContext* context, const uint8_t* buffer, uint32_t len, uint32_t* bytes_sent);
 
 /**
  * @brief Receives data from the connection.
@@ -90,5 +72,7 @@ ErrorCode net_receive(ConnectionContext* context, uint8_t* buffer, uint32_t size
  * @param context Pointer to the ConnectionContext structure of the connection to clean up.
  */
 void net_close(ConnectionContext* context);
+
+void net_shutdown();
 
 #endif

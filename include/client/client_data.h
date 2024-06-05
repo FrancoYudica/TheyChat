@@ -10,7 +10,7 @@ typedef struct
 
     /// @brief Stores received stream from server
     NetworkStream stream;
-    ConnectionContext connection_context;
+    ConnectionContext* connection_context;
 } ClientData;
 
 #endif

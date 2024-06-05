@@ -44,7 +44,7 @@ uint32_t msg_get_type_size(uint8_t type)
 {
     uint8_t arr_len = sizeof(messages_sizes) / sizeof(uint32_t);
     if (type >= arr_len) {
-        printf("`msg_get_type_size` Index out of bounds!");
+        printf("`msg_get_type_size` Index out of bounds! Type: %i\n", type);
         exit(1);
     }
     uint32_t size = messages_sizes[type];
