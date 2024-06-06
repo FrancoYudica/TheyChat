@@ -23,7 +23,10 @@ enum MessageTypes {
     MSGT_CLIENT_ON_QUEUE,
 
     // Flow control
-    MSGT_STATUS
+    MSGT_STATUS,
+
+    // Command
+    MSGT_COMMAND
 };
 
 #define MAX_CHAT_TEXT_BYTES 256

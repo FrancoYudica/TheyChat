@@ -16,7 +16,10 @@ static uint32_t messages_sizes[] = {
     sizeof(Bytes128Msg),
 
     // Flow control
-    sizeof(StatusMsg)
+    sizeof(StatusMsg),
+
+    // Command
+    sizeof(CommandMsg)
 };
 
 // Maps numeric type to string
@@ -37,7 +40,10 @@ static const char* message_types[] = {
     "CLIENT_ON_QUEUE",
 
     // Flow control
-    "STATUS"
+    "STATUS",
+
+    // Command
+    "COMMAND"
 };
 
 uint32_t msg_get_type_size(uint8_t type)

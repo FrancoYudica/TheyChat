@@ -21,6 +21,7 @@ set(COMMON_SOURCES
     src/common/messages/user_message.c
     src/common/messages/client_message.c
     src/common/messages/status_message.c
+    src/common/messages/command_message.c
     src/common/messages/messages_types.c
     
     # Networking
@@ -30,6 +31,9 @@ set(COMMON_SOURCES
     src/common/net/file_transfer.c
     src/common/net/serialization/net_serializer.c
     src/common/net/serialization/net_message_serializer.c
+
+    # String
+    src/common/string/utils.c
 )
 
 # Changes encription at compile time
@@ -69,6 +73,7 @@ set(SERVER_SOURCES
     src/server/state_handlers/state_login.c
     src/server/state_handlers/state_chat.c
     src/server/state_handlers/state_disconnect.c
+    src/server/command/command_processor.c
 )
 add_executable(server src/server/server.c ${SERVER_SOURCES})
 target_include_directories(server PRIVATE "${PROJECT_SOURCE_DIR}/include/server")
@@ -82,6 +87,7 @@ set(CLIENT_SOURCES
     src/client/state_handlers/state_login.c
     src/client/state_handlers/state_chat.c
     src/client/state_handlers/state_disconnect.c
+    src/client/command/command_processor.c
 )
 add_executable(client src/client/client.c ${CLIENT_SOURCES})
 target_include_directories(client PRIVATE "${PROJECT_SOURCE_DIR}/include/client")
