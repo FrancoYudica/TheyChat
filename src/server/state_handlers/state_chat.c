@@ -11,7 +11,7 @@ ErrorCode handle_state_chat(ServerStateData* state_data, AppState* next_state)
 
         // Waits for any message
         Message* client_msg;
-        ErrorCode receive_status = wait_for_message(&client->stream, &client->connection_context, &client_msg);
+        ErrorCode receive_status = wait_for_message(&client->stream, client->connection_context, &client_msg);
 
         if (IS_NET_ERROR(receive_status)) {
             if (receive_status != ERR_PEER_DISCONNECTED)

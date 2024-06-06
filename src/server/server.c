@@ -29,18 +29,20 @@ int main(int argc, char** argv)
         else
             printf("Unrecognized parameter \"%s\"", parameter);
     }
-
+    net_init();
     thpool_t* thpool = thpool_create(2);
 
     // Initializes client list
     server.client_list = client_list_create();
 
     // Initializes socket
-    net_server_init_socket(server.port, &server.context);
-    server.sockfd = server.context.socketfd;
+    server.context = net_server_create_socket(
+        "/home/franco/Certificates/cert.pem",
+        "/home/franco/Certificates/key.pem",
+        server.port);
 
     // Sets up listen
-    net_listen(&server.context, 5);
+    net_listen(server.context, 5);
 
     printf("SERVER: Listening. Waiting for client connections...\n");
 
@@ -51,8 +53,8 @@ int main(int argc, char** argv)
     while (true) {
 
         // Accepts client connections
-        ConnectionContext client_context;
-        ErrorCode err = net_accept_connection(&server.context, &client_context);
+        ConnectionContext* client_context;
+        ErrorCode err = net_accept_connection(server.context, &client_context);
 
         if (IS_NET_ERROR(err))
             break;
@@ -67,7 +69,7 @@ int main(int argc, char** argv)
 
         // Tells client that all threads are busy, and it's on queue
         if (thpool_all_threads_busy(thpool))
-            send_message((Message*)client_on_queue_msg, &client->connection_context);
+            send_message((Message*)client_on_queue_msg, client->connection_context);
 
         // Creates handler data and queues a new task
         ClientHandlerData* handler_data = (ClientHandlerData*)malloc(sizeof(ClientHandlerData));
@@ -76,8 +78,8 @@ int main(int argc, char** argv)
         thpool_submit(thpool, (thread_task_t)handle_client_task, handler_data);
     }
 
-    if (close(server.sockfd) == -1)
-        perror("close");
+    net_close(server.context);
+    net_shutdown();
 
     return EXIT_SUCCESS;
 }

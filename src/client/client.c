@@ -16,9 +16,6 @@ typedef struct
     char* server_ip;
 } ConnectionDetails;
 
-/// @brief Sets up socket connection with server
-void connect_to_server(const ConnectionDetails* connection_details, ClientData* data);
-
 int main(int argc, char** argv)
 {
     // Sets default connection details
@@ -43,17 +40,17 @@ int main(int argc, char** argv)
             printf("Unrecognized parameters (%s, %s)", parameter, argv[i]);
         }
     }
-
+    net_init();
     // Initializes client data
     ClientData data;
     init_net_stream(&data.stream);
 
     // Initializes socket and connects to server
-    net_client_init_socket(connection_details.port, connection_details.server_ip, &data.connection_context);
-    net_connect_to_server(&data.connection_context);
+    data.connection_context = net_client_create_socket(connection_details.port, connection_details.server_ip);
 
     // Starts execution of FSM
     client_states_handler_fsm(&data, APP_STATE_CONNECT);
 
+    net_shutdown();
     return EXIT_SUCCESS;
 }

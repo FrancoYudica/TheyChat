@@ -17,6 +17,8 @@ include_directories(${CURSES_INCLUDE_DIR})
 target_link_libraries(dependencies_lib INTERFACE ${CURSES_LIBRARIES})
 
 # Add OpenSSL library ------------------------------------------------
-find_package(OpenSSL REQUIRED)
-include_directories(${OPENSSL_INCLUDE_DIR})
-target_link_libraries(dependencies_lib INTERFACE ${OPENSSL_LIBRARIES})
+if (THEY_CHAT_USE_SSL)
+    find_package(OpenSSL REQUIRED)
+    include_directories(${OPENSSL_INCLUDE_DIR})
+    target_link_libraries(dependencies_lib INTERFACE ${OPENSSL_LIBRARIES})
+endif()

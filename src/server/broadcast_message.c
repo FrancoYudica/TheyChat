@@ -11,7 +11,7 @@ void send_broadcast(const Message* msg, ServerStateData* state_data)
 
     // Iterates through all the clients
     while ((client = client_list_interator_next(clients)) != NULL) {
-        send_message(msg, &client->connection_context);
+        send_message(msg, client->connection_context);
     }
 
     pthread_mutex_unlock(&state_data->broadcast_mutex);
@@ -29,7 +29,7 @@ void send_broadcast_exclude(const Message* msg, ServerStateData* state_data, Cli
     while ((client = client_list_interator_next(clients)) != NULL) {
 
         if (client != exclude_client)
-            send_message(msg, &client->connection_context);
+            send_message(msg, client->connection_context);
     }
 
     pthread_mutex_unlock(&state_data->broadcast_mutex);

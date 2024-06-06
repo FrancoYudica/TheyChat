@@ -5,7 +5,7 @@
 #include "messages/message.h"
 #include "net/net_stream.h"
 #include "net/net_error.h"
-#include "net/network.h"
+#include "net/net_primitives.h"
 
 /**
  * @brief Serializes and sends a message over a socket.

@@ -1,22 +1,30 @@
-#include "net/network.h"
+
+#include "net/net_primitives.h"
 #include <memory.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 
+// Structure to hold connection context information
+struct ConnectionContext {
+    /// @brief Socket file descriptor
+    uint32_t socketfd;
+
+    /// @brief Socket address structure
+    struct sockaddr_in addr;
+};
+
 void net_init()
 {
 }
 
-void net_configure_certificate(ConnectionContext* context, const char* cert_file, const char* key_file)
+ConnectionContext* net_server_create_socket(
+    const char* cert_file,
+    const char* key_file,
+    uint32_t port)
 {
-}
-
-void net_server_init_socket(
-    uint32_t port,
-    ConnectionContext* context)
-{
+    ConnectionContext* context = (ConnectionContext*)malloc(sizeof(ConnectionContext));
     memset(context, 0, sizeof(ConnectionContext));
 
     // Create TCP socket
@@ -45,13 +53,15 @@ void net_server_init_socket(
         perror("bind failed");
         exit(EXIT_FAILURE);
     }
+    return context;
 }
 
-void net_client_init_socket(
+ConnectionContext* net_client_create_socket(
     uint32_t server_port,
-    const char* server_ip,
-    ConnectionContext* context)
+    const char* server_ip)
 {
+    ConnectionContext* context = (ConnectionContext*)malloc(sizeof(ConnectionContext));
+    memset(context, 0, sizeof(ConnectionContext));
 
     // Create TCP socket
     int32_t sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -70,6 +80,18 @@ void net_client_init_socket(
 
     // Sets the server ip to local ip
     inet_pton(AF_INET, server_ip, &context->addr.sin_addr);
+
+    // Establishes connection with server
+    int32_t connection_status = connect(
+        context->socketfd,
+        (const struct sockaddr*)&context->addr,
+        sizeof(const struct sockaddr_in));
+
+    if (connection_status == -1) {
+        perror("Unable to connect");
+        exit(EXIT_FAILURE);
+    }
+    return context;
 }
 
 void net_listen(ConnectionContext* context, uint32_t n)
@@ -81,8 +103,11 @@ void net_listen(ConnectionContext* context, uint32_t n)
 }
 ErrorCode net_accept_connection(
     ConnectionContext* context,
-    ConnectionContext* client_context)
+    ConnectionContext** client_context_ref)
 {
+    ConnectionContext* client_context = malloc(sizeof(ConnectionContext));
+    *client_context_ref = client_context;
+
     static socklen_t client_len = sizeof(struct sockaddr_in);
 
     // Accepts client connection
@@ -100,25 +125,10 @@ ErrorCode net_accept_connection(
     return ERR_NET_OK;
 }
 
-ErrorCode net_connect_to_server(ConnectionContext* context)
-{
-    // Establishes connection with server
-    int32_t connection_status = connect(
-        context->socketfd,
-        (const struct sockaddr*)&context->addr,
-        sizeof(const struct sockaddr_in));
-
-    if (connection_status == -1) {
-        perror("Unable to connect");
-        exit(EXIT_FAILURE);
-    }
-    return ERR_NET_OK;
-}
-
 ErrorCode net_send(
     ConnectionContext* context,
     const uint8_t* buffer,
-    ssize_t len,
+    uint32_t len,
     uint32_t* bytes_sent)
 {
     int32_t sent = send(context->socketfd, buffer, len, 0);
@@ -127,7 +137,8 @@ ErrorCode net_send(
         perror("`send` in `send_buffer_to_socketfd failed`");
         return ERR_SEND_FAIL;
     }
-    *bytes_sent = sent;
+    if (bytes_sent != NULL)
+        *bytes_sent = sent;
     return ERR_NET_OK;
 }
 
@@ -143,11 +154,15 @@ ErrorCode net_receive(
     if (read == 0)
         return ERR_PEER_DISCONNECTED;
 
-    *bytes_read = read;
+    if (bytes_read != NULL)
+        *bytes_read = read;
     return ERR_NET_OK;
 }
 
 void net_close(ConnectionContext* context)
 {
     close(context->socketfd);
+}
+void net_shutdown()
+{
 }

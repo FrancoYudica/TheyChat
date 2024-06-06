@@ -6,6 +6,10 @@ project(ChatApp VERSION 1.0)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED True)
 
+# Define an option to compile with or without SSL
+option(THEY_CHAT_USE_SSL "Compile with SSL support" ON)
+option(THEY_CHAT_COMPILE_TESTS "Compile TheyChat tests" ON)
+
 add_subdirectory(libs)
 
 # Define the source files for the library
@@ -20,7 +24,6 @@ set(COMMON_SOURCES
     src/common/messages/messages_types.c
     
     # Networking
-    src/common/net/network.c
     src/common/net/net_communication.c
     src/common/net/net_stream.c
     src/common/net/net_error.c
@@ -28,6 +31,15 @@ set(COMMON_SOURCES
     src/common/net/serialization/net_serializer.c
     src/common/net/serialization/net_message_serializer.c
 )
+
+# Changes encription at compile time
+if(THEY_CHAT_USE_SSL)
+    # If SSL is enabled, add ssl_primitives.c to the common sources
+    list(APPEND COMMON_SOURCES src/common/net/primitives_impl/ssl_primitives.c)
+else()
+    # If SSL is not enabled, add standard_primitives.c to the common sources
+    list(APPEND COMMON_SOURCES src/common/net/primitives_impl/standard_primitives.c)
+endif()
 
 # Add the library
 add_library(chat_lib ${COMMON_SOURCES})
@@ -77,24 +89,25 @@ target_include_directories(client PRIVATE "${PROJECT_SOURCE_DIR}/include/client"
 target_link_libraries(client PRIVATE chat_lib)
 
 # Creates test executables ------------------------------------------------------
-enable_testing()
+if (THEY_CHAT_COMPILE_TESTS)
+    enable_testing()
+    # Set output directory for test executables
+    set(TEST_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests)
 
-# Set output directory for test executables
-set(TEST_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests)
+    # Automatically find and add test executables
+    file(GLOB TEST_SOURCES "src/tests/*.c")
+    foreach(TEST_SOURCE ${TEST_SOURCES})
 
-# Automatically find and add test executables
-file(GLOB TEST_SOURCES "src/tests/*.c")
-foreach(TEST_SOURCE ${TEST_SOURCES})
+        get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
+        
+        # Adds sources of server
+        add_executable(${TEST_NAME} ${TEST_SOURCE} ${SERVER_SOURCES})
 
-    get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
-    
-    # Adds sources of server
-    add_executable(${TEST_NAME} ${TEST_SOURCE} ${SERVER_SOURCES})
+        # Adds include directories of server
+        target_include_directories(${TEST_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/include/server")
 
-    # Adds include directories of server
-    target_include_directories(${TEST_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/include/server")
-
-    target_link_libraries(${TEST_NAME} PRIVATE chat_lib)
-    set_target_properties(${TEST_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
-    add_test(NAME ${TEST_NAME} COMMAND ${TEST_OUTPUT_DIRECTORY}/${TEST_NAME})
-endforeach()
+        target_link_libraries(${TEST_NAME} PRIVATE chat_lib)
+        set_target_properties(${TEST_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
+        add_test(NAME ${TEST_NAME} COMMAND ${TEST_OUTPUT_DIRECTORY}/${TEST_NAME})
+    endforeach()
+endif()
