@@ -2,7 +2,7 @@
 #define __SERVER_H__
 #include "client_list.h"
 #include "pthread.h"
-#include "net/network.h"
+#include "net/net_primitives.h"
 typedef struct
 {
     ClientList* client_list;

@@ -2,7 +2,7 @@
 #define __CLIENT_TYPE_H__
 #include "arpa/inet.h"
 #include "net/net_stream.h"
-#include "net/network.h"
+#include "net/net_primitives.h"
 
 typedef struct
 {

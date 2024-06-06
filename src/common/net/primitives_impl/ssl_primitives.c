@@ -1,5 +1,5 @@
 
-#include "net/network.h"
+#include "net/net_primitives.h"
 #include <memory.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -21,7 +21,10 @@ static void report_and_exit(const char* msg)
     exit(-1);
 }
 
-static void configure_context(ConnectionContext* ctx, const char* cert_file, const char* key_file)
+static void configure_context(
+    ConnectionContext* ctx,
+    const char* cert_file,
+    const char* key_file)
 {
     if (SSL_CTX_use_certificate_file(ctx->ctx, cert_file, SSL_FILETYPE_PEM) <= 0) {
         report_and_exit("SSL_CTX_use_certificate_file");
@@ -32,17 +35,20 @@ static void configure_context(ConnectionContext* ctx, const char* cert_file, con
     }
 }
 
-static void ssl_connect(ConnectionContext* ctx, const char* hostname, uint16_t port)
+static void ssl_connect(
+    ConnectionContext* ctx,
+    const char* host,
+    uint16_t port)
 {
     ctx->ssl = SSL_new(ctx->ctx);
     BIO* bio = BIO_new_ssl_connect(ctx->ctx);
     BIO_get_ssl(bio, &ctx->ssl);
     SSL_set_mode(ctx->ssl, SSL_MODE_AUTO_RETRY);
 
-    char name[1024];
-    snprintf(name, sizeof(name), "%s:%i", hostname, port);
-    BIO_set_conn_hostname(bio, name);
-    SSL_set_tlsext_host_name(ctx->ssl, hostname);
+    char hostname[1024];
+    snprintf(hostname, sizeof(hostname), "%s:%i", host, port);
+    BIO_set_conn_hostname(bio, hostname);
+    SSL_set_tlsext_host_name(ctx->ssl, host);
 
     if (BIO_do_connect(bio) <= 0) {
         report_and_exit("BIO_do_connect");

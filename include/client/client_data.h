@@ -2,7 +2,7 @@
 #define __CLIENT_DATA_H__
 #include <stdint.h>
 #include "net/net_stream.h"
-#include "net/network.h"
+#include "net/net_primitives.h"
 
 typedef struct
 {

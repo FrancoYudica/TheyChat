@@ -1,7 +1,7 @@
 #include <stdbool.h>
 #include <arpa/inet.h>
 #include <stdlib.h>
-#include "net/network.h"
+#include "net/net_primitives.h"
 #include "net/net_communication.h"
 #include "net/serialization/net_message_serializer.h"
 
