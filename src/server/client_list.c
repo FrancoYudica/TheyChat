@@ -27,7 +27,7 @@ ClientList* client_list_create()
         exit(EXIT_FAILURE);
     }
     list->front = list->rear = NULL;
-    list->element_size = sizeof(ClientList);
+    list->element_size = sizeof(Client);
     list->size = 0;
     list->next_client_id = 0;
     return list;

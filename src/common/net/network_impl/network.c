@@ -137,7 +137,8 @@ ErrorCode net_send(
         perror("`send` in `send_buffer_to_socketfd failed`");
         return ERR_SEND_FAIL;
     }
-    *bytes_sent = sent;
+    if (bytes_sent != NULL)
+        *bytes_sent = sent;
     return ERR_NET_OK;
 }
 
@@ -153,7 +154,8 @@ ErrorCode net_receive(
     if (read == 0)
         return ERR_PEER_DISCONNECTED;
 
-    *bytes_read = read;
+    if (bytes_read != NULL)
+        *bytes_read = read;
     return ERR_NET_OK;
 }
 

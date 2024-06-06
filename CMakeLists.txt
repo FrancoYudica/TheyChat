@@ -27,7 +27,7 @@ set(COMMON_SOURCES
     src/common/net/serialization/net_serializer.c
     src/common/net/serialization/net_message_serializer.c
 
-    src/common/net/network_impl/network.c
+    src/common/net/network_impl/network_ssl.c
 
 )
 
