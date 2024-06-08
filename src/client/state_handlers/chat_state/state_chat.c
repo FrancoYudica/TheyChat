@@ -7,7 +7,7 @@
 
 void* handle_messages(void* arg)
 {
-    ChatData* chat = (ChatData*)arg;
+    Chat* chat = (Chat*)arg;
     ClientData* data = chat->client_data;
 
     while (true) {
@@ -33,7 +33,7 @@ void* handle_messages(void* arg)
     return NULL;
 }
 
-ErrorCode process_command(ChatData* chat, const char* command)
+ErrorCode process_command(Chat* chat, const char* command)
 {
     ErrorCode err = ERR_NET_OK;
 
@@ -59,7 +59,7 @@ ErrorCode process_command(ChatData* chat, const char* command)
 
 void* handle_input(void* arg)
 {
-    ChatData* chat = (ChatData*)arg;
+    Chat* chat = (Chat*)arg;
     ClientData* data = chat->client_data;
 
     char input_buffer[MAX_CHAT_TEXT_BYTES];
@@ -100,7 +100,7 @@ void* handle_input(void* arg)
 
 ErrorCode handle_state_chat(ClientData* data, AppState* next_state)
 {
-    ChatData chat;
+    Chat chat;
     chat.client_data = data;
     chat.input_error = ERR_NET_OK;
     chat.messages_error = ERR_NET_OK;

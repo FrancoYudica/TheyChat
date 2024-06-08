@@ -17,8 +17,8 @@ typedef struct
     pthread_mutex_t condition_mutex;
     pthread_cond_t exit_condition;
     bool active;
-} ChatData;
+} Chat;
 
-void chat_exit(ChatData* chat);
+void chat_exit(Chat* chat);
 
 #endif
