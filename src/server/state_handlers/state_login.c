@@ -50,8 +50,8 @@ ErrorCode handle_state_login(ServerStateData* handler_data, AppState* next_state
         send_broadcast((const Message*)msg, handler_data);
         free(msg);
     }
-
-    printf("Client %d logged in with username %s\n", client->id, client->name);
+    debug_print_client(client);
+    printf(" logged in!\n");
     *next_state = APP_STATE_CHAT;
     return ERR_NET_OK;
 }

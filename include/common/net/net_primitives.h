@@ -79,4 +79,14 @@ void net_close(ConnectionContext* context);
 /// @brief Shuts down the network context.
 void net_shutdown();
 
+/**
+ * @brief Retrieves the IP address from a ConnectionContext as a string.
+ *
+ * @param context Pointer to the ConnectionContext structure.
+ * @param ip_buffer Buffer to store the IP address string.
+ * @param ip_buffer_size Size of the buffer to store the IP address.
+ * @return ErrorCode Error code indicating success or failure.
+ */
+ErrorCode net_get_ip(ConnectionContext* context, char* ip_buffer, size_t ip_buffer_size);
+
 #endif

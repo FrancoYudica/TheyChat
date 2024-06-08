@@ -166,3 +166,19 @@ void net_close(ConnectionContext* context)
 void net_shutdown()
 {
 }
+
+ErrorCode net_get_ip(ConnectionContext* context, char* ip_buffer, size_t ip_buffer_size)
+{
+    if (context == NULL || ip_buffer == NULL) {
+        return ERR_INVALID_ARGUMENT;
+    }
+
+    // Convert the IP address from binary to text form
+    const char* result = inet_ntop(AF_INET, &(context->addr.sin_addr), ip_buffer, ip_buffer_size);
+    if (result == NULL) {
+        perror("inet_ntop");
+        return ERR_NET_FAILURE;
+    }
+
+    return ERR_NET_OK;
+}

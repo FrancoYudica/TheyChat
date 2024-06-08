@@ -8,7 +8,7 @@ set(CMAKE_C_STANDARD_REQUIRED True)
 
 # Define an option to compile with or without SSL
 option(THEY_CHAT_USE_SSL "Compile with SSL support" ON)
-option(THEY_CHAT_COMPILE_TESTS "Compile TheyChat tests" ON)
+option(THEY_CHAT_COMPILE_TESTS "Compile TheyChat tests" OFF)
 
 add_subdirectory(libs)
 
@@ -85,8 +85,9 @@ set(CLIENT_SOURCES
     src/client/states_fsm.c
     src/client/state_handlers/state_connect.c
     src/client/state_handlers/state_login.c
-    src/client/state_handlers/state_chat.c
     src/client/state_handlers/state_disconnect.c
+    src/client/state_handlers/chat_state/state_chat.c
+    src/client/state_handlers/chat_state/chat.c
     src/client/command/command_processor.c
 )
 add_executable(client src/client/client.c ${CLIENT_SOURCES})

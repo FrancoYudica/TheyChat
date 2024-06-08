@@ -45,11 +45,11 @@ TheyChat is a client-server chat application developed solely by me. The applica
     **Build Options:**
     - `THEY_CHAT_COMPILE_TEST`: Enable or disable tests.
       ```sh
-      cmake -DTHEY_CHAT_COMPILE_TEST=ON ..
+      cmake -DTHEY_CHAT_COMPILE_TESTS=ON ..
       ```
     - `ENABLE_SSL`: Enable or disable SSL encryption.
       ```sh
-      cmake -DENABLE_SSL=ON ..
+      cmake -THEY_CHAT_USE_SSL=ON ..
       ```
 
 4. Build the project:
