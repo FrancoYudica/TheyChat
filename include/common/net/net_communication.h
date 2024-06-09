@@ -5,7 +5,9 @@
 #include "messages/message.h"
 #include "net/net_stream.h"
 #include "net/net_error.h"
-#include "net/net_primitives.h"
+
+// Forward declaration of the ConnectionContext structure
+typedef struct ConnectionContext ConnectionContext;
 
 /**
  * @brief Serializes and sends a message over a socket.

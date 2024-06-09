@@ -41,6 +41,13 @@ void print_message(Message* message)
     case MSGT_STATUS: {
         StatusMsg* status = (StatusMsg*)message;
         printf("status: %i, text: %s}\n", status->status, status->text);
+        break;
+    }
+
+    case MSGT_COMMAND: {
+        CommandMsg* command = (CommandMsg*)message;
+        printf("command_type: %i, arg: %s}\n", command->command_type, command->arg);
+        break;
     }
 
     default:

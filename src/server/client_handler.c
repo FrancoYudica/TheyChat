@@ -23,7 +23,8 @@ static void server_states_handler_fsm(ServerStateData* state_data, AppState init
     ErrorCode (*handler)(ServerStateData*, AppState*);
 
     while (true) {
-        printf("Client %d entered state: ", state_data->client->id);
+        debug_print_client(state_data->client);
+        printf("entered state: ");
         // Gets next state handler
         switch (curent_state) {
         case APP_STATE_CONNECT:

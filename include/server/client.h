@@ -7,7 +7,7 @@
 typedef struct
 {
     uint32_t id;
-    char* ip;
+    char ip[sizeof("255.255.255.255") + 1];
     char name[MAX_USERNAME_BYTES];
     ConnectionContext* connection_context;
     NetworkStream stream;
@@ -15,5 +15,7 @@ typedef struct
 
 /// @brief Sets client attributes
 void init_client_network(Client* client, ConnectionContext* context);
+
+void debug_print_client(Client* client);
 
 #endif

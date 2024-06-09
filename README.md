@@ -47,9 +47,9 @@ TheyChat is a client-server chat application developed solely by me. The applica
       ```sh
       cmake -DTHEY_CHAT_COMPILE_TEST=ON ..
       ```
-    - `ENABLE_SSL`: Enable or disable SSL encryption.
+    - `THEY_CHAT_ENABLE_SSL`: Enable or disable SSL encryption. If enabled, a valid certificate and key file (both with .pem extension) should be provided.
       ```sh
-      cmake -DENABLE_SSL=ON ..
+      cmake -DTHEY_CHAT_ENABLE_SSL=ON ..
       ```
 
 4. Build the project:

@@ -194,3 +194,34 @@ void net_shutdown()
 {
     EVP_cleanup();
 }
+
+ErrorCode net_get_ip(ConnectionContext* context, char* ip_buffer, size_t ip_buffer_size)
+{
+    if (context->ssl == NULL || ip_buffer == NULL) {
+        return ERR_INVALID_ARGUMENT;
+    }
+
+    // Get the underlying file descriptor from the SSL object
+    int fd = SSL_get_fd(context->ssl);
+    if (fd < 0) {
+        perror("SSL_get_fd");
+        return ERR_NET_FAILURE;
+    }
+
+    // Get the peer address
+    struct sockaddr_in peer_addr;
+    socklen_t peer_addr_len = sizeof(peer_addr);
+    if (getpeername(fd, (struct sockaddr*)&peer_addr, &peer_addr_len) < 0) {
+        perror("getpeername");
+        return ERR_NET_FAILURE;
+    }
+
+    // Convert the IP address to a human-readable form
+    const char* result = inet_ntop(AF_INET, &peer_addr.sin_addr, ip_buffer, ip_buffer_size);
+    if (result == NULL) {
+        perror("inet_ntop");
+        return ERR_NET_FAILURE;
+    }
+
+    return ERR_NET_OK;
+}
