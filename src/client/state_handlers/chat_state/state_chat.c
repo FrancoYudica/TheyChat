@@ -4,27 +4,32 @@
 #include "string/utils.h"
 #include "command/command_processor.h"
 #include "chat_state/chat.h"
+#include "chat_state/ui.h"
 
+static Chat chat;
+
+/// @brief Receives messages from the server
 void* handle_messages(void* arg)
 {
     Chat* chat = (Chat*)arg;
     ClientData* data = chat->client_data;
 
     while (true) {
-        pthread_mutex_lock(&chat->mutex);
-        if (!chat->active) {
-            pthread_mutex_unlock(&chat->mutex);
-            break;
-        }
-        pthread_mutex_unlock(&chat->mutex);
 
+        if (!chat->active)
+            break;
+
+        // Waits for server message
         Message* server_message;
         chat->messages_error = wait_for_message(&data->stream, data->connection_context, &server_message);
 
         if (IS_NET_ERROR(chat->messages_error))
             break;
 
-        print_message(server_message);
+        if (server_message->header.type == MSGT_USER_CHAT) {
+            UserChatMsg* chat_msg = (UserChatMsg*)server_message;
+            ui_add_chat_entry(&chat->ui, chat_msg->user_base.username, chat_msg->text);
+        }
         free(server_message);
     }
 
@@ -57,30 +62,32 @@ ErrorCode process_command(Chat* chat, const char* command)
     return err;
 }
 
+extern void render_input_window(UI* ui, char* input);
+extern void render_chat_window(UI*);
+
 void* handle_input(void* arg)
 {
     Chat* chat = (Chat*)arg;
     ClientData* data = chat->client_data;
 
-    char input_buffer[MAX_CHAT_TEXT_BYTES];
+    // Holds client input
+    char input[MAX_CHAT_TEXT_BYTES];
 
     while (true) {
-        pthread_mutex_lock(&chat->mutex);
-        if (!chat->active) {
-            pthread_mutex_unlock(&chat->mutex);
+
+        usleep(1000); // Sleep for 20ms to prevent high CPU usage
+
+        if (!chat->active)
             break;
-        }
-        pthread_mutex_unlock(&chat->mutex);
 
-        fgets(input_buffer, MAX_CHAT_TEXT_BYTES, stdin);
+        // Renders input window, and blocks current thread until input is received
+        input[0] = '\0';
+        render_input_window(&chat->ui, input);
 
-        if (strlen(input_buffer) == 0)
+        if (strlen(input) == 0)
             continue;
 
-        // Replaces \n with null termination
-        input_buffer[strlen(input_buffer) - 1] = '\0';
-
-        char* trimmed_input = trim(input_buffer);
+        char* trimmed_input = trim(input);
         bool is_command = trimmed_input[0] == '/' && strlen(trimmed_input) > 1;
 
         if (is_command) {
@@ -100,11 +107,15 @@ void* handle_input(void* arg)
 
 ErrorCode handle_state_chat(ClientData* data, AppState* next_state)
 {
-    Chat chat;
+    // Sets up chat data structure
     chat.client_data = data;
     chat.input_error = ERR_NET_OK;
     chat.messages_error = ERR_NET_OK;
     chat.active = true;
+
+    // Initializes UI
+    UI* ui = &chat.ui;
+    ui_init(ui);
 
     // Initializes mutexes and condition
     pthread_mutex_init(&chat.mutex, NULL);
@@ -119,6 +130,8 @@ ErrorCode handle_state_chat(ClientData* data, AppState* next_state)
     pthread_cond_wait(&chat.exit_condition, &chat.condition_mutex);
 
     *next_state = APP_STATE_DISCONNECT;
+
+    ui_free(&chat.ui);
 
     if (IS_NET_ERROR(chat.input_error))
         return chat.input_error;

@@ -4,12 +4,13 @@
 #include <stdbool.h>
 #include "net/net_error.h"
 #include "client_data.h"
+#include "chat_state/ui.h"
 
 typedef struct
 {
 
     ClientData* client_data;
-
+    UI ui;
     ErrorCode input_error;
     ErrorCode messages_error;
     pthread_t input_thread, messages_thread;

@@ -83,12 +83,18 @@ target_link_libraries(server PRIVATE chat_lib)
 # Specific sources for server
 set(CLIENT_SOURCES
     src/client/states_fsm.c
+    src/client/command/command_processor.c
     src/client/state_handlers/state_connect.c
     src/client/state_handlers/state_login.c
     src/client/state_handlers/state_disconnect.c
     src/client/state_handlers/chat_state/state_chat.c
     src/client/state_handlers/chat_state/chat.c
-    src/client/command/command_processor.c
+    src/client/state_handlers/chat_state/ui.c
+    src/client/state_handlers/chat_state/chat_entries.c
+    src/client/state_handlers/chat_state/ui_windows/header_window.c
+    src/client/state_handlers/chat_state/ui_windows/chat_window.c
+    src/client/state_handlers/chat_state/ui_windows/log_window.c
+    src/client/state_handlers/chat_state/ui_windows/input_window.c
 )
 add_executable(client src/client/client.c ${CLIENT_SOURCES})
 target_include_directories(client PRIVATE "${PROJECT_SOURCE_DIR}/include/client")

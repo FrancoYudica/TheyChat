@@ -29,7 +29,7 @@ enum MessageTypes {
     MSGT_COMMAND
 };
 
-#define MAX_CHAT_TEXT_BYTES 256
+#define MAX_CHAT_TEXT_BYTES 128
 #define MAX_USERNAME_BYTES 32
 
 /// @brief Data shared by all messages
