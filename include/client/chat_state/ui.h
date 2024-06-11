@@ -24,6 +24,12 @@ typedef struct
     ChatEntries* chat_entries;
     uint32_t chat_entries_offset;
 
+    uint32_t white_color_pair;
+    uint32_t soft_color_pair;
+    // Range that where color pairs for names are stored
+    uint32_t chat_color_pair_min;
+    uint32_t chat_color_pair_max;
+
     // Log window data
     char log[64];
 
@@ -39,7 +45,7 @@ typedef struct
 
 void ui_init(UI* ui);
 void ui_add_chat_entry(UI* ui, const char* name, const char* text);
-void ui_set_connected_users(UI* ui, uint32_t count);
+void ui_refresh(UI* ui);
 void ui_free(UI* ui);
 
 #endif

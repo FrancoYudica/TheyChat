@@ -26,7 +26,7 @@ ErrorCode handle_state_chat(ServerStateData* state_data, AppState* next_state)
 
         // Broadcasts the message to all clients
         if (client_msg->header.type == MSGT_USER_CHAT)
-            send_broadcast((const Message*)client_msg, state_data);
+            send_broadcast((const Message*)client_msg, state_data->server);
 
         // Process command
         else if (client_msg->header.type == MSGT_COMMAND) {

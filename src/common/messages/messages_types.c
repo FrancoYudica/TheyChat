@@ -15,8 +15,9 @@ static uint32_t messages_sizes[] = {
     sizeof(Bytes128Msg),
     sizeof(Bytes128Msg),
 
-    // Flow control
+    // Status messages
     sizeof(StatusMsg),
+    sizeof(ConnectedClientsMsg),
 
     // Command
     sizeof(CommandMsg)
@@ -39,8 +40,9 @@ static const char* message_types[] = {
     "CLIENT_CONNECTED",
     "CLIENT_ON_QUEUE",
 
-    // Flow control
+    // Status messages
     "STATUS",
+    "CONNECTED_CLIENTS"
 
     // Command
     "COMMAND"

@@ -7,15 +7,27 @@
 #include "messages/message_types.h"
 #include "net/net_communication.h"
 #include "net/net_stream.h"
+#include "broadcast_message.h"
 #include "client_handler.h"
+
+/// @brief Allocates memory for server and initializes fields
+Server* server_create(uint16_t port, uint32_t max_client_count);
+
+/// @brief Frees server and related memory
+void server_free(Server* server);
+
+/// @brief Initializes the server socket
+void server_init_network(Server* server);
+
+/// @brief Accepts client connections, and create a handle thread
+/// for each new connection.
+void server_accept_clients(Server* server);
 
 int main(int argc, char** argv)
 {
 
-    Server server;
-    memset(&server, 0, sizeof(Server));
-    server.port = 8000;
-    server.max_client_count = 10;
+    uint16_t port = 8000;
+    uint8_t max_client_count = 10;
 
     // Loads arguments
     int i = 0;
@@ -24,22 +36,62 @@ int main(int argc, char** argv)
 
         if (!strcmp(parameter, "--port")) {
             char* port_str = argv[i];
-            server.port = atoi(port_str);
+            port = atoi(port_str);
         }
 
         if (!strcmp(parameter, "--max_clients")) {
             char* max_clients_str = argv[i];
-            server.max_client_count = atoi(max_clients_str);
+            max_client_count = atoi(max_clients_str);
         }
 
         else
             printf("Unrecognized parameter \"%s\"", parameter);
     }
-    net_init();
-    thpool_t* thpool = thpool_create(server.max_client_count);
+
+    // Creates server with the input parameters
+    Server* server = server_create(port, max_client_count);
+
+    server_init_network(server);
+
+    server_accept_clients(server);
+
+    server_free(server);
+
+    return EXIT_SUCCESS;
+}
+
+Server* server_create(uint16_t port, uint32_t max_client_count)
+{
+    Server* server = (Server*)malloc(sizeof(Server));
+    memset(server, 0, sizeof(Server));
+
+    server->port = port;
+    server->max_client_count = max_client_count;
+    pthread_mutex_init(&server->broadcast_mutex, NULL);
 
     // Initializes client list
-    server.client_list = client_list_create();
+    server->client_list = client_list_create();
+    pthread_mutex_init(&server->client_list_mutex, NULL);
+
+    server->client_thread_pool = thpool_create(max_client_count);
+    return server;
+}
+
+void server_free(Server* server)
+{
+    net_close(server->context);
+    thpool_destroy(server->client_thread_pool);
+    client_list_destroy(server->client_list);
+    pthread_mutex_destroy(&server->client_list_mutex);
+    pthread_mutex_destroy(&server->broadcast_mutex);
+    net_shutdown();
+}
+
+void server_init_network(Server* server)
+{
+
+    // Initializes network module.
+    net_init();
 
 #ifdef THEY_CHAT_SSL
     printf("Loading SSL certificate and key\n");
@@ -53,16 +105,20 @@ int main(int argc, char** argv)
     printf("- Certificate path: %s\n", cert_file);
     printf("- Private key path: %s\n", key_file);
     // Initializes socket with certificates
-    server.context = net_server_create_socket(cert_file, key_file, server.port);
+    server->context = net_server_create_socket(cert_file, key_file, server->port);
 
 #else
     // Not using SSL, certificates not needed
-    server.context = net_server_create_socket(NULL, NULL, server.port);
+    server->context = net_server_create_socket(NULL, NULL, server->port);
 #endif
-    // Sets up listen
-    net_listen(server.context, 5);
+}
 
-    printf("Listening on port %i. Waiting for client connections...\n", server.port);
+void server_accept_clients(Server* server)
+{
+
+    // Sets up listen
+    net_listen(server->context, 5);
+    printf("Listening on port %i. Waiting for client connections...\n", server->port);
 
     // Message sent to client in case there aren't any free
     // threads, and stays in client queue
@@ -72,32 +128,36 @@ int main(int argc, char** argv)
 
         // Accepts client connections
         ConnectionContext* client_context;
-        ErrorCode err = net_accept_connection(server.context, &client_context);
+        ErrorCode err = net_accept_connection(server->context, &client_context);
 
         if (IS_NET_ERROR(err))
             break;
 
         // Registers client
-        pthread_mutex_lock(&server.client_list_mutex);
-        Client* client = client_list_add(server.client_list);
-        pthread_mutex_unlock(&server.client_list_mutex);
+        pthread_mutex_lock(&server->client_list_mutex);
+        Client* client = client_list_add(server->client_list);
+        pthread_mutex_unlock(&server->client_list_mutex);
 
         // Initializes client network data
         init_client_network(client, client_context);
 
         // Tells client that all threads are busy, and it's on queue
-        if (thpool_all_threads_busy(thpool))
+        if (thpool_all_threads_busy(server->client_thread_pool))
             send_message((Message*)client_on_queue_msg, client->connection_context);
 
         // Creates handler data and queues a new task
         ClientHandlerData* handler_data = (ClientHandlerData*)malloc(sizeof(ClientHandlerData));
-        handler_data->server = &server;
+        handler_data->server = server;
         handler_data->client = client;
-        thpool_submit(thpool, (thread_task_t)handle_client_task, handler_data);
+        thpool_submit(server->client_thread_pool, (thread_task_t)handle_client_task, handler_data);
     }
+}
 
-    net_close(server.context);
-    net_shutdown();
-
-    return EXIT_SUCCESS;
+void server_client_count_update(Server* server)
+{
+    // Sends to all clients the currently connected clients
+    uint32_t connected_client_count = client_list_length(server->client_list);
+    ConnectedClientsMsg* connected_clients = create_connected_clients_msg(connected_client_count);
+    send_broadcast((const Message*)connected_clients, server);
+    free(connected_clients);
 }

@@ -11,6 +11,13 @@ typedef struct
     /// @brief Stores received stream from server
     NetworkStream stream;
     ConnectionContext* connection_context;
+
+    struct
+    {
+        uint32_t port;
+        const char* server_ip;
+    } connection_details;
+
 } ClientData;
 
 #endif

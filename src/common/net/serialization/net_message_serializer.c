@@ -54,6 +54,12 @@ void ns_serialize_message(const Message* message, uint8_t* buffer, size_t* buffe
         break;
     }
 
+    case MSGT_CONNECTED_CLIENTS: {
+        ConnectedClientsMsg* clients = (ConnectedClientsMsg*)message;
+        ns_push_byte_array(&buffer_ptr, (const uint8_t*)&clients->client_count, sizeof(clients->client_count));
+        break;
+    }
+
     case MSGT_COMMAND: {
         CommandMsg* command_message = (CommandMsg*)message;
         ns_push_byte_array(&buffer_ptr, (const uint8_t*)&command_message->command_type, sizeof(command_message->command_type));
@@ -114,6 +120,11 @@ void ns_deserialize_message(const uint8_t* buffer, Message* message)
         StatusMsg* status_message = (StatusMsg*)message;
         ns_pop_byte_array(&buffer_ptr, (uint8_t*)&status_message->status, sizeof(status_message->status));
         ns_pop_byte_array(&buffer_ptr, (uint8_t*)status_message->text, sizeof(status_message->text));
+        break;
+    }
+    case MSGT_CONNECTED_CLIENTS: {
+        ConnectedClientsMsg* clients = (ConnectedClientsMsg*)message;
+        ns_pop_byte_array(&buffer_ptr, (uint8_t*)&clients->client_count, sizeof(clients->client_count));
         break;
     }
     case MSGT_COMMAND: {

@@ -16,6 +16,13 @@ typedef struct
     char text[64];
 } StatusMsg;
 
+typedef struct
+{
+    MessageHeader header;
+    uint8_t client_count;
+} ConnectedClientsMsg;
+
 StatusMsg* create_status_msg(bool status, const char* text);
+ConnectedClientsMsg* create_connected_clients_msg(uint8_t count);
 
 #endif

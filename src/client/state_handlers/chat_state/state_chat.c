@@ -26,10 +26,20 @@ void* handle_messages(void* arg)
         if (IS_NET_ERROR(chat->messages_error))
             break;
 
-        if (server_message->header.type == MSGT_USER_CHAT) {
+        switch (server_message->header.type) {
+        case MSGT_USER_CHAT: {
             UserChatMsg* chat_msg = (UserChatMsg*)server_message;
             ui_add_chat_entry(&chat->ui, chat_msg->user_base.username, chat_msg->text);
+            break;
         }
+        case MSGT_CONNECTED_CLIENTS: {
+            ConnectedClientsMsg* connected_clients_msg = (ConnectedClientsMsg*)server_message;
+            chat->ui.connected_count = connected_clients_msg->client_count;
+            ui_refresh(&chat->ui);
+            break;
+        }
+        }
+
         free(server_message);
     }
 
@@ -115,7 +125,13 @@ ErrorCode handle_state_chat(ClientData* data, AppState* next_state)
 
     // Initializes UI
     UI* ui = &chat.ui;
+
     ui_init(ui);
+    ui->connected_count = 1;
+    strcpy(ui->server_ip, data->connection_details.server_ip);
+
+    // Renders the entire UI
+    ui_refresh(ui);
 
     // Initializes mutexes and condition
     pthread_mutex_init(&chat.mutex, NULL);

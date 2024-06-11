@@ -11,10 +11,6 @@ typedef struct
 {
     Server* server;
     Client* client;
-
-    /// @brief Mutex used exclusively to block other
-    /// threads when sending messages in broadcast
-    pthread_mutex_t broadcast_mutex;
 } ServerStateData;
 
 ServerStateData create_server_data(Server* server, Client* client);

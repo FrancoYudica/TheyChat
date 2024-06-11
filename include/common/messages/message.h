@@ -22,8 +22,9 @@ enum MessageTypes {
     MSGT_CLIENT_CONNECTED,
     MSGT_CLIENT_ON_QUEUE,
 
-    // Flow control
+    // Status messages
     MSGT_STATUS,
+    MSGT_CONNECTED_CLIENTS,
 
     // Command
     MSGT_COMMAND

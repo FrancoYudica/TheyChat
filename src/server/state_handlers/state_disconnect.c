@@ -11,7 +11,7 @@ ErrorCode handle_state_disconnect(ServerStateData* handler_data, AppState* _)
         char text[128];
         sprintf(text, "Used named \"%s\" disconnected!", client->name);
         UserChatMsg* msg = create_user_chat_msg(text, "SERVER");
-        send_broadcast_exclude((const Message*)msg, handler_data, client);
+        send_broadcast_exclude((const Message*)msg, server, client);
         free(msg);
     }
 
@@ -19,6 +19,9 @@ ErrorCode handle_state_disconnect(ServerStateData* handler_data, AppState* _)
     pthread_mutex_lock(&server->client_list_mutex);
     client_list_remove(server->client_list, client->id);
     pthread_mutex_unlock(&server->client_list_mutex);
+
+    // Notifies all clients that a client was removed
+    server_client_count_update(server);
 
     return ERR_NET_OK;
 }

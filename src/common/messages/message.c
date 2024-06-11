@@ -44,6 +44,12 @@ void print_message(Message* message)
         break;
     }
 
+    case MSGT_CONNECTED_CLIENTS: {
+        ConnectedClientsMsg* connected_clients = (ConnectedClientsMsg*)message;
+        printf("client count: %i}\n", connected_clients->client_count);
+        break;
+    }
+
     case MSGT_COMMAND: {
         CommandMsg* command = (CommandMsg*)message;
         printf("command_type: %i, arg: %s}\n", command->command_type, command->arg);

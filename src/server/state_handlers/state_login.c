@@ -42,14 +42,17 @@ ErrorCode handle_state_login(ServerStateData* handler_data, AppState* next_state
 
     free(status_msg);
 
-    // Tells all the clients that a new client connected
+    // Tells all the clients that a new client connected.
     {
         char text[128];
         sprintf(text, "Used named \"%s\" logged in!", client->name);
         UserChatMsg* msg = create_user_chat_msg(text, "SERVER");
-        send_broadcast((const Message*)msg, handler_data);
+        send_broadcast((const Message*)msg, handler_data->server);
         free(msg);
     }
+
+    server_client_count_update(handler_data->server);
+
     debug_print_client(client);
     printf(" logged in!\n");
     *next_state = APP_STATE_CHAT;
