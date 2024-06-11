@@ -15,6 +15,8 @@ void render_input_window(UI* ui, char* input)
     // to update
     nodelay(ui->input_window, TRUE);
 
+    bool want_to_refresh = false;
+
     if (ui->input_enabled) {
         // Make the cursor visible when input is enabled
         curs_set(1);
@@ -44,6 +46,17 @@ void render_input_window(UI* ui, char* input)
             } else if ((ch == KEY_BACKSPACE || ch == 127 || ch == '\b') && input_length > 0) {
                 // Handle backspace, remove last character
                 ui->input_text[input_length - 1] = '\0';
+            } else if (ch == KEY_UP) {
+
+                if (ui->chat_entries_offset > 0) {
+                    ui->chat_entries_offset--;
+                    want_to_refresh = true;
+                }
+            } else if (ch == KEY_DOWN) {
+
+                ui->chat_entries_offset++;
+                want_to_refresh = true;
+
             } else if (isprint(ch) && input_length < sizeof(ui->input_text) - 1) {
                 // Append the typed character to the input text
                 ui->input_text[input_length] = ch;
@@ -80,4 +93,7 @@ void render_input_window(UI* ui, char* input)
 
     wrefresh(ui->input_window);
     pthread_mutex_unlock(&ui->render_mutex);
+
+    if (want_to_refresh)
+        ui_refresh(ui);
 }

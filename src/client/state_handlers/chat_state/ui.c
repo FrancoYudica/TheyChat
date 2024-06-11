@@ -84,6 +84,7 @@ void ui_init(UI* ui)
 
     // Enable function keys (F1, F2, arrow keys, etc.)
     keypad(stdscr, TRUE);
+    keypad(ui->input_window, TRUE);
 }
 
 void ui_add_chat_entry(UI* ui, const char* name, const char* text)
