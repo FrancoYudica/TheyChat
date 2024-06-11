@@ -51,6 +51,16 @@ bool client_list_remove(ClientList* client_list, uint32_t client_id);
 Client* client_list_find_by_id(ClientList* client_list, uint32_t client_id);
 
 /**
+ * @brief Finds a client in the client list by its name.
+ *
+ * @param client_list The client list in which to search for the client.
+ * @param client_name The name of the client to find.
+ *
+ * @return A pointer to the found client, or NULL if the client was not found.
+ */
+Client* client_list_find_by_name(ClientList* client_list, const char* name);
+
+/**
  * @brief Returns the length of the client list.
  *
  * @param client_list The client list.

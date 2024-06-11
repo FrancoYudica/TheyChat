@@ -22,8 +22,6 @@ ErrorCode handle_state_login(ClientData* data, AppState* next_state)
         if (IS_NET_ERROR(status))
             return status;
 
-        print_message((Message*)status_message);
-
         if (status_message->status == STATUS_MSG_FAILURE) {
             printf("%s\n", status_message->text);
         } else {

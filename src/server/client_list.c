@@ -141,6 +141,22 @@ Client* client_list_find_by_id(ClientList* client_list, uint32_t client_id)
     return NULL;
 }
 
+Client* client_list_find_by_name(ClientList* client_list, const char* name)
+{
+    // Loops through all the nodes until it finds the client with the specified ID
+    Node* current = client_list->front;
+    while (current != NULL) {
+        Node* next = current->next;
+        if (!strcmp(current->client.name, name))
+            return &current->client;
+
+        current = next;
+    }
+
+    // Not found
+    return NULL;
+}
+
 size_t client_list_length(ClientList* client_list)
 {
     return client_list->size;
