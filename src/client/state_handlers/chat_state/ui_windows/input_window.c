@@ -1,5 +1,6 @@
 #include "chat_state/ui.h"
 #include <ctype.h>
+
 void render_input_window(UI* ui, char* input)
 {
     // Keeps track of the length of the last input
@@ -11,7 +12,7 @@ void render_input_window(UI* ui, char* input)
     pthread_mutex_lock(&ui->render_mutex);
 
     // Make input non-blocking. This is very important, otherwise
-    // the input thread will keep the mutex, and chat wont be able
+    // the input thread will keep the mutex, and chat won't be able
     // to update
     nodelay(ui->input_window, TRUE);
 
@@ -21,12 +22,17 @@ void render_input_window(UI* ui, char* input)
         // Make the cursor visible when input is enabled
         curs_set(1);
         char prompt_message[] = "Type message: ";
+        int prompt_length = strlen(prompt_message);
+
+        // Calculate the maximum width for the input text
+        int max_width = getmaxx(ui->input_window) - 2; // -2 for the borders
+        int max_input_length = max_width - prompt_length;
 
         // Display the prompt message
         mvwprintw(ui->input_window, 1, 1, "%s", prompt_message);
 
         // Move the cursor to the end of the input text, where the next char will be placed
-        wmove(ui->input_window, 1, sizeof(prompt_message) + strlen(ui->input_text));
+        wmove(ui->input_window, 1, prompt_length + strlen(ui->input_text));
 
         // Get a character from the input window
         int ch = wgetch(ui->input_window);
@@ -36,7 +42,6 @@ void render_input_window(UI* ui, char* input)
 
             // Handle the enter key (send message)
             if (ch == '\n') {
-
                 // Copies into output buffer
                 memcpy(input, ui->input_text, input_length + 1);
 
@@ -47,17 +52,14 @@ void render_input_window(UI* ui, char* input)
                 // Handle backspace, remove last character
                 ui->input_text[input_length - 1] = '\0';
             } else if (ch == KEY_UP) {
-
                 if (ui->chat_entries_offset > 0) {
                     ui->chat_entries_offset--;
                     want_to_refresh = true;
                 }
             } else if (ch == KEY_DOWN) {
-
                 ui->chat_entries_offset++;
                 want_to_refresh = true;
-
-            } else if (isprint(ch) && input_length < sizeof(ui->input_text) - 1) {
+            } else if (isprint(ch) && input_length < sizeof(ui->input_text) - 1 && input_length < max_input_length) {
                 // Append the typed character to the input text
                 ui->input_text[input_length] = ch;
                 ui->input_text[input_length + 1] = '\0';
@@ -78,7 +80,6 @@ void render_input_window(UI* ui, char* input)
         }
         curs_set(0);
     } else {
-
         // Set the color pair for disabled input
         wattron(ui->input_window, COLOR_PAIR(2));
         char prompt_message[] = "Input disabled";
@@ -94,6 +95,7 @@ void render_input_window(UI* ui, char* input)
     wrefresh(ui->input_window);
     pthread_mutex_unlock(&ui->render_mutex);
 
-    if (want_to_refresh)
+    if (want_to_refresh) {
         ui_refresh(ui);
+    }
 }

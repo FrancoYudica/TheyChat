@@ -31,7 +31,7 @@ typedef struct
     uint32_t chat_color_pair_max;
 
     // Log window data
-    char log[64];
+    char log[256];
 
     // Input window data
     bool input_enabled;
@@ -45,6 +45,7 @@ typedef struct
 
 void ui_init(UI* ui);
 void ui_add_chat_entry(UI* ui, const char* name, const char* text);
+void ui_set_log_text(UI* ui, const char* text);
 void ui_refresh(UI* ui);
 void ui_free(UI* ui);
 

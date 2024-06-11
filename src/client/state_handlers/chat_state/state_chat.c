@@ -105,6 +105,11 @@ void* handle_input(void* arg)
         } else {
             UserChatMsg* msg = create_user_chat_msg(trimmed_input, data->username);
             chat->input_error = send_message((const Message*)msg, data->connection_context);
+
+            uint32_t log_size = sizeof(chat->ui.log);
+            char log[log_size];
+            snprintf(log, log_size, "Sent `%s` to server.", trimmed_input);
+            ui_set_log_text(&chat->ui, log);
             free(msg);
         }
 

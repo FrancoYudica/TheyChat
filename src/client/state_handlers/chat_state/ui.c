@@ -96,6 +96,11 @@ void ui_add_chat_entry(UI* ui, const char* name, const char* text)
     render_chat_window(ui);
 }
 
+void ui_set_log_text(UI* ui, const char* text)
+{
+    strcpy(ui->log, text);
+    render_log_window(ui);
+}
 void ui_refresh(UI* ui)
 {
     render_header_window(ui);
