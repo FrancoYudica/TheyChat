@@ -5,6 +5,15 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
+#include "messages/message.h"
+
+typedef struct chat_entry {
+    char name[MAX_USERNAME_BYTES];
+    char text[MAX_CHAT_TEXT_BYTES];
+    char ip[MAX_IP_BYTES];
+    uint8_t hour;
+    uint8_t minute;
+} ChatEntry;
 
 // Forward declaration of ChatEntries
 typedef struct chat_entries ChatEntries;
@@ -16,10 +25,7 @@ typedef struct chat_entries_iterator ChatEntriesIterator;
 ChatEntries* chat_entries_create();
 
 // Function to add a chat entry to the ChatEntries list
-void chat_entries_add(ChatEntries* list, const char* name, const char* text);
-
-// Function to get a chat entry by index from the ChatEntries list
-bool chat_entries_get_by_index(const ChatEntries* list, uint32_t index, const char** name, const char** text);
+void chat_entries_add(ChatEntries* list, ChatEntry entry);
 
 // Function to get the size of the ChatEntries list
 uint32_t chat_entries_get_size(const ChatEntries* list);
@@ -31,7 +37,7 @@ void chat_entries_free(ChatEntries* list);
 ChatEntriesIterator* chat_entries_create_iterator(const ChatEntries* list, int start_index);
 
 // Function to get the current chat entry from the iterator
-bool chat_entries_iterator_get_current(const ChatEntriesIterator* iterator, const char** name, const char** text);
+bool chat_entries_iterator_get_current(const ChatEntriesIterator* iterator, const ChatEntry** entry);
 
 // Function to move the iterator to the next chat entry
 bool chat_entries_iterator_move_next(ChatEntriesIterator* iterator);

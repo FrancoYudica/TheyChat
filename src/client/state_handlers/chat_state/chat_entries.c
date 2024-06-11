@@ -4,8 +4,7 @@
 
 // Define the structure for a single chat entry node (hidden from the public interface)
 typedef struct chat_entry_node {
-    char* name; // Name of the user
-    char* text; // Chat entry text
+    ChatEntry entry;
     struct chat_entry_node* next; // Pointer to the next chat entry node
 } ChatEntryNode;
 
@@ -23,8 +22,6 @@ struct chat_entries_iterator {
 
 static void chat_entries_free_node(ChatEntries* list, ChatEntryNode* node)
 {
-    free(node->name); // Free the duplicated name string
-    free(node->text); // Free the duplicated text string
     free(node);
     list->size--;
 }
@@ -38,11 +35,10 @@ ChatEntries* chat_entries_create()
     return list;
 }
 
-void chat_entries_add(ChatEntries* list, const char* name, const char* text)
+void chat_entries_add(ChatEntries* list, ChatEntry entry)
 {
     ChatEntryNode* new_node = (ChatEntryNode*)malloc(sizeof(ChatEntryNode));
-    new_node->name = strdup(name); // Duplicate the name string
-    new_node->text = strdup(text); // Duplicate the text string
+    new_node->entry = entry;
     new_node->next = NULL;
 
     // When the first node is added
@@ -64,26 +60,6 @@ void chat_entries_add(ChatEntries* list, const char* name, const char* text)
         chat_entries_free_node(list, list->head);
         list->head = next;
     }
-}
-
-bool chat_entries_get_by_index(const ChatEntries* list, uint32_t index, const char** name, const char** text)
-{
-    if (index >= list->size) {
-        return false; // Index out of bounds
-    }
-
-    ChatEntryNode* current = list->head;
-    for (int i = 0; i < index; i++) {
-        current = current->next;
-    }
-
-    if (current) {
-        *name = current->name;
-        *text = current->text;
-        return true;
-    }
-
-    return false;
 }
 
 uint32_t chat_entries_get_size(const ChatEntries* list)
@@ -113,14 +89,12 @@ ChatEntriesIterator* chat_entries_create_iterator(const ChatEntries* list, int s
     return iterator;
 }
 
-bool chat_entries_iterator_get_current(const ChatEntriesIterator* iterator, const char** name, const char** text)
+bool chat_entries_iterator_get_current(const ChatEntriesIterator* iterator, const ChatEntry** entry)
 {
     if (iterator->current == NULL) {
         return false; // No current chat entry
     }
-
-    *name = iterator->current->name;
-    *text = iterator->current->text;
+    *entry = &iterator->current->entry;
     return true;
 }
 

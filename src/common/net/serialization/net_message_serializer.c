@@ -16,6 +16,9 @@ void ns_serialize_message(const Message* message, uint8_t* buffer, size_t* buffe
         UserChatMsg* chat_message = (UserChatMsg*)message;
         ns_push_byte_array(&buffer_ptr, (const uint8_t*)chat_message->user_base.username, sizeof(chat_message->user_base.username));
         ns_push_byte_array(&buffer_ptr, (const uint8_t*)chat_message->text, sizeof(chat_message->text));
+        ns_push_byte_array(&buffer_ptr, (const uint8_t*)chat_message->ip, sizeof(chat_message->ip));
+        ns_push_byte_array(&buffer_ptr, (const uint8_t*)&chat_message->hours, sizeof(chat_message->hours));
+        ns_push_byte_array(&buffer_ptr, (const uint8_t*)&chat_message->minutes, sizeof(chat_message->minutes));
         break;
     }
 
@@ -93,6 +96,9 @@ void ns_deserialize_message(const uint8_t* buffer, Message* message)
         UserChatMsg* chat_message = (UserChatMsg*)message;
         ns_pop_byte_array(&buffer_ptr, (uint8_t*)chat_message->user_base.username, sizeof(chat_message->user_base.username));
         ns_pop_byte_array(&buffer_ptr, (uint8_t*)chat_message->text, sizeof(chat_message->text));
+        ns_pop_byte_array(&buffer_ptr, (uint8_t*)chat_message->ip, sizeof(chat_message->ip));
+        ns_pop_byte_array(&buffer_ptr, (uint8_t*)&chat_message->hours, sizeof(chat_message->hours));
+        ns_pop_byte_array(&buffer_ptr, (uint8_t*)&chat_message->minutes, sizeof(chat_message->minutes));
         break;
     }
 

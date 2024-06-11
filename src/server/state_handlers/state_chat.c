@@ -25,8 +25,21 @@ ErrorCode handle_state_chat(ServerStateData* state_data, AppState* next_state)
         print_message(client_msg);
 
         // Broadcasts the message to all clients
-        if (client_msg->header.type == MSGT_USER_CHAT)
-            send_broadcast((const Message*)client_msg, state_data->server);
+        if (client_msg->header.type == MSGT_USER_CHAT) {
+            UserChatMsg* client_chat_message = (UserChatMsg*)client_msg;
+
+            // Creates a new user chat msg with server time
+            UserChatMsg* server_chat_msg = create_user_chat_msg(
+                client_chat_message->text,
+                client_chat_message->user_base.username);
+
+            // Copies client IP
+            strncpy(server_chat_msg->ip, client->ip, sizeof(server_chat_msg->ip));
+
+            send_broadcast((const Message*)server_chat_msg, state_data->server);
+
+            free(server_chat_msg);
+        }
 
         // Process command
         else if (client_msg->header.type == MSGT_COMMAND) {

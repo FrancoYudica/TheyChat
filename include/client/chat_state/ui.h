@@ -6,9 +6,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include "messages/message.h"
-// Forward declaration of ChatEntries
-typedef struct chat_entries ChatEntries;
-
+#include "chat_entries.h"
 typedef struct
 {
     WINDOW* header_window;
@@ -26,9 +24,7 @@ typedef struct
 
     uint32_t white_color_pair;
     uint32_t soft_color_pair;
-    // Range that where color pairs for names are stored
-    uint32_t chat_color_pair_min;
-    uint32_t chat_color_pair_max;
+    uint32_t name_color_pair;
 
     // Log window data
     char log[256];
@@ -44,7 +40,7 @@ typedef struct
 } UI;
 
 void ui_init(UI* ui);
-void ui_add_chat_entry(UI* ui, const char* name, const char* text);
+void ui_add_chat_entry(UI* ui, ChatEntry entry);
 void ui_set_log_text(UI* ui, const char* text);
 void ui_refresh(UI* ui);
 void ui_free(UI* ui);

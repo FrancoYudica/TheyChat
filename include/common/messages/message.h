@@ -32,6 +32,7 @@ enum MessageTypes {
 
 #define MAX_CHAT_TEXT_BYTES 128
 #define MAX_USERNAME_BYTES 32
+#define MAX_IP_BYTES sizeof("255.255.255.255")
 
 /// @brief Data shared by all messages
 typedef struct

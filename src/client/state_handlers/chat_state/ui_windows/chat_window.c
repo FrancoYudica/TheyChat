@@ -1,16 +1,6 @@
 #include "chat_state/ui.h"
 #include "chat_state/chat_entries.h"
 
-uint32_t hash_string_to_n(const char* str, uint32_t min_n, uint32_t max_n)
-{
-    uint64_t acc;
-
-    for (uint32_t i = 0; i < strlen(str); i++) {
-        acc += str[i] * (1 + i);
-    }
-    return min_n + acc % (1 + max_n - min_n);
-}
-
 void render_chat_window(UI* ui)
 {
     pthread_mutex_lock(&ui->render_mutex);
@@ -37,15 +27,32 @@ void render_chat_window(UI* ui)
         if (moved_row > bottom_row)
             break;
 
-        const char* name;
-        const char* text;
-        chat_entries_iterator_get_current(iterator, &name, &text);
+        const ChatEntry* entry;
+        chat_entries_iterator_get_current(iterator, &entry);
 
-        // Prints name and text
-        // uint32_t color_pair_id = hash_string_to_n(name, ui->chat_color_pair_min, ui->chat_color_pair_max);
-        // wattron(ui->chat_window, COLOR_PAIR(color_pair_id));
-        mvwprintw(ui->chat_window, moved_row, 1, "%s: %s", name, text);
-        // wattroff(ui->chat_window, COLOR_PAIR(color_pair_id));
+        // Keeps track of column
+        uint32_t col = 1;
+
+        // Renders time
+        wattron(ui->chat_window, COLOR_PAIR(ui->soft_color_pair));
+        mvwprintw(ui->chat_window, moved_row, col, " %02d:%02d ", entry->hour, entry->minute);
+        wattroff(ui->chat_window, COLOR_PAIR(ui->soft_color_pair));
+        col += 8;
+
+        // Renders name
+        wattron(ui->chat_window, COLOR_PAIR(ui->name_color_pair));
+        mvwprintw(ui->chat_window, moved_row, col, "%s", entry->name);
+        wattroff(ui->chat_window, COLOR_PAIR(ui->name_color_pair));
+        col += strlen(entry->name);
+
+        // Renders IP
+        wattron(ui->chat_window, COLOR_PAIR(ui->soft_color_pair));
+        mvwprintw(ui->chat_window, moved_row, col, " (%s)", entry->ip);
+        wattroff(ui->chat_window, COLOR_PAIR(ui->soft_color_pair));
+        col += strlen(entry->ip) + 3;
+
+        // Renders text
+        mvwprintw(ui->chat_window, moved_row, col, ": %s", entry->text);
 
         chat_entries_iterator_move_next(iterator);
     }

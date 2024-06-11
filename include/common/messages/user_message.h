@@ -12,6 +12,9 @@ typedef struct
 {
     UserBaseMsg user_base;
     char text[MAX_CHAT_TEXT_BYTES];
+    char ip[sizeof("255.255.255.255")];
+    uint8_t hours;
+    uint8_t minutes;
 } UserChatMsg;
 
 typedef struct
