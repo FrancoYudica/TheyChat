@@ -2,15 +2,14 @@
 
 ## Overview
 
-TheyChat is a client-server chat application developed solely by me. The application allows multiple clients to connect to a server, join chat rooms, exchange messages, and transfer files. The project is built using CMake and is designed to run on POSIX systems, utilizing pthreads for multithreading and ncurses for a simple client UI. Communication between the client and server is encrypted using SSL.
+TheyChat is a client-server chat application developed solely by me. The application allows multiple clients to connect to a server, join chat rooms, and exchange messages. The project is built using CMake and is designed to run on POSIX systems, utilizing pthreads for multithreading and ncurses for a simple client UI. Communication between the client and server is encrypted using SSL.
 
 ## Features
 
 - **Multithreaded Server**: Handles multiple clients concurrently using pthreads.
 - **Client UI**: Simple text-based interface built with ncurses.
-- **Encrypted Communication**: Ensures secure message and file transfer using SSL.
+- **Encrypted Communication**: Ensures secure message transfer using SSL.
 - **Cross-platform**: Designed to run on POSIX-compliant systems.
-- **File Transfer**: Supports sending and receiving files between clients.
 - **CMake Build System**: Easy to build and manage the project.
 - **MIT Licensed**: Open-source and freely available for modification and distribution.
 
@@ -27,7 +26,7 @@ TheyChat is a client-server chat application developed solely by me. The applica
 
 1. Clone the repository:
     ```sh
-    git clone https://github.com/FrancoYudica/TheyChat.git
+    git clone --recursive https://github.com/FrancoYudica/TheyChat.git
     cd TheyChat
     ```
 
@@ -52,7 +51,7 @@ TheyChat is a client-server chat application developed solely by me. The applica
       cmake -DTHEY_CHAT_COMPILE_TESTS=ON ..
       ```
 
-    If `THEY_CHAT_USE_SSL` is enabled, a valid certificate and key file should be provided. By default, the application expects the certificate and key to be located in `~/.ssl/TheyChat/` directory with filenames `certificate.pem` and `private.key` respectively.
+    If `THEY_CHAT_SSL` is enabled, a valid certificate and key file should be provided. By default, the application expects the certificate and key to be located in `~/.ssl/TheyChat/` directory with filenames `certificate.pem` and `private.key` respectively.
 
 4. Build the project:
     ```sh
@@ -85,15 +84,28 @@ TheyChat is a client-server chat application developed solely by me. The applica
 
 ## Usage
 
-- **Server**: The server application listens for incoming client connections, manages chat rooms, and handles message and file transfers.
-- **Client**: The client application connects to the server, allowing users to join chat rooms, send and receive messages, and transfer files.
+- **Server**: The server application listens for incoming client connections, manages chat rooms, and handles message transfers.
+- **Client**: The client application connects to the server, allowing users to join chat rooms and send and receive messages.
 
 ## Generating SSL Certificates
 
-To generate the SSL certificate and key required for secure communication, you can use the `generate_ssl.sh` script included in the repository. This script creates the necessary files in the `~/.ssl/TheyChat/` directory.
+To generate the SSL certificate and key required for secure communication, you can use the `generate_ssl.sh` script included in the repository. This script creates the necessary files in the `~/.ssl/TheyChat/` directory. The generated certificate is a self-signed certificate, created for testing purposes.
 
 To run the script, navigate to the directory where the script is located and execute it:
 
 ```sh
 chmod +x generate_ssl.sh
 ./generate_ssl.sh
+```
+## License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## Acknowledgements
+
+- [ncurses](https://invisible-island.net/ncurses/)
+- [OpenSSL](https://www.openssl.org/)
+
+## Contact
+
+If you have any questions or suggestions, feel free to contact me via GitHub.
