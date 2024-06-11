@@ -43,14 +43,16 @@ TheyChat is a client-server chat application developed solely by me. The applica
     ```
 
     **Build Options:**
+    - `THEY_CHAT_SSL`: Enable or disable SSL encryption.
+      ```sh
+      cmake -DTHEY_CHAT_SSL=ON ..
+      ```
     - `THEY_CHAT_COMPILE_TEST`: Enable or disable tests.
       ```sh
-      cmake -DTHEY_CHAT_COMPILE_TEST=ON ..
+      cmake -DTHEY_CHAT_COMPILE_TESTS=ON ..
       ```
-    - `THEY_CHAT_ENABLE_SSL`: Enable or disable SSL encryption. If enabled, a valid certificate and key file (both with .pem extension) should be provided.
-      ```sh
-      cmake -DTHEY_CHAT_ENABLE_SSL=ON ..
-      ```
+
+    If `THEY_CHAT_USE_SSL` is enabled, a valid certificate and key file should be provided. By default, the application expects the certificate and key to be located in `~/.ssl/TheyChat/` directory with filenames `certificate.pem` and `private.key` respectively.
 
 4. Build the project:
     ```sh
@@ -86,15 +88,12 @@ TheyChat is a client-server chat application developed solely by me. The applica
 - **Server**: The server application listens for incoming client connections, manages chat rooms, and handles message and file transfers.
 - **Client**: The client application connects to the server, allowing users to join chat rooms, send and receive messages, and transfer files.
 
-## License
+## Generating SSL Certificates
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+To generate the SSL certificate and key required for secure communication, you can use the `generate_ssl.sh` script included in the repository. This script creates the necessary files in the `~/.ssl/TheyChat/` directory.
 
-## Acknowledgements
+To run the script, navigate to the directory where the script is located and execute it:
 
-- [ncurses](https://invisible-island.net/ncurses/)
-- [OpenSSL](https://www.openssl.org/)
-
-## Contact
-
-If you have any questions or suggestions, feel free to contact me via GitHub.
+```sh
+chmod +x generate_ssl.sh
+./generate_ssl.sh

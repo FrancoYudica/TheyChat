@@ -7,6 +7,7 @@ typedef struct
 {
     ClientList* client_list;
     uint32_t port;
+    uint32_t max_client_count;
     pthread_mutex_t client_list_mutex;
     ConnectionContext* context;
 } Server;

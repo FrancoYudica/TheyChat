@@ -12,6 +12,7 @@ struct ConnectionContext {
     SSL_CTX* ctx;
     SSL* ssl;
     int32_t socket;
+    BIO* bio;
 };
 
 static void report_and_exit(const char* msg)
@@ -35,25 +36,63 @@ static void configure_context(
     }
 }
 
+// static void ssl_connect(
+//     ConnectionContext* ctx,
+//     const char* host,
+//     uint16_t port)
+// {
+//     ctx->ssl = SSL_new(ctx->ctx);
+//     BIO* bio = BIO_new_ssl_connect(ctx->ctx);
+//     BIO_get_ssl(bio, &ctx->ssl);
+//     SSL_set_mode(ctx->ssl, SSL_MODE_AUTO_RETRY);
+
+//     char hostname[1024];
+//     snprintf(hostname, sizeof(hostname), "%s:%i", host, port);
+//     BIO_set_conn_hostname(bio, hostname);
+
+//     // Set hostname for TLS SNI extension
+//     SSL_set_tlsext_host_name(ctx->ssl, host);
+
+//     if (BIO_do_connect(bio) <= 0) {
+//         report_and_exit("BIO_do_connect");
+//     }
+//     ctx->socket = BIO_get_fd(bio, NULL);
+// }
+
 static void ssl_connect(
     ConnectionContext* ctx,
     const char* host,
     uint16_t port)
 {
+    // Create SSL object
     ctx->ssl = SSL_new(ctx->ctx);
-    BIO* bio = BIO_new_ssl_connect(ctx->ctx);
-    BIO_get_ssl(bio, &ctx->ssl);
-    SSL_set_mode(ctx->ssl, SSL_MODE_AUTO_RETRY);
 
-    char hostname[1024];
-    snprintf(hostname, sizeof(hostname), "%s:%i", host, port);
-    BIO_set_conn_hostname(bio, hostname);
+    // Set hostname for TLS SNI extension
     SSL_set_tlsext_host_name(ctx->ssl, host);
 
-    if (BIO_do_connect(bio) <= 0) {
+    // Create BIO object for SSL connection
+    ctx->bio = BIO_new_ssl_connect(ctx->ctx);
+    BIO_get_ssl(ctx->bio, &ctx->ssl);
+    SSL_set_mode(ctx->ssl, SSL_MODE_AUTO_RETRY);
+
+    // Set connection hostname and port
+    char hostname[1024];
+    snprintf(hostname, sizeof(hostname), "%s:%i", host, port);
+    BIO_set_conn_hostname(ctx->bio, hostname);
+
+    // Perform SSL handshake
+    if (BIO_do_connect(ctx->bio) <= 0) {
         report_and_exit("BIO_do_connect");
     }
-    ctx->socket = BIO_get_fd(bio, NULL);
+
+    // Verify server certificate
+    if (SSL_get_verify_result(ctx->ssl) != X509_V_OK) {
+        printf("Couldn't verify certificate...\n");
+    }
+
+    // Get file descriptor for socket
+    ctx->socket = BIO_get_fd(ctx->bio, NULL);
+    BIO_set_fd(ctx->bio, -1, BIO_NOCLOSE);
 }
 
 void net_init()

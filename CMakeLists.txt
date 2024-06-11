@@ -7,7 +7,7 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_STANDARD_REQUIRED True)
 
 # Define an option to compile with or without SSL
-option(THEY_CHAT_USE_SSL "Compile with SSL support" ON)
+option(THEY_CHAT_SSL "Compile with SSL support" ON)
 option(THEY_CHAT_COMPILE_TESTS "Compile TheyChat tests" OFF)
 
 add_subdirectory(libs)
@@ -37,7 +37,7 @@ set(COMMON_SOURCES
 )
 
 # Changes encription at compile time
-if(THEY_CHAT_USE_SSL)
+if(THEY_CHAT_SSL)
     # If SSL is enabled, add ssl_primitives.c to the common sources
     list(APPEND COMMON_SOURCES src/common/net/primitives_impl/ssl_primitives.c)
 else()
@@ -47,6 +47,11 @@ endif()
 
 # Add the library
 add_library(chat_lib ${COMMON_SOURCES})
+
+# Conditionally add the preprocessor definition
+if(THEY_CHAT_SSL)
+    target_compile_definitions(chat_lib INTERFACE THEY_CHAT_SSL)
+endif()
 
 # Include directories for the library
 target_include_directories(chat_lib PUBLIC "${PROJECT_SOURCE_DIR}/include/common")

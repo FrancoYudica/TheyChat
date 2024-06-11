@@ -46,9 +46,11 @@ int main(int argc, char** argv)
     init_net_stream(&data.stream);
 
     // Initializes socket and connects to server
+    printf("Connecting to server ip (%s) and port (%d)...\n", connection_details.server_ip, connection_details.port);
     data.connection_context = net_client_create_socket(connection_details.port, connection_details.server_ip);
 
     // Starts execution of FSM
+    printf("Entering application...\n");
     client_states_handler_fsm(&data, APP_STATE_CONNECT);
 
     net_shutdown();

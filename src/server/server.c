@@ -15,6 +15,7 @@ int main(int argc, char** argv)
     Server server;
     memset(&server, 0, sizeof(Server));
     server.port = 8000;
+    server.max_client_count = 10;
 
     // Loads arguments
     int i = 0;
@@ -26,25 +27,42 @@ int main(int argc, char** argv)
             server.port = atoi(port_str);
         }
 
+        if (!strcmp(parameter, "--max_clients")) {
+            char* max_clients_str = argv[i];
+            server.max_client_count = atoi(max_clients_str);
+        }
+
         else
             printf("Unrecognized parameter \"%s\"", parameter);
     }
     net_init();
-    thpool_t* thpool = thpool_create(2);
+    thpool_t* thpool = thpool_create(server.max_client_count);
 
     // Initializes client list
     server.client_list = client_list_create();
 
-    // Initializes socket
-    server.context = net_server_create_socket(
-        "/home/franco/Certificates/cert.pem",
-        "/home/franco/Certificates/key.pem",
-        server.port);
+#ifdef THEY_CHAT_SSL
+    printf("Loading SSL certificate and key\n");
+    // Certificate and private key paths
+    const char* home_path = getenv("HOME");
+    char cert_file[128];
+    char key_file[128];
+    sprintf(cert_file, "%s/.ssl/TheyChat/certificate.pem", home_path);
+    sprintf(key_file, "%s/.ssl/TheyChat/private.key", home_path);
 
+    printf("- Certificate path: %s\n", cert_file);
+    printf("- Private key path: %s\n", key_file);
+    // Initializes socket with certificates
+    server.context = net_server_create_socket(cert_file, key_file, server.port);
+
+#else
+    // Not using SSL, certificates not needed
+    server.context = net_server_create_socket(NULL, NULL, server.port);
+#endif
     // Sets up listen
     net_listen(server.context, 5);
 
-    printf("SERVER: Listening. Waiting for client connections...\n");
+    printf("Listening on port %i. Waiting for client connections...\n", server.port);
 
     // Message sent to client in case there aren't any free
     // threads, and stays in client queue
