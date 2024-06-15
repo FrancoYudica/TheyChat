@@ -43,7 +43,7 @@ ErrorCode handle_state_chat(ServerStateData* state_data, AppState* next_state)
 
         // Process command
         else if (client_msg->header.type == MSGT_COMMAND) {
-            execute_command_processor(state_data, (CommandMsg*)client_msg);
+            error = execute_command_processor(state_data, (CommandMsg*)client_msg);
         }
 
         else {
@@ -51,6 +51,9 @@ ErrorCode handle_state_chat(ServerStateData* state_data, AppState* next_state)
         }
 
         free(client_msg);
+
+        if (IS_NET_ERROR(error))
+            break;
     }
 
     *next_state = APP_STATE_DISCONNECT;

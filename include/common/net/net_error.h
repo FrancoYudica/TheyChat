@@ -6,6 +6,7 @@
 /// @brief Type used to retrieve status after network operations
 typedef enum {
     ERR_NET_OK = 0,
+    ERR_NET_DISCONNECT,
     ERR_INVALID_ARGUMENT,
     ERR_NET_FAILURE,
     ERR_PEER_DISCONNECTED,

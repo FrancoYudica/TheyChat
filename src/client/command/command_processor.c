@@ -13,5 +13,14 @@ ErrorCode execute_command_processor(ClientData* data, uint8_t command_type, cons
 
     free(command_msg);
 
+    switch (command_type) {
+    case CMDT_DISCONNECT:
+        return ERR_NET_DISCONNECT;
+        break;
+
+    default:
+        break;
+    }
+
     return ERR_NET_OK;
 }

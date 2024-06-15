@@ -77,9 +77,7 @@ ErrorCode process_command(Chat* chat, const char* command)
     if (command_type == CMDT_NULL)
         return ERR_NET_OK;
 
-    execute_command_processor(chat->client_data, command_type, arg);
-
-    return err;
+    return execute_command_processor(chat->client_data, command_type, arg);
 }
 
 extern void render_input_window(UI* ui, char* input);
