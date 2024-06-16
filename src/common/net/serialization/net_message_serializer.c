@@ -12,6 +12,12 @@ void ns_serialize_message(const Message* message, uint8_t* buffer, size_t* buffe
 
     // Serializes properties for the corresponding message type
     switch (message->header.type) {
+    // Empty messages
+    case MSGT_FILE_END:
+    case MSGT_SEQUENCE_START:
+    case MSGT_SEQUENCE_END:
+        break;
+
     case MSGT_USER_CHAT: {
         UserChatMsg* chat_message = (UserChatMsg*)message;
         ns_push_byte_array(&buffer_ptr, (const uint8_t*)chat_message->user_base.username, sizeof(chat_message->user_base.username));
@@ -40,8 +46,6 @@ void ns_serialize_message(const Message* message, uint8_t* buffer, size_t* buffe
         ns_push_byte_array(&buffer_ptr, (const uint8_t*)file_message->binary_payload, sizeof(file_message->binary_payload));
         break;
     }
-    case MSGT_FILE_END:
-        break;
 
     case MSGT_CLIENT_CONNECTED:
     case MSGT_CLIENT_ON_QUEUE: {
@@ -70,6 +74,11 @@ void ns_serialize_message(const Message* message, uint8_t* buffer, size_t* buffe
         break;
     }
 
+    case MSGT_HEAP_SEQUENCE: {
+        HeapSequenceMsg* heap_seq = (HeapSequenceMsg*)message;
+        ns_push_byte_array(&buffer_ptr, (const uint8_t*)heap_seq->payload, heap_seq->header.payload_length);
+        break;
+    }
     default:
         printf("Unimplemented serialization for message type %i\n", message->header.type);
         exit(EXIT_FAILURE);
@@ -92,6 +101,12 @@ void ns_deserialize_message(const uint8_t* buffer, Message* message)
 
     // Serializes properties for the corresponding message type
     switch (message->header.type) {
+    // Empty messages
+    case MSGT_FILE_END:
+    case MSGT_SEQUENCE_START:
+    case MSGT_SEQUENCE_END:
+        break;
+
     case MSGT_USER_CHAT: {
         UserChatMsg* chat_message = (UserChatMsg*)message;
         ns_pop_byte_array(&buffer_ptr, (uint8_t*)chat_message->user_base.username, sizeof(chat_message->user_base.username));
@@ -137,6 +152,17 @@ void ns_deserialize_message(const uint8_t* buffer, Message* message)
         CommandMsg* command_message = (CommandMsg*)message;
         ns_pop_byte_array(&buffer_ptr, (uint8_t*)&command_message->command_type, sizeof(command_message->command_type));
         ns_pop_byte_array(&buffer_ptr, (uint8_t*)command_message->arg, sizeof(command_message->arg));
+        break;
+    }
+
+    case MSGT_HEAP_SEQUENCE: {
+        HeapSequenceMsg* heap_seq = (HeapSequenceMsg*)message;
+
+        // Allocates memory
+        heap_seq->payload = malloc(heap_seq->header.payload_length);
+
+        // Copies the buffer memory onto the newly allocated buffer
+        ns_pop_byte_array(&buffer_ptr, (uint8_t*)heap_seq->payload, heap_seq->header.payload_length);
         break;
     }
 

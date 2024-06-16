@@ -27,7 +27,12 @@ enum MessageTypes {
     MSGT_CONNECTED_CLIENTS,
 
     // Command
-    MSGT_COMMAND
+    MSGT_COMMAND,
+
+    // Sequence
+    MSGT_SEQUENCE_START,
+    MSGT_SEQUENCE_END,
+    MSGT_HEAP_SEQUENCE
 };
 
 #define MAX_CHAT_TEXT_BYTES 128
@@ -50,6 +55,9 @@ typedef struct
 {
     MessageHeader header;
 } Message;
+
+/// @brief Empty messages that only have a type, and no data
+typedef Message EmptyMessage;
 
 void print_message(Message* message);
 

@@ -56,6 +56,12 @@ void print_message(Message* message)
         break;
     }
 
+    case MSGT_SEQUENCE_START:
+    case MSGT_SEQUENCE_END:
+    case MSGT_HEAP_SEQUENCE:
+        printf("}\n");
+        break;
+
     default:
         break;
     }

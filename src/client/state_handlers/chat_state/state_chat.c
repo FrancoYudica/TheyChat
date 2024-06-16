@@ -48,6 +48,11 @@ void* handle_messages(void* arg)
             ui_refresh(&chat->ui);
             break;
         }
+        default:
+            printf("Received unexpected message type\n");
+            print_message(server_message);
+            chat_exit(chat);
+            break;
         }
 
         free(server_message);

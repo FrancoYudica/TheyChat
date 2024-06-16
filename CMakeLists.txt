@@ -22,6 +22,7 @@ set(COMMON_SOURCES
     src/common/messages/client_message.c
     src/common/messages/status_message.c
     src/common/messages/command_message.c
+    src/common/messages/seq_message.c
     src/common/messages/messages_types.c
     
     # Networking

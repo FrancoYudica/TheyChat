@@ -20,7 +20,12 @@ static uint32_t messages_sizes[] = {
     sizeof(ConnectedClientsMsg),
 
     // Command
-    sizeof(CommandMsg)
+    sizeof(CommandMsg),
+
+    // Sequence
+    sizeof(SequenceStartMsg),
+    sizeof(SequenceEndMsg),
+    sizeof(HeapSequenceMsg)
 };
 
 // Maps numeric type to string
@@ -45,7 +50,12 @@ static const char* message_types[] = {
     "CONNECTED_CLIENTS"
 
     // Command
-    "COMMAND"
+    "COMMAND",
+
+    // Sequence
+    "SEQUENCE_START",
+    "SEQUENCE_END",
+    "HEAP_SEQUENCE"
 };
 
 uint32_t msg_get_type_size(uint8_t type)
