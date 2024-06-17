@@ -1,6 +1,76 @@
 #include "chat_state/ui.h"
 #include "chat_state/chat_entries.h"
 
+static uint32_t min(uint32_t a, uint32_t b)
+{
+    return (a > b) ? b : a;
+}
+
+/// @brief Renders multiline text, checking that the text is always inside the window
+/// @param row pointer to the row, since this function moves the row for next text rendering
+/// @param src_column fixed colum where text always starts, even in new rows.
+static void mvwprint_multiline(
+    WINDOW* chat_window,
+    uint32_t* row,
+    uint32_t src_column,
+    const char* src_text)
+{
+    uint32_t n_columns, n_rows;
+    getmaxyx(chat_window, n_rows, n_columns);
+
+    uint32_t max_column = n_columns - 2;
+    uint32_t max_row = n_rows - 2;
+    uint32_t text_len = strlen(src_text);
+    uint32_t text_space = max_column - src_column;
+
+    const char* text_ptr = src_text;
+
+    // Text will be rendered overflows the window
+    uint32_t remaining_text_len = text_len;
+    while (remaining_text_len != 0 && max_row >= *row) {
+
+        // Amount of characters that will get rendered
+        uint32_t render_chars = min(strlen(text_ptr), text_space);
+
+        // Renders a section of the string
+        mvwaddnstr(chat_window, *row, src_column, text_ptr, render_chars);
+
+        // Offsets text pointer
+        text_ptr += render_chars;
+        remaining_text_len -= render_chars;
+
+        // Offsets to next row if there are characters left
+        if (remaining_text_len > 0)
+            (*row) += 1;
+    }
+}
+
+static void render_text_entry(UI* ui, const ChatEntry* entry, uint32_t* row)
+{
+    // Keeps track of column
+    uint32_t col = 1;
+
+    // Renders time
+    wattron(ui->chat_window, COLOR_PAIR(ui->soft_color_pair));
+    mvwprintw(ui->chat_window, *row, col, " %02d:%02d ", entry->hour, entry->minute);
+    wattroff(ui->chat_window, COLOR_PAIR(ui->soft_color_pair));
+    col += 8;
+
+    // Renders name
+    wattron(ui->chat_window, COLOR_PAIR(ui->name_color_pair));
+    mvwprintw(ui->chat_window, *row, col, "%s", entry->name);
+    wattroff(ui->chat_window, COLOR_PAIR(ui->name_color_pair));
+    col += strlen(entry->name);
+
+    // Renders IP
+    wattron(ui->chat_window, COLOR_PAIR(ui->soft_color_pair));
+    mvwprintw(ui->chat_window, *row, col, " (%s): ", entry->ip);
+    wattroff(ui->chat_window, COLOR_PAIR(ui->soft_color_pair));
+    col += strlen(entry->ip) + 5;
+
+    // Renders text
+    mvwprint_multiline(ui->chat_window, row, col, entry->text);
+}
 void render_chat_window(UI* ui)
 {
     pthread_mutex_lock(&ui->render_mutex);
@@ -19,41 +89,17 @@ void render_chat_window(UI* ui)
 
     ChatEntriesIterator* iterator = chat_entries_create_iterator(ui->chat_entries, ui->chat_entries_offset);
 
-    uint32_t index = 0;
+    uint32_t row = 0;
 
     while (chat_entries_iterator_has_more(iterator)) {
-        uint32_t moved_row = 1 + index++;
+        row++;
 
-        if (moved_row > bottom_row)
+        if (row > bottom_row)
             break;
 
         const ChatEntry* entry;
         chat_entries_iterator_get_current(iterator, &entry);
-
-        // Keeps track of column
-        uint32_t col = 1;
-
-        // Renders time
-        wattron(ui->chat_window, COLOR_PAIR(ui->soft_color_pair));
-        mvwprintw(ui->chat_window, moved_row, col, " %02d:%02d ", entry->hour, entry->minute);
-        wattroff(ui->chat_window, COLOR_PAIR(ui->soft_color_pair));
-        col += 8;
-
-        // Renders name
-        wattron(ui->chat_window, COLOR_PAIR(ui->name_color_pair));
-        mvwprintw(ui->chat_window, moved_row, col, "%s", entry->name);
-        wattroff(ui->chat_window, COLOR_PAIR(ui->name_color_pair));
-        col += strlen(entry->name);
-
-        // Renders IP
-        wattron(ui->chat_window, COLOR_PAIR(ui->soft_color_pair));
-        mvwprintw(ui->chat_window, moved_row, col, " (%s)", entry->ip);
-        wattroff(ui->chat_window, COLOR_PAIR(ui->soft_color_pair));
-        col += strlen(entry->ip) + 3;
-
-        // Renders text
-        mvwprintw(ui->chat_window, moved_row, col, ": %s", entry->text);
-
+        render_text_entry(ui, entry, &row);
         chat_entries_iterator_move_next(iterator);
     }
 
