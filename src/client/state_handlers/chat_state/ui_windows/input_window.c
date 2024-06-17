@@ -31,14 +31,18 @@ void render_input_window(UI* ui, char* input)
         // Display the prompt message
         mvwprintw(ui->input_window, 1, 1, "%s", prompt_message);
 
+        size_t input_length = strlen(ui->input_text);
+
         // Move the cursor to the end of the input text, where the next char will be placed
-        wmove(ui->input_window, 1, prompt_length + strlen(ui->input_text));
+        if (1 + input_length > max_input_length) {
+            wmove(ui->input_window, 1, max_width);
+        } else
+            wmove(ui->input_window, 1, prompt_length + input_length + 1);
 
         // Get a character from the input window
         int ch = wgetch(ui->input_window);
 
         if (ch != ERR) {
-            size_t input_length = strlen(ui->input_text);
 
             // Handle the enter key (send message)
             if (ch == '\n') {
@@ -59,26 +63,31 @@ void render_input_window(UI* ui, char* input)
             } else if (ch == KEY_DOWN) {
                 ui->chat_entries_offset++;
                 want_to_refresh = true;
-            } else if (isprint(ch) && input_length < sizeof(ui->input_text) - 1 && input_length < max_input_length) {
+            } else if (isprint(ch) && input_length < sizeof(ui->input_text) - 1) {
                 // Append the typed character to the input text
                 ui->input_text[input_length] = ch;
-                ui->input_text[input_length + 1] = '\0';
+                ui->input_text[++input_length] = '\0';
             }
 
             // Update the display only if the input text has changed
             if (strcmp(last_input_text, ui->input_text) != 0) {
-                // Display the input text
-                mvwprintw(ui->input_window, 1, sizeof(prompt_message), "%s", ui->input_text);
+                const char* start_str = ui->input_text;
 
+                // Only renders a segment of the input in case all space is occupied is reached.
+                if (input_length + 1 > max_input_length)
+                    start_str += 1 + input_length - max_input_length;
+
+                // Display the input text
+                mvwprintw(ui->input_window, 1, sizeof(prompt_message), "%s", start_str);
                 // Clear the rest of the line
                 wclrtoeol(ui->input_window);
 
                 // Update the last input text
-                strncpy(last_input_text, ui->input_text, sizeof(last_input_text) - 1);
                 last_input_text[sizeof(last_input_text) - 1] = '\0';
+                strncpy(last_input_text, ui->input_text, sizeof(last_input_text) - 1);
             }
+            curs_set(0);
         }
-        curs_set(0);
     } else {
         // Set the color pair for disabled input
         wattron(ui->input_window, COLOR_PAIR(2));
