@@ -32,14 +32,25 @@ void* handle_messages(void* arg)
 
             // Sets up chat entry
             ChatEntry entry;
-            strncpy(entry.name, chat_msg->user_base.username, MAX_USERNAME_BYTES);
-            strncpy(entry.text, chat_msg->text, MAX_CHAT_TEXT_BYTES);
-            strncpy(entry.ip, chat_msg->ip, MAX_IP_BYTES);
-            entry.hour = chat_msg->hours;
-            entry.minute = chat_msg->minutes;
+            entry.type = CHAT_ENTRY_USER_TEXT;
+            strncpy(entry.data.user_text.name, chat_msg->user_base.username, MAX_USERNAME_BYTES);
+            strncpy(entry.data.user_text.text, chat_msg->text, MAX_CHAT_TEXT_BYTES);
+            strncpy(entry.data.user_text.ip, chat_msg->ip, MAX_IP_BYTES);
+            entry.time.hour = chat_msg->hours;
+            entry.time.minute = chat_msg->minutes;
 
             // Sends chat entry to UI
             ui_add_chat_entry(&chat->ui, entry);
+
+            // Sets up chat entry
+            ChatEntry notification;
+            notification.type = CHAT_ENTRY_SERVER_NOTIFICATION;
+            sprintf(notification.data.server_notification.text, "Client %s sent a message!", chat_msg->user_base.username);
+            notification.time.hour = chat_msg->hours;
+            notification.time.minute = chat_msg->minutes;
+
+            ui_add_chat_entry(&chat->ui, notification);
+
             break;
         }
         case MSGT_CONNECTED_CLIENTS: {

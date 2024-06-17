@@ -45,32 +45,10 @@ static void mvwprint_multiline(
     }
 }
 
-static void render_text_entry(UI* ui, const ChatEntry* entry, uint32_t* row)
-{
-    // Keeps track of column
-    uint32_t col = 1;
+// Functions used to render the different ChatEntry types
+static void render_user_text_entry(UI* ui, const ChatEntry* entry, uint32_t* row, uint32_t col);
+static void render_server_notification_entry(UI* ui, const ChatEntry* entry, uint32_t* row, uint32_t col);
 
-    // Renders time
-    wattron(ui->chat_window, COLOR_PAIR(ui->soft_color_pair));
-    mvwprintw(ui->chat_window, *row, col, " %02d:%02d ", entry->hour, entry->minute);
-    wattroff(ui->chat_window, COLOR_PAIR(ui->soft_color_pair));
-    col += 8;
-
-    // Renders name
-    wattron(ui->chat_window, COLOR_PAIR(ui->name_color_pair));
-    mvwprintw(ui->chat_window, *row, col, "%s", entry->name);
-    wattroff(ui->chat_window, COLOR_PAIR(ui->name_color_pair));
-    col += strlen(entry->name);
-
-    // Renders IP
-    wattron(ui->chat_window, COLOR_PAIR(ui->soft_color_pair));
-    mvwprintw(ui->chat_window, *row, col, " (%s): ", entry->ip);
-    wattroff(ui->chat_window, COLOR_PAIR(ui->soft_color_pair));
-    col += strlen(entry->ip) + 5;
-
-    // Renders text
-    mvwprint_multiline(ui->chat_window, row, col, entry->text);
-}
 void render_chat_window(UI* ui)
 {
     pthread_mutex_lock(&ui->render_mutex);
@@ -99,7 +77,28 @@ void render_chat_window(UI* ui)
 
         const ChatEntry* entry;
         chat_entries_iterator_get_current(iterator, &entry);
-        render_text_entry(ui, entry, &row);
+
+        // Keeps track of column
+        uint32_t col = 1;
+
+        // Renders time
+        wattron(ui->chat_window, COLOR_PAIR(ui->soft_color_pair));
+        mvwprintw(ui->chat_window, row, col, "%03d %02d:%02d ", row + ui->chat_entries_offset, entry->time.hour, entry->time.minute);
+        wattroff(ui->chat_window, COLOR_PAIR(ui->soft_color_pair));
+        col += 11;
+
+        switch (entry->type) {
+        case CHAT_ENTRY_USER_TEXT:
+            render_user_text_entry(ui, entry, &row, col);
+            break;
+
+        case CHAT_ENTRY_SERVER_NOTIFICATION:
+            render_server_notification_entry(ui, entry, &row, col);
+            break;
+        default:
+            break;
+        }
+
         chat_entries_iterator_move_next(iterator);
     }
 
@@ -108,4 +107,31 @@ void render_chat_window(UI* ui)
     // Refreshes after rendering
     wrefresh(ui->chat_window);
     pthread_mutex_unlock(&ui->render_mutex);
+}
+
+static void render_user_text_entry(UI* ui, const ChatEntry* entry, uint32_t* row, uint32_t col)
+{
+
+    const UserTextChatEntry* user_text = &entry->data.user_text;
+
+    // Renders name
+    wattron(ui->chat_window, COLOR_PAIR(ui->name_color_pair));
+    mvwprintw(ui->chat_window, *row, col, "%s", user_text->name);
+    wattroff(ui->chat_window, COLOR_PAIR(ui->name_color_pair));
+    col += strlen(user_text->name);
+
+    // Renders IP
+    wattron(ui->chat_window, COLOR_PAIR(ui->soft_color_pair));
+    mvwprintw(ui->chat_window, *row, col, " (%s): ", user_text->ip);
+    wattroff(ui->chat_window, COLOR_PAIR(ui->soft_color_pair));
+    col += strlen(user_text->ip) + 5;
+
+    // Renders text
+    mvwprint_multiline(ui->chat_window, row, col, user_text->text);
+}
+
+static void render_server_notification_entry(UI* ui, const ChatEntry* entry, uint32_t* row, uint32_t col)
+{
+    const ServerNotificationChatEntry* server_notification = &entry->data.server_notification;
+    mvwprint_multiline(ui->chat_window, row, col, server_notification->text);
 }
