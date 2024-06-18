@@ -1,24 +1,24 @@
-#ifndef __GENERIC_LIST_H__
-#define __GENERIC_LIST_H__
+#ifndef __LINKED_LIST_H__
+#define __LINKED_LIST_H__
 
 #include <stddef.h>
 #include <stdint.h>
 #include <stdbool.h>
 
-// Forward declaration of the GenericList structure
-typedef struct GenericList GenericList;
-typedef struct GenericListIterator GenericListIterator;
+// Forward declaration of the LinkedList structure
+typedef struct LinkedList LinkedList;
+typedef struct LinkedListIterator LinkedListIterator;
 
-GenericList* generic_list_create(size_t element_size);
-void generic_list_destroy(GenericList* list);
+LinkedList* linked_list_create(size_t element_size);
+void linked_list_destroy(LinkedList* list);
 
-void* generic_list_add(GenericList* list);
-bool generic_list_remove(GenericList* list, uint32_t index);
-size_t generic_list_length(GenericList* list);
+void* linked_list_add(LinkedList* list);
+bool linked_list_remove(LinkedList* list, uint32_t index);
+size_t linked_list_length(LinkedList* list);
 
-GenericListIterator* generic_list_iterator_create(GenericList* list);
-void* generic_list_iterator_next(GenericListIterator* iterator);
-void generic_list_iterator_destroy(GenericListIterator* iterator);
-uint32_t generic_list_iterator_index(GenericListIterator* iterator);
+LinkedListIterator* linked_list_iterator_create(LinkedList* list);
+void* linked_list_iterator_next(LinkedListIterator* iterator);
+void linked_list_iterator_destroy(LinkedListIterator* iterator);
+uint32_t linked_list_iterator_index(LinkedListIterator* iterator);
 
-#endif // GENERIC_LIST_H
+#endif // linked_list_H
