@@ -1,111 +1,142 @@
+#include <assert.h>
 #include <stdio.h>
-#include <stdbool.h>
-#include "client_list.h" // Include the header file for the client list
+#include <string.h>
+#include "client_list.h"
+#include "client.h"
 
-// Test creating a new client list
-bool test_create_client_list()
+void test_client_list_create_and_destroy()
 {
-    ClientList* list = client_list_create();
-    bool passed = list != NULL;
-    if (passed) {
-        printf("Test: Creating a new client list... PASSED\n");
-    } else {
-        printf("Test: Creating a new client list... FAILED\n");
-    }
-    return passed;
+    ClientList* client_list = client_list_create();
+    assert(client_list != NULL);
+    client_list_destroy(client_list);
+    printf("test_client_list_create_and_destroy passed.\n");
 }
 
-// Test adding a client to the list
-bool test_add_client()
+void test_client_list_add_and_remove()
 {
-    ClientList* list = client_list_create();
-    // Initialize client...
-    Client* client = client_list_add(list);
-    bool passed = client_list_length(list) == 1;
-    if (passed) {
-        printf("Test: Adding a client to the list... PASSED\n");
-    } else {
-        printf("Test: Adding a client to the list... FAILED\n");
-    }
-    // Clean up resources...
-    client_list_destroy(list);
-    return passed;
+    ClientList* client_list = client_list_create();
+    assert(client_list != NULL);
+
+    // Add clients
+    Client* client1 = client_list_add(client_list);
+    strcpy(client1->name, "Client1");
+
+    Client* client2 = client_list_add(client_list);
+    strcpy(client2->name, "Client2");
+
+    Client* client3 = client_list_add(client_list);
+    strcpy(client3->name, "Client3");
+
+    assert(client_list_length(client_list) == 3);
+
+    // Remove client by ID
+    bool removed = client_list_remove(client_list, client2->id);
+    assert(removed == true);
+    assert(client_list_length(client_list) == 2);
+
+    removed = client_list_remove(client_list, client2->id); // Already removed
+    assert(removed == false);
+
+    client_list_destroy(client_list);
+    printf("test_client_list_add_and_remove passed.\n");
 }
 
-// Test removing a client from the list
-bool test_remove_client()
+void test_client_list_find_by_id()
 {
-    ClientList* list = client_list_create();
-    // Initialize client...
-    Client* client = client_list_add(list);
-    bool removed = client_list_remove(list, client->id);
-    bool passed = removed && client_list_length(list) == 0;
-    if (passed) {
-        printf("Test: Removing a client from the list... PASSED\n");
-    } else {
-        printf("Test: Removing a client from the list... FAILED\n");
-    }
-    // Clean up resources...
-    client_list_destroy(list);
-    return passed;
+    ClientList* client_list = client_list_create();
+    assert(client_list != NULL);
+
+    // Add clients
+    Client* client1 = client_list_add(client_list);
+    strcpy(client1->name, "Client1");
+
+    Client* client2 = client_list_add(client_list);
+    strcpy(client2->name, "Client2");
+
+    Client* client3 = client_list_add(client_list);
+    strcpy(client3->name, "Client3");
+
+    // Find clients by ID
+    Client* found_client = client_list_find_by_id(client_list, client2->id);
+    assert(found_client != NULL);
+    assert(strcmp(found_client->name, "Client2") == 0);
+
+    found_client = client_list_find_by_id(client_list, 9999); // Non-existent ID
+    assert(found_client == NULL);
+
+    client_list_destroy(client_list);
+    printf("test_client_list_find_by_id passed.\n");
 }
 
-// Test finding a client by ID
-bool test_find_client_by_id()
+void test_client_list_find_by_name()
 {
-    ClientList* list = client_list_create();
-    // Initialize client...
-    Client* client = client_list_add(list);
-    Client* found_client = client_list_find_by_id(list, client->id);
-    bool passed = found_client != NULL;
-    if (passed) {
-        printf("Test: Finding a client by ID... PASSED\n");
-    } else {
-        printf("Test: Finding a client by ID... FAILED\n");
-    }
-    // Clean up resources...
-    client_list_remove(list, client->id);
-    client_list_destroy(list);
-    return passed;
+    ClientList* client_list = client_list_create();
+    assert(client_list != NULL);
+
+    // Add clients
+    Client* client1 = client_list_add(client_list);
+    strcpy(client1->name, "Client1");
+
+    Client* client2 = client_list_add(client_list);
+    strcpy(client2->name, "Client2");
+
+    Client* client3 = client_list_add(client_list);
+    strcpy(client3->name, "Client3");
+
+    // Find clients by name
+    Client* found_client = client_list_find_by_name(client_list, "Client2");
+    assert(found_client != NULL);
+    assert(found_client->id == client2->id);
+
+    found_client = client_list_find_by_name(client_list, "NonExistentClient");
+    assert(found_client == NULL);
+
+    client_list_destroy(client_list);
+    printf("test_client_list_find_by_name passed.\n");
 }
 
-// Test getting the length of the client list
-bool test_client_list_length()
+void test_client_list_iterator()
 {
-    ClientList* list = client_list_create();
+    ClientList* client_list = client_list_create();
+    assert(client_list != NULL);
 
-    // Initialize client1...
-    Client* client1 = client_list_add(list);
-    Client* client2 = client_list_add(list);
+    // Add clients
+    Client* client1 = client_list_add(client_list);
+    strcpy(client1->name, "Client1");
 
-    bool passed = client_list_length(list) == 2;
-    if (passed) {
-        printf("Test: Getting the length of the client list... PASSED\n");
-    } else {
-        printf("Test: Getting the length of the client list... FAILED\n");
-    }
-    // Clean up resources...
-    client_list_remove(list, client1->id);
-    client_list_remove(list, client2->id);
-    client_list_destroy(list);
-    return passed;
+    Client* client2 = client_list_add(client_list);
+    strcpy(client2->name, "Client2");
+
+    Client* client3 = client_list_add(client_list);
+    strcpy(client3->name, "Client3");
+
+    // Use iterator
+    client_list_interator_rewind(client_list);
+    Client* client = client_list_interator_next(client_list);
+    assert(client != NULL);
+    assert(strcmp(client->name, "Client1") == 0);
+
+    client = client_list_interator_next(client_list);
+    assert(client != NULL);
+    assert(strcmp(client->name, "Client2") == 0);
+
+    client = client_list_interator_next(client_list);
+    assert(client != NULL);
+    assert(strcmp(client->name, "Client3") == 0);
+
+    client = client_list_interator_next(client_list);
+    assert(client == NULL); // End of list
+
+    client_list_destroy(client_list);
+    printf("test_client_list_iterator passed.\n");
 }
 
 int main()
 {
-    // Run the test cases
-    bool passed_all = true;
-    passed_all &= test_create_client_list();
-    passed_all &= test_add_client();
-    passed_all &= test_remove_client();
-    passed_all &= test_find_client_by_id();
-    passed_all &= test_client_list_length();
-
-    if (passed_all) {
-        printf("All tests PASSED\n");
-    } else {
-        printf("Some tests FAILED...\n");
-    }
-
-    return !passed_all;
+    test_client_list_create_and_destroy();
+    test_client_list_add_and_remove();
+    test_client_list_find_by_id();
+    test_client_list_find_by_name();
+    test_client_list_iterator();
+    return 0;
 }

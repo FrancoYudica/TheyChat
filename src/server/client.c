@@ -19,6 +19,8 @@ void init_client_network(Client* client, ConnectionContext* context)
 
     // Sets IP
     net_get_ip(context, client->ip, sizeof(client->ip));
+
+    init_net_stream(&client->stream);
 }
 
 void debug_print_client(Client* client)

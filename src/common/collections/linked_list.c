@@ -1,36 +1,50 @@
 #include <stdlib.h>
 #include <string.h>
-#include "collections/linked_list.h"
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
 
-typedef struct GenericNode {
+// Node structure for the linked list
+typedef struct Node {
     void* data;
-    struct GenericNode* next;
-} GenericNode;
+    struct Node* next;
+} Node;
 
-struct GenericList {
-    GenericNode* head;
+// GenericList structure
+typedef struct GenericList {
+    Node* head;
+    Node* tail;
     size_t element_size;
-    size_t length;
-};
+    size_t size;
+} GenericList;
 
-struct GenericListIterator {
-    GenericNode* current;
-};
+// GenericListIterator structure
+typedef struct GenericListIterator {
+    Node* current;
+    size_t element_size;
+} GenericListIterator;
 
+// Creates a new generic list
 GenericList* generic_list_create(size_t element_size)
 {
-    GenericList* list = malloc(sizeof(GenericList));
+    GenericList* list = (GenericList*)malloc(sizeof(GenericList));
+    if (list == NULL) {
+        perror("Failed to create list");
+        exit(EXIT_FAILURE);
+    }
     list->head = NULL;
+    list->tail = NULL;
     list->element_size = element_size;
-    list->length = 0;
+    list->size = 0;
     return list;
 }
 
+// Destroys a generic list
 void generic_list_destroy(GenericList* list)
 {
-    GenericNode* current = list->head;
+    Node* current = list->head;
     while (current != NULL) {
-        GenericNode* next = current->next;
+        Node* next = current->next;
         free(current->data);
         free(current);
         current = next;
@@ -38,62 +52,94 @@ void generic_list_destroy(GenericList* list)
     free(list);
 }
 
+// Adds an element to the generic list
 void* generic_list_add(GenericList* list)
 {
-    GenericNode* new_node = malloc(sizeof(GenericNode));
-    new_node->data = malloc(list->element_size);
-    new_node->next = list->head;
-    list->head = new_node;
-    list->length++;
-    return new_node->data;
+    Node* node = (Node*)malloc(sizeof(Node));
+    if (node == NULL) {
+        perror("Failed to add node");
+        exit(EXIT_FAILURE);
+    }
+    node->data = malloc(list->element_size);
+    if (node->data == NULL) {
+        perror("Failed to allocate data");
+        exit(EXIT_FAILURE);
+    }
+    node->next = NULL;
+
+    if (list->tail == NULL) {
+        list->head = node;
+        list->tail = node;
+    } else {
+        list->tail->next = node;
+        list->tail = node;
+    }
+    list->size++;
+    return node->data;
 }
 
+// Removes an element from the generic list by index
 bool generic_list_remove(GenericList* list, uint32_t index)
 {
-    if (index >= list->length) {
+    if (index >= list->size) {
         return false;
     }
-    GenericNode* current = list->head;
-    GenericNode* prev = NULL;
-    for (uint32_t i = 0; i < index; ++i) {
-        prev = current;
+
+    Node* current = list->head;
+    Node* previous = NULL;
+    for (uint32_t i = 0; i < index; i++) {
+        previous = current;
         current = current->next;
     }
-    if (prev == NULL) {
+
+    if (previous == NULL) {
         list->head = current->next;
     } else {
-        prev->next = current->next;
+        previous->next = current->next;
     }
+
+    if (current == list->tail) {
+        list->tail = previous;
+    }
+
     free(current->data);
     free(current);
-    list->length--;
+    list->size--;
     return true;
 }
 
+// Returns the length of the generic list
 size_t generic_list_length(GenericList* list)
 {
-    return list->length;
+    return list->size;
 }
 
+// Creates a new iterator for the generic list
 GenericListIterator* generic_list_iterator_create(GenericList* list)
 {
-    GenericListIterator* iterator = malloc(sizeof(GenericListIterator));
-    iterator->current = list->head;
-    return iterator;
+    GenericListIterator* it = (GenericListIterator*)malloc(sizeof(GenericListIterator));
+    if (it == NULL) {
+        perror("Failed to create iterator");
+        exit(EXIT_FAILURE);
+    }
+    it->current = list->head;
+    it->element_size = list->element_size;
+    return it;
 }
 
-void* generic_list_iterator_next(GenericListIterator* iterator)
+// Destroys a generic list iterator
+void generic_list_iterator_destroy(GenericListIterator* it)
 {
-    if (iterator->current != NULL) {
-        void* data = iterator->current->data;
-        iterator->current = iterator->current->next;
-        return data;
-    } else {
+    free(it);
+}
+
+// Returns the next element from the iterator
+void* generic_list_iterator_next(GenericListIterator* it)
+{
+    if (it->current == NULL) {
         return NULL;
     }
-}
-
-void generic_list_iterator_destroy(GenericListIterator* iterator)
-{
-    free(iterator);
+    void* data = it->current->data;
+    it->current = it->current->next;
+    return data;
 }

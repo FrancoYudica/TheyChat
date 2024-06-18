@@ -19,5 +19,6 @@ size_t generic_list_length(GenericList* list);
 GenericListIterator* generic_list_iterator_create(GenericList* list);
 void* generic_list_iterator_next(GenericListIterator* iterator);
 void generic_list_iterator_destroy(GenericListIterator* iterator);
+uint32_t generic_list_iterator_index(GenericListIterator* iterator);
 
 #endif // GENERIC_LIST_H

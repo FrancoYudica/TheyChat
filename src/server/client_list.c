@@ -3,181 +3,118 @@
 #include <stdlib.h>
 #include <string.h>
 #include "client.h"
-
-// Node structure to hold client and the next pointer
-typedef struct Node {
-    Client client;
-    struct Node* next;
-} Node;
+#include "collections/linked_list.h"
 
 struct ClientList {
-    Node* front;
-    Node* rear;
-    Node* iterator_node;
-    size_t element_size;
-    size_t size;
+    GenericList* list;
     uint32_t next_client_id;
+    GenericListIterator* it;
 };
 
 ClientList* client_list_create()
 {
-    ClientList* list = (ClientList*)malloc(sizeof(ClientList));
-    if (list == NULL) {
+    ClientList* client_list = (ClientList*)malloc(sizeof(ClientList));
+    if (client_list == NULL) {
         perror("Failed to initialize list");
         exit(EXIT_FAILURE);
     }
-    list->front = list->rear = NULL;
-    list->element_size = sizeof(Client);
-    list->size = 0;
-    list->next_client_id = 0;
-    return list;
+    client_list->list = generic_list_create(sizeof(Client));
+    if (client_list->list == NULL) {
+        perror("Failed to initialize list");
+        exit(EXIT_FAILURE);
+    }
+
+    client_list->next_client_id = 0;
+    client_list->it = generic_list_iterator_create(client_list->list);
+
+    return client_list;
 }
 
 void client_list_destroy(ClientList* client_list)
 {
-    Node* current = client_list->front;
-    while (current != NULL) {
-        Node* next = current->next;
-        free(current);
-        current = next;
-    }
-    client_list->iterator_node = NULL;
+    generic_list_destroy(client_list->list);
     free(client_list);
 }
 
 Client* client_list_add(ClientList* client_list)
 {
-    // Allocates memory for next node
-    Node* new_node = (Node*)malloc(sizeof(Node));
-    if (new_node == NULL) {
-        perror("Failed to allocate memory for new node");
-        exit(EXIT_FAILURE);
-    }
-
-    memset(&new_node->client, 0, client_list->element_size);
-    new_node->next = NULL;
-
-    // Sets client ID
-    new_node->client.id = client_list->next_client_id++;
-
-    if (client_list->size == 0)
-        client_list->front = client_list->rear = new_node;
-    else {
-        // Adds node at the end
-        client_list->rear->next = new_node;
-        client_list->rear = new_node;
-    }
-    client_list->size++;
-
-    return &new_node->client;
+    Client* client = (Client*)generic_list_add(client_list->list);
+    client->id = client_list->next_client_id++;
+    return client;
 }
 
 bool client_list_remove(ClientList* client_list, uint32_t client_id)
 {
-    if (client_list->size == 0) {
-        fprintf(stderr, "ClientList underflow\n");
-        exit(EXIT_FAILURE);
-    }
+    // Create an iterator for the generic list
+    GenericListIterator* it = generic_list_iterator_create(client_list->list);
+    Client* client;
+    bool found = false;
+    uint32_t index = 0;
 
-    // Loops through all the nodes until it finds the client with the specified ID
-    Node* previous = NULL;
-    Node* current = client_list->front;
-    while (current != NULL) {
-
-        // When node is found
-        if (current->client.id == client_id) {
-
-            // 1 - Unlinks node
-            // When current is front
-            if (current == client_list->front) {
-                client_list->front = current->next;
-            }
-
-            // When current is rear
-            else if (current == client_list->rear) {
-                previous->next = NULL;
-                client_list->rear = previous;
-            }
-
-            // When current is inside the edges of the list
-            else {
-                previous->next = current->next;
-            }
-            if (current == client_list->iterator_node)
-                client_list->iterator_node = current->next;
-
-            // Frees node, alongside with client
-            free(current);
-
-            if (--client_list->size == 0) {
-                client_list->front = NULL;
-                client_list->rear = NULL;
-            }
-
-            return true;
+    // Iterate through the list to find the client
+    while ((client = (Client*)generic_list_iterator_next(it)) != NULL) {
+        if (client->id == client_id) {
+            found = true;
+            break;
         }
-
-        Node* next = current->next;
-        previous = current;
-        current = next;
+        index++;
     }
 
-    return false;
+    // Destroy the iterator after use
+    generic_list_iterator_destroy(it);
+
+    // If the client was not found, return false
+    if (!found)
+        return false;
+
+    // Remove the client from the list at the found index
+    return generic_list_remove(client_list->list, index);
 }
 
 Client* client_list_find_by_id(ClientList* client_list, uint32_t client_id)
 {
-    // Loops through all the nodes until it finds the client with the specified ID
-    Node* current = client_list->front;
-    while (current != NULL) {
-        Node* next = current->next;
-        if (current->client.id == client_id)
-            return &current->client;
+    GenericListIterator* it = generic_list_iterator_create(client_list->list);
+    Client* client = NULL;
 
-        current = next;
+    while ((client = (Client*)generic_list_iterator_next(it)) != NULL) {
+        if (client->id == client_id) {
+            break;
+        }
     }
 
-    // Not found
-    return NULL;
+    generic_list_iterator_destroy(it);
+
+    return client; // Will be NULL if not found
 }
 
 Client* client_list_find_by_name(ClientList* client_list, const char* name)
 {
-    // Loops through all the nodes until it finds the client with the specified ID
-    Node* current = client_list->front;
-    while (current != NULL) {
-        Node* next = current->next;
-        if (!strcmp(current->client.name, name))
-            return &current->client;
+    GenericListIterator* it = generic_list_iterator_create(client_list->list);
+    Client* client = NULL;
 
-        current = next;
+    while ((client = (Client*)generic_list_iterator_next(it)) != NULL) {
+        if (strcmp(client->name, name) == 0) {
+            break;
+        }
     }
 
-    // Not found
-    return NULL;
+    generic_list_iterator_destroy(it);
+
+    return client; // Will be NULL if not found
 }
 
 size_t client_list_length(ClientList* client_list)
 {
-    return client_list->size;
+    return generic_list_length(client_list->list);
 }
 
 Client* client_list_interator_next(ClientList* client_list)
 {
-    if (client_list->size == 0)
-        return NULL;
-
-    Node* current = client_list->iterator_node;
-    if (current == NULL)
-        return NULL;
-
-    // Advances
-    client_list->iterator_node = current->next;
-
-    return &current->client;
+    return (Client*)generic_list_iterator_next(client_list->it);
 }
 
 void client_list_interator_rewind(ClientList* client_list)
 {
-    client_list->iterator_node = client_list->front;
+    generic_list_iterator_destroy(client_list->it);
+    client_list->it = generic_list_iterator_create(client_list->list);
 }
