@@ -19,6 +19,5 @@ size_t linked_list_length(LinkedList* list);
 LinkedListIterator* linked_list_iterator_create(LinkedList* list);
 void* linked_list_iterator_next(LinkedListIterator* iterator);
 void linked_list_iterator_destroy(LinkedListIterator* iterator);
-uint32_t linked_list_iterator_index(LinkedListIterator* iterator);
 
-#endif // linked_list_H
+#endif // __LINKED_LIST_H__

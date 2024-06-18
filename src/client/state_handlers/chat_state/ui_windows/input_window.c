@@ -17,6 +17,7 @@ void render_input_window(UI* ui, char* input)
     nodelay(ui->input_window, TRUE);
 
     bool want_to_refresh = false;
+    box(ui->input_window, 0, 0);
 
     if (ui->input_enabled) {
         // Make the cursor visible when input is enabled
