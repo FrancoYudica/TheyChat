@@ -44,17 +44,24 @@ void* handle_messages(void* arg)
 
             // Sends chat entry to UI
             ui_add_chat_entry(&chat->ui, entry);
+            break;
+        }
+        case MSGT_SERVER_NOTIFICATION: {
+            ServerNotificationPayload* server_notification = &message.payload.server_notification;
 
             // Sets up chat entry
             ChatEntry notification;
             notification.type = CHAT_ENTRY_SERVER_NOTIFICATION;
-            sprintf(notification.data.server_notification.text, "Client %s sent a message!", user_chat->username);
+            strcpy(notification.data.server_notification.text, server_notification->text);
+            struct tm* time = localtime((time_t*)&server_notification->time);
+            if (time == NULL) {
+                perror("time: ");
+                chat_exit(chat);
+            }
             notification.time.hour = time->tm_hour;
             notification.time.minute = time->tm_min;
 
             ui_add_chat_entry(&chat->ui, notification);
-
-            break;
         }
         case MSGT_CONNECTED_CLIENTS: {
             chat->ui.connected_count = message.payload.connected_clients.client_count;

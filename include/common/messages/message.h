@@ -34,6 +34,7 @@ typedef struct
 
         StatusPayload status;
         ConnectedClientsPayload connected_clients;
+        ServerNotificationPayload server_notification;
     } payload;
 
 } Message;
@@ -65,5 +66,7 @@ Message create_heap_seq_msg(const uint8_t* payload, uint32_t payload_size);
 Message create_status_msg(bool status, const char* text);
 
 Message create_connected_clients_msg(uint8_t count);
+
+Message create_server_notification(const char* text);
 
 #endif

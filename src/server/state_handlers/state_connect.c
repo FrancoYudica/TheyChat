@@ -15,7 +15,7 @@ ErrorCode handle_state_connect(ServerStateData* handler_data, AppState* next_sta
     }
 
     // Waits for client response
-    err = wait_for_message_type(&client->stream, client->connection_context, (Message**)&message, MSGT_STATUS);
+    err = wait_for_message_type(&client->stream, client->connection_context, &message, MSGT_STATUS);
 
     if (IS_NET_ERROR(err))
         return err;

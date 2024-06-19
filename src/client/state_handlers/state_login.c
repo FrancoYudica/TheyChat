@@ -16,8 +16,7 @@ ErrorCode handle_state_login(ClientData* data, AppState* next_state)
         send_message((const Message*)&message, data->connection_context);
 
         // Waits confirmation of the login
-
-        ErrorCode status = wait_for_message_type(&data->stream, data->connection_context, (Message**)&message, MSGT_STATUS);
+        ErrorCode status = wait_for_message_type(&data->stream, data->connection_context, &message, MSGT_STATUS);
 
         if (IS_NET_ERROR(status))
             return status;

@@ -10,7 +10,7 @@ ErrorCode handle_state_disconnect(ServerStateData* handler_data, AppState* _)
     {
         char text[128];
         sprintf(text, "Used named \"%s\" disconnected!", client->name);
-        Message msg = create_user_chat_msg(text, "SERVER");
+        Message msg = create_server_notification(text);
         send_broadcast_exclude((const Message*)&msg, server, client);
     }
 

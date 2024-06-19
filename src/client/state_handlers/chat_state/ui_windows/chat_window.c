@@ -132,6 +132,6 @@ static void render_user_text_entry(UI* ui, const ChatEntry* entry, uint32_t* row
 
 static void render_server_notification_entry(UI* ui, const ChatEntry* entry, uint32_t* row, uint32_t col)
 {
-    const ServerNotificationChatEntry* server_notification = &entry->data.server_notification;
+    const ServerNotificationPayloadChatEntry* server_notification = &entry->data.server_notification;
     mvwprint_multiline(ui->chat_window, row, col, server_notification->text);
 }

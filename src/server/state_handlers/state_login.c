@@ -13,7 +13,7 @@ ErrorCode handle_state_login(ServerStateData* handler_data, AppState* next_state
         ErrorCode status = wait_for_message_type(
             &client->stream,
             client->connection_context,
-            (Message**)&message,
+            &message,
             MSGT_USER_LOGIN);
 
         if (IS_NET_ERROR(status))
@@ -45,7 +45,7 @@ ErrorCode handle_state_login(ServerStateData* handler_data, AppState* next_state
     {
         char text[128];
         sprintf(text, "Used named \"%s\" logged in!", client->name);
-        message = create_user_chat_msg(text, "SERVER");
+        message = create_server_notification(text);
         send_broadcast((const Message*)&message, handler_data->server);
     }
 

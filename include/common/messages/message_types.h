@@ -31,7 +31,9 @@ enum MessageType {
     // Sequence
     MSGT_SEQUENCE_START,
     MSGT_SEQUENCE_END,
-    MSGT_HEAP_SEQUENCE
+    MSGT_HEAP_SEQUENCE,
+
+    MSGT_SERVER_NOTIFICATION
 };
 
 /// Amount of actual content bytes sent
@@ -56,7 +58,7 @@ typedef struct
     char username[MAX_USERNAME_BYTES];
     char text[MAX_CHAT_TEXT_BYTES];
     char ip[sizeof("255.255.255.255")];
-    uint32_t time;
+    time_t time;
 } UserChatPayload;
 
 typedef struct
@@ -129,6 +131,9 @@ typedef struct
     uint8_t client_count;
 } ConnectedClientsPayload;
 
-typedef Bytes128Payload ServerNotification;
+typedef struct {
+    time_t time;
+    char text[MAX_CHAT_TEXT_BYTES];
+} ServerNotificationPayload;
 
 #endif

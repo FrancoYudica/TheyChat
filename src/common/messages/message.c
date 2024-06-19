@@ -81,35 +81,10 @@ void print_message(Message* message)
     }
 }
 
-bool get_hours_minutes(uint8_t* hours, uint8_t* minutes)
-{
-    // Get the current time
-    time_t current_time = time(NULL);
-
-    // Check if getting the time failed
-    if (current_time == ((time_t)-1)) {
-        return false;
-    }
-
-    // Convert the current time to local time
-    struct tm* local_time = localtime(&current_time);
-
-    // Check if converting the time failed
-    if (local_time == NULL) {
-        return false;
-    }
-
-    // Get the hours and minutes
-    *hours = local_time->tm_hour;
-    *minutes = local_time->tm_min;
-    return true;
-}
-
 Message create_user_chat_msg(const char* text, const char* username)
 {
     Message message;
     UserChatPayload* chat_payload = &message.payload.user_chat;
-
     message.type = MSGT_USER_CHAT;
     message.net_payload_length = sizeof(chat_payload->username) + sizeof(chat_payload->text) + sizeof(chat_payload->ip) + sizeof(chat_payload->time);
     strcpy(chat_payload->text, text);
@@ -257,5 +232,17 @@ Message create_connected_clients_msg(uint8_t count)
     message.type = MSGT_CONNECTED_CLIENTS;
     message.net_payload_length = sizeof(connected->client_count);
     connected->client_count = count;
+    return message;
+}
+
+Message create_server_notification(const char* text)
+{
+    Message message;
+    ServerNotificationPayload* server_notification = &message.payload.server_notification;
+
+    message.type = MSGT_SERVER_NOTIFICATION;
+    message.net_payload_length = sizeof(server_notification->text) + sizeof(server_notification->time);
+    server_notification->time = time(NULL);
+    strcpy(server_notification->text, text);
     return message;
 }

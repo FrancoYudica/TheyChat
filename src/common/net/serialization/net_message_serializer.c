@@ -23,7 +23,7 @@ void ns_serialize_message(const Message* message, uint8_t* buffer, size_t* buffe
         ns_push_byte_array(&buffer_ptr, (const uint8_t*)user_chat->username, sizeof(user_chat->username));
         ns_push_byte_array(&buffer_ptr, (const uint8_t*)user_chat->text, sizeof(user_chat->text));
         ns_push_byte_array(&buffer_ptr, (const uint8_t*)user_chat->ip, sizeof(user_chat->ip));
-        ns_push_long(&buffer_ptr, &user_chat->time);
+        ns_push_long_long(&buffer_ptr, (const uint64_t*)&user_chat->time);
         break;
     }
 
@@ -78,6 +78,13 @@ void ns_serialize_message(const Message* message, uint8_t* buffer, size_t* buffe
         ns_push_byte_array(&buffer_ptr, (const uint8_t*)heap_seq->payload, message->net_payload_length);
         break;
     }
+
+    case MSGT_SERVER_NOTIFICATION: {
+        const ServerNotificationPayload* server_notification = &message->payload.server_notification;
+        ns_push_long_long(&buffer_ptr, (const uint64_t*)&server_notification->time);
+        ns_push_byte_array(&buffer_ptr, (const uint8_t*)server_notification->text, sizeof(server_notification->text));
+        break;
+    }
     default:
         printf("Unimplemented serialization for message type %i\n", message->type);
         exit(EXIT_FAILURE);
@@ -111,7 +118,7 @@ void ns_deserialize_message(const uint8_t* buffer, Message* message)
         ns_pop_byte_array(&buffer_ptr, (uint8_t*)user_chat->username, sizeof(user_chat->username));
         ns_pop_byte_array(&buffer_ptr, (uint8_t*)user_chat->text, sizeof(user_chat->text));
         ns_pop_byte_array(&buffer_ptr, (uint8_t*)user_chat->ip, sizeof(user_chat->ip));
-        ns_pop_long(&buffer_ptr, &user_chat->time);
+        ns_pop_long_long(&buffer_ptr, (uint64_t*)&user_chat->time);
         break;
     }
 
@@ -163,7 +170,12 @@ void ns_deserialize_message(const uint8_t* buffer, Message* message)
         ns_pop_byte_array(&buffer_ptr, (uint8_t*)heap_seq->payload, message->net_payload_length);
         break;
     }
-
+    case MSGT_SERVER_NOTIFICATION: {
+        ServerNotificationPayload* server_notification = &message->payload.server_notification;
+        ns_pop_long_long(&buffer_ptr, (uint64_t*)&server_notification->time);
+        ns_pop_byte_array(&buffer_ptr, (uint8_t*)server_notification->text, sizeof(server_notification->text));
+        break;
+    }
     default:
         printf("Unimplemented deserialization for message type %i\n", message->type);
         exit(EXIT_FAILURE);
