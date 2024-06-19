@@ -25,17 +25,8 @@ ErrorCode handle_state_chat(ServerStateData* state_data, AppState* next_state)
 
         // Broadcasts the message to all clients
         if (message.type == MSGT_USER_CHAT) {
-
-            // Creates a new user chat msg with server time
-            Message server_chat_msg = create_user_chat_msg(
-                message.payload.user_chat.text,
-                message.payload.user_chat.username);
-
-            // Copies client IP
-            strncpy(server_chat_msg.payload.user_chat.ip, client->ip, sizeof(server_chat_msg.payload.user_chat.ip));
-
-            send_broadcast((const Message*)&server_chat_msg, state_data->server);
-
+            strcpy(message.payload.user_chat.ip, client->ip);
+            send_broadcast((const Message*)&message, state_data->server);
         }
 
         // Process command

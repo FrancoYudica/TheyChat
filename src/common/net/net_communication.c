@@ -48,10 +48,8 @@ static ErrorCode receive(NetworkStream* network_stream, ConnectionContext* conne
     // Amount of free space in bytes
     uint32_t empty_region_size = sizeof(network_stream->stream) - network_stream->written_bytes;
 
-    if (empty_region_size == 0) {
-        printf("WARNING: Trying to receive data in a full NetworkStream...\n");
+    if (empty_region_size == 0)
         return ERR_NET_STREAM_OVERFLOW;
-    }
 
     // Blocks current thread until it receives data
     uint32_t bytes_read;

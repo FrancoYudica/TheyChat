@@ -30,14 +30,17 @@ void* handle_messages(void* arg)
         switch (message.type) {
         case MSGT_USER_CHAT: {
 
+            UserChatPayload* user_chat = &message.payload.user_chat;
             // Sets up chat entry
             ChatEntry entry;
             entry.type = CHAT_ENTRY_USER_TEXT;
-            strncpy(entry.data.user_text.name, message.payload.user_chat.username, MAX_USERNAME_BYTES);
-            strncpy(entry.data.user_text.text, message.payload.user_chat.text, MAX_CHAT_TEXT_BYTES);
-            strncpy(entry.data.user_text.ip, message.payload.user_chat.ip, MAX_IP_BYTES);
-            entry.time.hour = message.payload.user_chat.hours;
-            entry.time.minute = message.payload.user_chat.minutes;
+            strncpy(entry.data.user_text.name, user_chat->username, MAX_USERNAME_BYTES);
+            strncpy(entry.data.user_text.text, user_chat->text, MAX_CHAT_TEXT_BYTES);
+            strncpy(entry.data.user_text.ip, user_chat->ip, MAX_IP_BYTES);
+
+            struct tm* time = localtime((time_t*)&user_chat->time);
+            entry.time.hour = time->tm_hour;
+            entry.time.minute = time->tm_min;
 
             // Sends chat entry to UI
             ui_add_chat_entry(&chat->ui, entry);
@@ -45,9 +48,9 @@ void* handle_messages(void* arg)
             // Sets up chat entry
             ChatEntry notification;
             notification.type = CHAT_ENTRY_SERVER_NOTIFICATION;
-            sprintf(notification.data.server_notification.text, "Client %s sent a message!", message.payload.user_chat.username);
-            notification.time.hour = message.payload.user_chat.hours;
-            notification.time.minute = message.payload.user_chat.minutes;
+            sprintf(notification.data.server_notification.text, "Client %s sent a message!", user_chat->username);
+            notification.time.hour = time->tm_hour;
+            notification.time.minute = time->tm_min;
 
             ui_add_chat_entry(&chat->ui, notification);
 

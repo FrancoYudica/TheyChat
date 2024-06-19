@@ -56,8 +56,7 @@ typedef struct
     char username[MAX_USERNAME_BYTES];
     char text[MAX_CHAT_TEXT_BYTES];
     char ip[sizeof("255.255.255.255")];
-    uint8_t hours;
-    uint8_t minutes;
+    uint32_t time;
 } UserChatPayload;
 
 typedef struct
@@ -129,5 +128,7 @@ typedef struct
 {
     uint8_t client_count;
 } ConnectedClientsPayload;
+
+typedef Bytes128Payload ServerNotification;
 
 #endif

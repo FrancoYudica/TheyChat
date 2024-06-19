@@ -111,12 +111,10 @@ Message create_user_chat_msg(const char* text, const char* username)
     UserChatPayload* chat_payload = &message.payload.user_chat;
 
     message.type = MSGT_USER_CHAT;
-    message.net_payload_length = sizeof(chat_payload->username) + sizeof(chat_payload->text) + sizeof(chat_payload->ip) + sizeof(chat_payload->hours) + sizeof(chat_payload->minutes);
+    message.net_payload_length = sizeof(chat_payload->username) + sizeof(chat_payload->text) + sizeof(chat_payload->ip) + sizeof(chat_payload->time);
     strcpy(chat_payload->text, text);
     strcpy(chat_payload->username, username);
-    chat_payload->hours = 0;
-    chat_payload->minutes = 0;
-    get_hours_minutes(&chat_payload->hours, &chat_payload->minutes);
+    chat_payload->time = time(NULL);
     return message;
 }
 
