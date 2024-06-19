@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <assert.h>
 
 int main()
 {
@@ -12,21 +13,20 @@ int main()
     size_t serialized_message_size;
 
     // Creates and prints ChatMessage
-    FileHeaderMsg* original_msg = create_file_header_message("test_file.txt", 512);
-    print_message((Message*)&original_msg);
+    Message original_msg = create_file_header_message("test_file.txt", 512);
+    print_message(&original_msg);
 
     // Serializes into buffer
-    ns_serialize_message((Message*)original_msg, serialized_message_buffer, &serialized_message_size);
+    ns_serialize_message(&original_msg, serialized_message_buffer, &serialized_message_size);
     printf("Serialized buffer size: %ld\n", serialized_message_size);
 
     // Deserializes and prints
-    FileHeaderMsg deserialized_msg;
-    ns_deserialize_message(serialized_message_buffer, (Message*)&deserialized_msg);
+    Message deserialized_msg;
+    ns_deserialize_message(serialized_message_buffer, &deserialized_msg);
 
-    bool correct = true;
-    correct &= original_msg->base.type == deserialized_msg.base.type;
-    correct &= original_msg->base.payload_length == deserialized_msg.base.payload_length;
-    correct &= !strcmp(original_msg->name, deserialized_msg.name);
-    correct &= original_msg->size == deserialized_msg.size;
-    return !correct;
+    assert(original_msg.type == deserialized_msg.type);
+    assert(original_msg.net_payload_length == deserialized_msg.net_payload_length);
+    assert(!strcmp(original_msg.payload.file_header.name, deserialized_msg.payload.file_header.name));
+    assert(original_msg.payload.file_header.size == deserialized_msg.payload.file_header.size);
+    return 0;
 }

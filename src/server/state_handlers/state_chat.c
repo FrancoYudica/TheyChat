@@ -8,11 +8,10 @@ ErrorCode handle_state_chat(ServerStateData* state_data, AppState* next_state)
     Client* client = state_data->client;
 
     ErrorCode error = ERR_NET_OK;
+    Message message;
     while (true) {
 
-        // Waits for any message
-        Message* client_msg;
-        ErrorCode receive_status = wait_for_message(&client->stream, client->connection_context, &client_msg);
+        ErrorCode receive_status = wait_for_message(&client->stream, client->connection_context, &message);
 
         if (IS_NET_ERROR(receive_status)) {
             if (receive_status != ERR_PEER_DISCONNECTED)
@@ -22,35 +21,29 @@ ErrorCode handle_state_chat(ServerStateData* state_data, AppState* next_state)
             break;
         }
         // Outputs client message
-        print_message(client_msg);
+        print_message(&message);
 
         // Broadcasts the message to all clients
-        if (client_msg->header.type == MSGT_USER_CHAT) {
-            UserChatMsg* client_chat_message = (UserChatMsg*)client_msg;
+        if (message.type == MSGT_USER_CHAT) {
 
             // Creates a new user chat msg with server time
-            UserChatMsg* server_chat_msg = create_user_chat_msg(
-                client_chat_message->text,
-                client_chat_message->user_base.username);
+            Message server_chat_msg = create_user_chat_msg(
+                message.payload.user_chat.text,
+                message.payload.user_chat.username);
 
             // Copies client IP
-            strncpy(server_chat_msg->ip, client->ip, sizeof(server_chat_msg->ip));
+            strncpy(server_chat_msg.payload.user_chat.ip, client->ip, sizeof(server_chat_msg.payload.user_chat.ip));
 
-            send_broadcast((const Message*)server_chat_msg, state_data->server);
+            send_broadcast((const Message*)&server_chat_msg, state_data->server);
 
-            free(server_chat_msg);
         }
 
         // Process command
-        else if (client_msg->header.type == MSGT_COMMAND) {
-            error = execute_command_processor(state_data, (CommandMsg*)client_msg);
-        }
+        else if (message.type == MSGT_COMMAND)
+            error = execute_command_processor(state_data, &message);
 
-        else {
+        else
             printf("Only MSGT_USER_CHAT and MSGT_COMMAND should be received in chat handler. There is something wrong...\n");
-        }
-
-        free(client_msg);
 
         if (IS_NET_ERROR(error))
             break;

@@ -122,7 +122,7 @@ void server_accept_clients(Server* server)
 
     // Message sent to client in case there aren't any free
     // threads, and stays in client queue
-    Bytes128Msg* client_on_queue_msg = create_client_on_queue();
+    Message client_on_queue_msg = create_client_on_queue();
 
     while (true) {
 
@@ -143,7 +143,7 @@ void server_accept_clients(Server* server)
 
         // Tells client that all threads are busy, and it's on queue
         if (thpool_all_threads_busy(server->client_thread_pool))
-            send_message((Message*)client_on_queue_msg, client->connection_context);
+            send_message((Message*)&client_on_queue_msg, client->connection_context);
 
         // Creates handler data and queues a new task
         ClientHandlerData* handler_data = (ClientHandlerData*)malloc(sizeof(ClientHandlerData));

@@ -14,30 +14,30 @@ void* handle_messages(void* arg)
     Chat* chat = (Chat*)arg;
     ClientData* data = chat->client_data;
 
+    Message message;
+
     while (true) {
 
         if (!chat->active)
             break;
 
         // Waits for server message
-        Message* server_message;
-        chat->messages_error = wait_for_message(&data->stream, data->connection_context, &server_message);
+        chat->messages_error = wait_for_message(&data->stream, data->connection_context, &message);
 
         if (IS_NET_ERROR(chat->messages_error))
             break;
 
-        switch (server_message->header.type) {
+        switch (message.type) {
         case MSGT_USER_CHAT: {
-            UserChatMsg* chat_msg = (UserChatMsg*)server_message;
 
             // Sets up chat entry
             ChatEntry entry;
             entry.type = CHAT_ENTRY_USER_TEXT;
-            strncpy(entry.data.user_text.name, chat_msg->user_base.username, MAX_USERNAME_BYTES);
-            strncpy(entry.data.user_text.text, chat_msg->text, MAX_CHAT_TEXT_BYTES);
-            strncpy(entry.data.user_text.ip, chat_msg->ip, MAX_IP_BYTES);
-            entry.time.hour = chat_msg->hours;
-            entry.time.minute = chat_msg->minutes;
+            strncpy(entry.data.user_text.name, message.payload.user_chat.username, MAX_USERNAME_BYTES);
+            strncpy(entry.data.user_text.text, message.payload.user_chat.text, MAX_CHAT_TEXT_BYTES);
+            strncpy(entry.data.user_text.ip, message.payload.user_chat.ip, MAX_IP_BYTES);
+            entry.time.hour = message.payload.user_chat.hours;
+            entry.time.minute = message.payload.user_chat.minutes;
 
             // Sends chat entry to UI
             ui_add_chat_entry(&chat->ui, entry);
@@ -45,28 +45,25 @@ void* handle_messages(void* arg)
             // Sets up chat entry
             ChatEntry notification;
             notification.type = CHAT_ENTRY_SERVER_NOTIFICATION;
-            sprintf(notification.data.server_notification.text, "Client %s sent a message!", chat_msg->user_base.username);
-            notification.time.hour = chat_msg->hours;
-            notification.time.minute = chat_msg->minutes;
+            sprintf(notification.data.server_notification.text, "Client %s sent a message!", message.payload.user_chat.username);
+            notification.time.hour = message.payload.user_chat.hours;
+            notification.time.minute = message.payload.user_chat.minutes;
 
             ui_add_chat_entry(&chat->ui, notification);
 
             break;
         }
         case MSGT_CONNECTED_CLIENTS: {
-            ConnectedClientsMsg* connected_clients_msg = (ConnectedClientsMsg*)server_message;
-            chat->ui.connected_count = connected_clients_msg->client_count;
+            chat->ui.connected_count = message.payload.connected_clients.client_count;
             ui_refresh(&chat->ui);
             break;
         }
         default:
             printf("Received unexpected message type\n");
-            print_message(server_message);
+            print_message(&message);
             chat_exit(chat);
             break;
         }
-
-        free(server_message);
     }
 
     chat_exit(chat);
@@ -103,6 +100,7 @@ void* handle_input(void* arg)
 {
     Chat* chat = (Chat*)arg;
     ClientData* data = chat->client_data;
+    Message message;
 
     // Holds client input
     char input[MAX_CHAT_TEXT_BYTES];
@@ -127,14 +125,13 @@ void* handle_input(void* arg)
         if (is_command) {
             chat->input_error = process_command(chat, (const char*)(trimmed_input + 1));
         } else {
-            UserChatMsg* msg = create_user_chat_msg(trimmed_input, data->username);
-            chat->input_error = send_message((const Message*)msg, data->connection_context);
+            message = create_user_chat_msg(trimmed_input, data->username);
+            chat->input_error = send_message((const Message*)&message, data->connection_context);
 
             uint32_t log_size = sizeof(chat->ui.log);
             char log[log_size];
             snprintf(log, log_size, "Sent `%s` to server.", trimmed_input);
             ui_set_log_text(&chat->ui, log);
-            free(msg);
         }
 
         if (IS_NET_ERROR(chat->input_error))

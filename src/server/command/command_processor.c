@@ -4,11 +4,11 @@
 ErrorCode process_users_command(ServerStateData* data)
 {
     ErrorCode err;
+    Message message;
 
     // Sequence start
-    SequenceStartMsg* start = create_seq_start_msg();
-    err = send_message((const Message*)start, data->client->connection_context);
-    free(start);
+    message = create_seq_start_msg();
+    err = send_message((const Message*)&message, data->client->connection_context);
     if (IS_NET_ERROR(err))
         return err;
 
@@ -20,12 +20,11 @@ ErrorCode process_users_command(ServerStateData* data)
 
     // Iterates through all the clients and sends the client name
     while ((client = client_list_interator_next(clients)) != NULL) {
-        HeapSequenceMsg* client_seq = create_heap_seq_msg(client->name, strlen(client->name) + 1);
+        message = create_heap_seq_msg(client->name, strlen(client->name) + 1);
         printf("Name: %s\n", client->name);
-        err = send_message((const Message*)client_seq, data->client->connection_context);
+        err = send_message((const Message*)&message, data->client->connection_context);
 
-        free(client_seq->payload);
-        free(client_seq);
+        free(message.payload.heap_sequence.payload);
 
         if (IS_NET_ERROR(err))
             return err;
@@ -34,17 +33,16 @@ ErrorCode process_users_command(ServerStateData* data)
     pthread_mutex_unlock(&data->server->broadcast_mutex);
 
     // Sequence end
-    SequenceEndMsg* end = create_seq_end_msg();
-    err = send_message(end, data->client->connection_context);
-    free(end);
+    message = create_seq_end_msg();
+    err = send_message(&message, data->client->connection_context);
     return err;
 }
 
-ErrorCode execute_command_processor(ServerStateData* data, CommandMsg* command_message)
+ErrorCode execute_command_processor(ServerStateData* data, Message* command_message)
 {
     printf("RECEIVED COMMAND MESSAGE!\n");
 
-    switch (command_message->command_type) {
+    switch (command_message->payload.command.command_type) {
     case CMDT_DISCONNECT:
         return ERR_PEER_DISCONNECTED;
         break;

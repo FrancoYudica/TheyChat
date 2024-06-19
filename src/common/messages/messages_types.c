@@ -1,77 +1,22 @@
 #include "messages/message_types.h"
 
-static uint32_t messages_sizes[] = {
-    // User
-    sizeof(UserChatMsg),
-    sizeof(UserLoginMsg),
-    0,
-
-    // File
-    sizeof(FileHeaderMsg),
-    sizeof(FileContentMsg),
-    sizeof(FileEndMsg),
-
-    // Client
-    sizeof(Bytes128Msg),
-    sizeof(Bytes128Msg),
-
-    // Status messages
-    sizeof(StatusMsg),
-    sizeof(ConnectedClientsMsg),
-
-    // Command
-    sizeof(CommandMsg),
-
-    // Sequence
-    sizeof(SequenceStartMsg),
-    sizeof(SequenceEndMsg),
-    sizeof(HeapSequenceMsg)
-};
-
 // Maps numeric type to string
 static const char* message_types[] = {
-
-    // User
-    "CHAT",
-    "LOGIN",
-    "LOGOUT",
-
-    // File
-    "FILE_HEADER",
-    "FILE_CONTENT",
-    "FILE_END",
-
-    // Client
-    "CLIENT_CONNECTED",
-    "CLIENT_ON_QUEUE",
-
-    // Status messages
-    "STATUS",
-    "CONNECTED_CLIENTS"
-
-    // Command
-    "COMMAND",
-
-    // Sequence
-    "SEQUENCE_START",
-    "SEQUENCE_END",
-    "HEAP_SEQUENCE"
+    [MSGT_USER_CHAT] = "USER_CHAT",
+    [MSGT_USER_LOGIN] = "USER_LOGIN",
+    [MSGT_USER_LOGOUT] = "USER_LOGOUT",
+    [MSGT_FILE_HEADER] = "FILE_HEADER",
+    [MSGT_FILE_CONTENT] = "FILE_CONTENT",
+    [MSGT_FILE_END] = "FILE_END",
+    [MSGT_CLIENT_CONNECTED] = "CLIENT_CONNECTED",
+    [MSGT_CLIENT_ON_QUEUE] = "CLIENT_ON_QUEUE",
+    [MSGT_STATUS] = "STATUS",
+    [MSGT_CONNECTED_CLIENTS] = "CONNECTED_CLIENTS",
+    [MSGT_COMMAND] = "COMMAND",
+    [MSGT_SEQUENCE_START] = "SEQUENCE_START",
+    [MSGT_SEQUENCE_END] = "SEQUENCE_END",
+    [MSGT_HEAP_SEQUENCE] = "HEAP_SEQUENCE"
 };
-
-uint32_t msg_get_type_size(uint8_t type)
-{
-    uint8_t arr_len = sizeof(messages_sizes) / sizeof(uint32_t);
-    if (type >= arr_len) {
-        printf("`msg_get_type_size` Index out of bounds! Type: %i\n", type);
-        exit(1);
-    }
-    uint32_t size = messages_sizes[type];
-    if (size == 0) {
-        printf("`msg_get_type_size` Unimplemented type size for type %i\n", type);
-        exit(1);
-    }
-    return size;
-}
 
 const char* msg_get_type_name(uint8_t type)
 {

@@ -4,6 +4,6 @@
 #include "server_state_data.h"
 #include "messages/message_types.h"
 
-ErrorCode execute_command_processor(ServerStateData* data, CommandMsg* command_message);
+ErrorCode execute_command_processor(ServerStateData* data, Message* command_message);
 
 #endif
