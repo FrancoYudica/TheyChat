@@ -9,12 +9,13 @@ void render_header_window(UI* ui)
 
     // Centered title
     char title[] = "| THEY CHAT |";
-    mvwprintw(ui->header_window, 0, (COLS - strlen(title)) / 2, "%s", title);
+    uint32_t n_cols = getmaxx(ui->header_window);
+    mvwprintw(ui->header_window, 0, (n_cols - strlen(title)) / 2, "%s", title);
 
     // Connected user count
     char connected_users[] = "Connected users: ";
 
-    uint32_t col = COLS - strlen(connected_users) - 3;
+    uint32_t col = n_cols - strlen(connected_users) - 3;
     wattron(ui->header_window, COLOR_PAIR(ui->soft_color_pair));
     mvwprintw(ui->header_window, 0, col, "%s", connected_users);
     wattroff(ui->header_window, COLOR_PAIR(ui->soft_color_pair));

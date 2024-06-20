@@ -3,24 +3,24 @@
 ErrorCode handle_state_connect(ServerStateData* handler_data, AppState* next_state)
 {
     Client* client = handler_data->client;
-    // Tells client that it's connected
-    Bytes128Msg* connected_message = create_client_connected();
-    ErrorCode err = send_message((const Message*)connected_message, client->connection_context);
-    free(connected_message);
+    Message message;
+    ErrorCode err;
+    {
+        // Tells client that it's connected
+        message = create_client_connected();
+        err = send_message((const Message*)&message, client->connection_context);
 
-    if (IS_NET_ERROR(err))
-        return err;
+        if (IS_NET_ERROR(err))
+            return err;
+    }
 
     // Waits for client response
-    StatusMsg* status_msg;
-    err = wait_for_message_type(&client->stream, client->connection_context, (Message**)&status_msg, MSGT_STATUS);
+    err = wait_for_message_type(&client->stream, client->connection_context, &message, MSGT_STATUS);
 
     if (IS_NET_ERROR(err))
         return err;
 
-    bool status = status_msg->status;
-
-    free(status_msg);
+    bool status = message.payload.status.status;
 
     if (!status)
         return ERR_PEER_DISCONNECTED;

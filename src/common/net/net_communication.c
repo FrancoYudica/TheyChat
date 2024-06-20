@@ -48,10 +48,8 @@ static ErrorCode receive(NetworkStream* network_stream, ConnectionContext* conne
     // Amount of free space in bytes
     uint32_t empty_region_size = sizeof(network_stream->stream) - network_stream->written_bytes;
 
-    if (empty_region_size == 0) {
-        printf("WARNING: Trying to receive data in a full NetworkStream...\n");
+    if (empty_region_size == 0)
         return ERR_NET_STREAM_OVERFLOW;
-    }
 
     // Blocks current thread until it receives data
     uint32_t bytes_read;
@@ -65,36 +63,36 @@ static ErrorCode receive(NetworkStream* network_stream, ConnectionContext* conne
     return ERR_NET_OK;
 }
 
-ErrorCode wait_for_message(NetworkStream* network_stream, ConnectionContext* connection_context, Message** message)
+ErrorCode wait_for_message(NetworkStream* network_stream, ConnectionContext* connection_context, Message* message)
 {
 
     // Tries to pop message
-    *message = stream_pop_message(network_stream);
+    bool popped = stream_pop_message(network_stream, message);
 
     // If no messages are popped
     // Receives data until a complete message arrives
-    while (*message == NULL) {
+    while (!popped) {
         ErrorCode receive_status = receive(network_stream, connection_context);
         if (IS_NET_ERROR(receive_status))
             return receive_status;
 
-        *message = stream_pop_message(network_stream);
+        popped = stream_pop_message(network_stream, message);
     }
 
     return ERR_NET_OK;
 }
 
-ErrorCode wait_for_message_type(NetworkStream* network_stream, ConnectionContext* connection_context, Message** message, uint8_t type)
+ErrorCode wait_for_message_type(NetworkStream* network_stream, ConnectionContext* connection_context, Message* message, uint8_t type)
 {
 
     ErrorCode status = wait_for_message(network_stream, connection_context, message);
     if (IS_NET_ERROR(status))
         return status;
 
-    if ((*message)->header.type != type) {
-        printf("ERROR: Received unexpected message type. Expected %i, and received %i. ", type, (*message)->header.type);
+    if (message->type != type) {
+        printf("ERROR: Received unexpected message type. Expected %i, and received %i. ", type, message->type);
         printf("Received message: ");
-        print_message(*message);
+        print_message(message);
 
         return ERR_RECEIVED_INVALID_TYPE;
     }

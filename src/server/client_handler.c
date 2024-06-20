@@ -60,8 +60,11 @@ static void server_states_handler_fsm(ServerStateData* state_data, AppState init
 
         // Manually sets disconnect state if there is any error
         if (IS_NET_ERROR(error)) {
-            printf("Net error code: %i\n", error);
-            curent_state = APP_STATE_DISCONNECT;
+            printf("Net error code: %i for in client: ", error);
+            debug_print_client(state_data->client);
+            printf("\n");
+            curent_state
+                = APP_STATE_DISCONNECT;
         }
 
         // In case the handler didn't set the next state

@@ -7,71 +7,86 @@ void ns_serialize_message(const Message* message, uint8_t* buffer, size_t* buffe
     uint8_t* buffer_ptr = buffer;
 
     // Serializes message type
-    ns_push_byte_array(&buffer_ptr, &message->header.type, sizeof(message->header.type));
-    ns_push_long(&buffer_ptr, &message->header.payload_length);
+    ns_push_byte_array(&buffer_ptr, &message->type, sizeof(message->type));
+    ns_push_long(&buffer_ptr, &message->net_payload_length);
 
     // Serializes properties for the corresponding message type
-    switch (message->header.type) {
+    switch (message->type) {
+    // Empty messages
+    case MSGT_FILE_END:
+    case MSGT_SEQUENCE_START:
+    case MSGT_SEQUENCE_END:
+        break;
+
     case MSGT_USER_CHAT: {
-        UserChatMsg* chat_message = (UserChatMsg*)message;
-        ns_push_byte_array(&buffer_ptr, (const uint8_t*)chat_message->user_base.username, sizeof(chat_message->user_base.username));
-        ns_push_byte_array(&buffer_ptr, (const uint8_t*)chat_message->text, sizeof(chat_message->text));
-        ns_push_byte_array(&buffer_ptr, (const uint8_t*)chat_message->ip, sizeof(chat_message->ip));
-        ns_push_byte_array(&buffer_ptr, (const uint8_t*)&chat_message->hours, sizeof(chat_message->hours));
-        ns_push_byte_array(&buffer_ptr, (const uint8_t*)&chat_message->minutes, sizeof(chat_message->minutes));
+        const UserChatPayload* user_chat = &message->payload.user_chat;
+        ns_push_byte_array(&buffer_ptr, (const uint8_t*)user_chat->username, sizeof(user_chat->username));
+        ns_push_byte_array(&buffer_ptr, (const uint8_t*)user_chat->text, sizeof(user_chat->text));
+        ns_push_byte_array(&buffer_ptr, (const uint8_t*)user_chat->ip, sizeof(user_chat->ip));
+        ns_push_long_long(&buffer_ptr, (const uint64_t*)&user_chat->time);
         break;
     }
 
     case MSGT_USER_LOGIN: {
-        UserLoginMsg* login = (UserLoginMsg*)message;
-        ns_push_byte_array(&buffer_ptr, (const uint8_t*)login->user_base.username, sizeof(login->user_base.username));
+        const UserLoginPayload* user_login = &message->payload.user_login;
+        ns_push_byte_array(&buffer_ptr, (const uint8_t*)user_login->username, sizeof(user_login->username));
         break;
     }
 
     case MSGT_FILE_HEADER: {
-        FileHeaderMsg* file_message = (FileHeaderMsg*)message;
-        ns_push_byte_array(&buffer_ptr, (const uint8_t*)file_message->name, sizeof(file_message->name));
-        ns_push_long(&buffer_ptr, &file_message->size);
+        const FileHeaderPayload* file_header = &message->payload.file_header;
+        ns_push_byte_array(&buffer_ptr, (const uint8_t*)file_header->name, sizeof(file_header->name));
+        ns_push_long(&buffer_ptr, &file_header->size);
         break;
     }
     case MSGT_FILE_CONTENT: {
-        FileContentMsg* file_message = (FileContentMsg*)message;
-        ns_push_long(&buffer_ptr, (const uint32_t*)&file_message->content_size);
-        ns_push_byte_array(&buffer_ptr, (const uint8_t*)file_message->binary_payload, sizeof(file_message->binary_payload));
+        const FileContentPayload* file_content = &message->payload.file_content;
+        ns_push_long(&buffer_ptr, (const uint32_t*)&file_content->content_size);
+        ns_push_byte_array(&buffer_ptr, (const uint8_t*)file_content->binary_payload, sizeof(file_content->binary_payload));
         break;
     }
-    case MSGT_FILE_END:
-        break;
 
     case MSGT_CLIENT_CONNECTED:
     case MSGT_CLIENT_ON_QUEUE: {
-        Bytes128Msg* bytes_msg = (Bytes128Msg*)message;
-        ns_push_byte_array(&buffer_ptr, (const uint8_t*)bytes_msg->bytes, sizeof(bytes_msg->bytes));
+        const Bytes128Payload* bytes_128 = &message->payload.bytes_128;
+        ns_push_byte_array(&buffer_ptr, (const uint8_t*)bytes_128->bytes, sizeof(bytes_128->bytes));
         break;
     }
 
     case MSGT_STATUS: {
-        StatusMsg* status_message = (StatusMsg*)message;
-        ns_push_byte_array(&buffer_ptr, (const uint8_t*)&status_message->status, sizeof(status_message->status));
-        ns_push_byte_array(&buffer_ptr, (const uint8_t*)status_message->text, sizeof(status_message->text));
+        const StatusPayload* status_payload = &message->payload.status;
+        ns_push_byte_array(&buffer_ptr, (const uint8_t*)&status_payload->status, sizeof(status_payload->status));
+        ns_push_byte_array(&buffer_ptr, (const uint8_t*)status_payload->text, sizeof(status_payload->text));
         break;
     }
 
     case MSGT_CONNECTED_CLIENTS: {
-        ConnectedClientsMsg* clients = (ConnectedClientsMsg*)message;
-        ns_push_byte_array(&buffer_ptr, (const uint8_t*)&clients->client_count, sizeof(clients->client_count));
+        const ConnectedClientsPayload* connected_clients = &message->payload.connected_clients;
+        ns_push_byte_array(&buffer_ptr, (const uint8_t*)&connected_clients->client_count, sizeof(connected_clients->client_count));
         break;
     }
 
     case MSGT_COMMAND: {
-        CommandMsg* command_message = (CommandMsg*)message;
-        ns_push_byte_array(&buffer_ptr, (const uint8_t*)&command_message->command_type, sizeof(command_message->command_type));
-        ns_push_byte_array(&buffer_ptr, (const uint8_t*)command_message->arg, sizeof(command_message->arg));
+        const CommandPayload* command = &message->payload.command;
+        ns_push_byte_array(&buffer_ptr, (const uint8_t*)&command->command_type, sizeof(command->command_type));
+        ns_push_byte_array(&buffer_ptr, (const uint8_t*)command->arg, sizeof(command->arg));
         break;
     }
 
+    case MSGT_HEAP_SEQUENCE: {
+        const HeapSequencePayload* heap_seq = &message->payload.heap_sequence;
+        ns_push_byte_array(&buffer_ptr, (const uint8_t*)heap_seq->payload, message->net_payload_length);
+        break;
+    }
+
+    case MSGT_SERVER_NOTIFICATION: {
+        const ServerNotificationPayload* server_notification = &message->payload.server_notification;
+        ns_push_long_long(&buffer_ptr, (const uint64_t*)&server_notification->time);
+        ns_push_byte_array(&buffer_ptr, (const uint8_t*)server_notification->text, sizeof(server_notification->text));
+        break;
+    }
     default:
-        printf("Unimplemented serialization for message type %i\n", message->header.type);
+        printf("Unimplemented serialization for message type %i\n", message->type);
         exit(EXIT_FAILURE);
         break;
     }
@@ -85,63 +100,84 @@ void ns_deserialize_message(const uint8_t* buffer, Message* message)
     uint8_t* buffer_ptr = (uint8_t*)buffer;
 
     // Pops type
-    ns_pop_byte_array(&buffer_ptr, &message->header.type, sizeof(message->header.type));
+    ns_pop_byte_array(&buffer_ptr, &message->type, sizeof(message->type));
 
     // Pops payload length
-    ns_pop_long(&buffer_ptr, &message->header.payload_length);
+    ns_pop_long(&buffer_ptr, &message->net_payload_length);
 
     // Serializes properties for the corresponding message type
-    switch (message->header.type) {
+    switch (message->type) {
+    // Empty messages
+    case MSGT_FILE_END:
+    case MSGT_SEQUENCE_START:
+    case MSGT_SEQUENCE_END:
+        break;
+
     case MSGT_USER_CHAT: {
-        UserChatMsg* chat_message = (UserChatMsg*)message;
-        ns_pop_byte_array(&buffer_ptr, (uint8_t*)chat_message->user_base.username, sizeof(chat_message->user_base.username));
-        ns_pop_byte_array(&buffer_ptr, (uint8_t*)chat_message->text, sizeof(chat_message->text));
-        ns_pop_byte_array(&buffer_ptr, (uint8_t*)chat_message->ip, sizeof(chat_message->ip));
-        ns_pop_byte_array(&buffer_ptr, (uint8_t*)&chat_message->hours, sizeof(chat_message->hours));
-        ns_pop_byte_array(&buffer_ptr, (uint8_t*)&chat_message->minutes, sizeof(chat_message->minutes));
+        UserChatPayload* user_chat = &message->payload.user_chat;
+        ns_pop_byte_array(&buffer_ptr, (uint8_t*)user_chat->username, sizeof(user_chat->username));
+        ns_pop_byte_array(&buffer_ptr, (uint8_t*)user_chat->text, sizeof(user_chat->text));
+        ns_pop_byte_array(&buffer_ptr, (uint8_t*)user_chat->ip, sizeof(user_chat->ip));
+        ns_pop_long_long(&buffer_ptr, (uint64_t*)&user_chat->time);
         break;
     }
 
     case MSGT_USER_LOGIN: {
-        UserLoginMsg* login = (UserLoginMsg*)message;
-        ns_pop_byte_array(&buffer_ptr, (uint8_t*)login->user_base.username, sizeof(login->user_base.username));
+        UserLoginPayload* user_login = &message->payload.user_login;
+        ns_pop_byte_array(&buffer_ptr, (uint8_t*)user_login->username, sizeof(user_login->username));
         break;
     }
 
     case MSGT_FILE_HEADER: {
-        FileHeaderMsg* file_message = (FileHeaderMsg*)message;
-        ns_pop_byte_array(&buffer_ptr, (uint8_t*)file_message->name, sizeof(file_message->name));
-        ns_pop_long(&buffer_ptr, &file_message->size);
+        FileHeaderPayload* file_header = &message->payload.file_header;
+        ns_pop_byte_array(&buffer_ptr, (uint8_t*)file_header->name, sizeof(file_header->name));
+        ns_pop_long(&buffer_ptr, &file_header->size);
         break;
     }
 
     case MSGT_CLIENT_CONNECTED:
     case MSGT_CLIENT_ON_QUEUE: {
-        Bytes128Msg* bytes_msg = (Bytes128Msg*)message;
-        ns_pop_byte_array(&buffer_ptr, (uint8_t*)bytes_msg->bytes, sizeof(bytes_msg->bytes));
+        Bytes128Payload* bytes_128 = &message->payload.bytes_128;
+        ns_pop_byte_array(&buffer_ptr, (uint8_t*)bytes_128->bytes, sizeof(bytes_128->bytes));
         break;
     }
 
     case MSGT_STATUS: {
-        StatusMsg* status_message = (StatusMsg*)message;
-        ns_pop_byte_array(&buffer_ptr, (uint8_t*)&status_message->status, sizeof(status_message->status));
-        ns_pop_byte_array(&buffer_ptr, (uint8_t*)status_message->text, sizeof(status_message->text));
+        StatusPayload* status_payload = &message->payload.status;
+        ns_pop_byte_array(&buffer_ptr, (uint8_t*)&status_payload->status, sizeof(status_payload->status));
+        ns_pop_byte_array(&buffer_ptr, (uint8_t*)status_payload->text, sizeof(status_payload->text));
         break;
     }
     case MSGT_CONNECTED_CLIENTS: {
-        ConnectedClientsMsg* clients = (ConnectedClientsMsg*)message;
-        ns_pop_byte_array(&buffer_ptr, (uint8_t*)&clients->client_count, sizeof(clients->client_count));
+        ConnectedClientsPayload* connected_clients = &message->payload.connected_clients;
+        ns_pop_byte_array(&buffer_ptr, (uint8_t*)&connected_clients->client_count, sizeof(connected_clients->client_count));
         break;
     }
     case MSGT_COMMAND: {
-        CommandMsg* command_message = (CommandMsg*)message;
-        ns_pop_byte_array(&buffer_ptr, (uint8_t*)&command_message->command_type, sizeof(command_message->command_type));
-        ns_pop_byte_array(&buffer_ptr, (uint8_t*)command_message->arg, sizeof(command_message->arg));
+        CommandPayload* command = &message->payload.command;
+        ns_pop_byte_array(&buffer_ptr, (uint8_t*)&command->command_type, sizeof(command->command_type));
+        ns_pop_byte_array(&buffer_ptr, (uint8_t*)command->arg, sizeof(command->arg));
         break;
     }
 
+    case MSGT_HEAP_SEQUENCE: {
+        HeapSequencePayload* heap_seq = &message->payload.heap_sequence;
+
+        // Allocates memory
+        heap_seq->payload = malloc(message->net_payload_length);
+
+        // Copies the buffer memory onto the newly allocated buffer
+        ns_pop_byte_array(&buffer_ptr, (uint8_t*)heap_seq->payload, message->net_payload_length);
+        break;
+    }
+    case MSGT_SERVER_NOTIFICATION: {
+        ServerNotificationPayload* server_notification = &message->payload.server_notification;
+        ns_pop_long_long(&buffer_ptr, (uint64_t*)&server_notification->time);
+        ns_pop_byte_array(&buffer_ptr, (uint8_t*)server_notification->text, sizeof(server_notification->text));
+        break;
+    }
     default:
-        printf("Unimplemented deserialization for message type %i\n", message->header.type);
+        printf("Unimplemented deserialization for message type %i\n", message->type);
         exit(EXIT_FAILURE);
         break;
     }

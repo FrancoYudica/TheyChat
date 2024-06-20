@@ -7,15 +7,40 @@
 #include <stdint.h>
 #include "messages/message.h"
 
-typedef struct chat_entry {
+enum ChatEntryType {
+    CHAT_ENTRY_USER_TEXT,
+    CHAT_ENTRY_SERVER_NOTIFICATION
+};
+
+typedef struct
+{
     char name[MAX_USERNAME_BYTES];
     char text[MAX_CHAT_TEXT_BYTES];
     char ip[MAX_IP_BYTES];
-    uint8_t hour;
-    uint8_t minute;
+} UserTextChatEntry;
+typedef struct
+{
+    char text[MAX_CHAT_TEXT_BYTES];
+} ServerNotificationPayloadChatEntry;
+
+typedef union {
+    UserTextChatEntry user_text;
+    ServerNotificationPayloadChatEntry server_notification;
+} ChatEntryData;
+
+typedef struct {
+    uint8_t type;
+
+    struct
+    {
+        uint8_t hour;
+        uint8_t minute;
+    } time;
+
+    ChatEntryData data;
+
 } ChatEntry;
 
-// Forward declaration of ChatEntries
 typedef struct chat_entries ChatEntries;
 
 // Forward declaration of ChatEntriesIterator

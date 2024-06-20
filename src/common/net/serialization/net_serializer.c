@@ -26,6 +26,13 @@ void ns_push_short(uint8_t** dest, const uint16_t* n)
     ns_push_byte_array(dest, (uint8_t*)&net_n, sizeof(uint16_t));
 }
 
+// Push uint64_t
+void ns_push_long_long(uint8_t** dest, const uint64_t* n)
+{
+    uint64_t net_n = htobe64(*n); // host to big-endian (network byte order)
+    ns_push_byte_array(dest, (uint8_t*)&net_n, sizeof(uint64_t));
+}
+
 void ns_pop_byte_array(uint8_t** src, uint8_t* dest, size_t dest_size)
 {
     // Copy from *src to dest
@@ -50,4 +57,12 @@ void ns_pop_short(uint8_t** src, uint16_t* n)
     ns_pop_byte_array(src, (uint8_t*)&net_n, sizeof(uint16_t));
     // Convert from network to host byte order
     *n = ntohs(net_n);
+}
+
+// Pop uint64_t
+void ns_pop_long_long(uint8_t** src, uint64_t* n)
+{
+    uint64_t net_n;
+    ns_pop_byte_array(src, (uint8_t*)&net_n, sizeof(uint64_t));
+    *n = be64toh(net_n); // big-endian (network byte order) to host
 }

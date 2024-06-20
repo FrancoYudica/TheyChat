@@ -8,7 +8,7 @@ set(CMAKE_C_STANDARD_REQUIRED True)
 
 # Define an option to compile with or without SSL
 option(THEY_CHAT_SSL "Compile with SSL support" ON)
-option(THEY_CHAT_COMPILE_TESTS "Compile TheyChat tests" OFF)
+option(THEY_CHAT_COMPILE_TESTS "Compile TheyChat tests" ON)
 
 add_subdirectory(libs)
 
@@ -17,11 +17,6 @@ set(COMMON_SOURCES
 
     # Messages
     src/common/messages/message.c
-    src/common/messages/file_message.c
-    src/common/messages/user_message.c
-    src/common/messages/client_message.c
-    src/common/messages/status_message.c
-    src/common/messages/command_message.c
     src/common/messages/messages_types.c
     
     # Networking
@@ -34,9 +29,11 @@ set(COMMON_SOURCES
 
     # String
     src/common/string/utils.c
+
+    src/common/collections/linked_list.c
 )
 
-# Changes encription at compile time
+# Changes encryption at compile time
 if(THEY_CHAT_SSL)
     # If SSL is enabled, add ssl_primitives.c to the common sources
     list(APPEND COMMON_SOURCES src/common/net/primitives_impl/ssl_primitives.c)
@@ -69,6 +66,7 @@ target_link_libraries(chat_lib INTERFACE dependencies_lib)
 # Creates server executable -----------------------------------------------------
 # Specific sources for server
 set(SERVER_SOURCES
+    src/server/server.c
     src/server/client.c
     src/server/client_list.c
     src/server/client_handler.c
@@ -80,12 +78,12 @@ set(SERVER_SOURCES
     src/server/state_handlers/state_disconnect.c
     src/server/command/command_processor.c
 )
-add_executable(server src/server/server.c ${SERVER_SOURCES})
+add_executable(server src/server/server_main.c ${SERVER_SOURCES})
 target_include_directories(server PRIVATE "${PROJECT_SOURCE_DIR}/include/server")
 target_link_libraries(server PRIVATE chat_lib)
 
 # Creates client executable -----------------------------------------------------
-# Specific sources for server
+# Specific sources for client
 set(CLIENT_SOURCES
     src/client/states_fsm.c
     src/client/command/command_processor.c
@@ -103,7 +101,6 @@ set(CLIENT_SOURCES
 )
 add_executable(client src/client/client.c ${CLIENT_SOURCES})
 target_include_directories(client PRIVATE "${PROJECT_SOURCE_DIR}/include/client")
-
 target_link_libraries(client PRIVATE chat_lib)
 
 # Creates test executables ------------------------------------------------------
@@ -112,20 +109,36 @@ if (THEY_CHAT_COMPILE_TESTS)
     # Set output directory for test executables
     set(TEST_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests)
 
-    # Automatically find and add test executables
-    file(GLOB TEST_SOURCES "src/tests/*.c")
-    foreach(TEST_SOURCE ${TEST_SOURCES})
-
+    # Add common tests
+    file(GLOB COMMON_TEST_SOURCES "src/tests/common/*.c")
+    foreach(TEST_SOURCE ${COMMON_TEST_SOURCES})
         get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
-        
-        # Adds sources of server
-        add_executable(${TEST_NAME} ${TEST_SOURCE} ${SERVER_SOURCES})
-
-        # Adds include directories of server
-        target_include_directories(${TEST_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/include/server")
-
+        add_executable(${TEST_NAME} ${TEST_SOURCE})
+        target_include_directories(${TEST_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/include/common")
         target_link_libraries(${TEST_NAME} PRIVATE chat_lib)
-        set_target_properties(${TEST_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY})
-        add_test(NAME ${TEST_NAME} COMMAND ${TEST_OUTPUT_DIRECTORY}/${TEST_NAME})
+        set_target_properties(${TEST_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY}/common)
+        add_test(NAME ${TEST_NAME} COMMAND ${TEST_OUTPUT_DIRECTORY}/common/${TEST_NAME})
+    endforeach()
+
+    # Add server tests
+    file(GLOB SERVER_TEST_SOURCES "src/tests/server/*.c")
+    foreach(TEST_SOURCE ${SERVER_TEST_SOURCES})
+        get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
+        add_executable(${TEST_NAME} ${TEST_SOURCE} ${SERVER_SOURCES})
+        target_include_directories(${TEST_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/include/server")
+        target_link_libraries(${TEST_NAME} PRIVATE chat_lib)
+        set_target_properties(${TEST_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY}/server)
+        add_test(NAME ${TEST_NAME} COMMAND ${TEST_OUTPUT_DIRECTORY}/server/${TEST_NAME})
+    endforeach()
+
+    # Add client tests
+    file(GLOB CLIENT_TEST_SOURCES "src/tests/client/*.c")
+    foreach(TEST_SOURCE ${CLIENT_TEST_SOURCES})
+        get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
+        add_executable(${TEST_NAME} ${TEST_SOURCE} ${CLIENT_SOURCES})
+        target_include_directories(${TEST_NAME} PRIVATE "${PROJECT_SOURCE_DIR}/include/client")
+        target_link_libraries(${TEST_NAME} PRIVATE chat_lib)
+        set_target_properties(${TEST_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY}/client)
+        add_test(NAME ${TEST_NAME} COMMAND ${TEST_OUTPUT_DIRECTORY}/client/${TEST_NAME})
     endforeach()
 endif()

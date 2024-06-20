@@ -10,7 +10,7 @@
 typedef struct
 {
     /// @brief Buffer where unprocessed bytes are stored.
-    uint8_t stream[1024];
+    uint8_t stream[2048];
 
     /// @brief Amount of unprocessed bytes.
     uint32_t written_bytes;
@@ -31,7 +31,7 @@ void init_net_stream(NetworkStream* ns);
 /// If not, the function returns NULL.
 ///
 /// @param ns Pointer to the NetworkStream to read from.
-/// @return Pointer to the parsed Message if a complete message is found, NULL otherwise.
-Message* stream_pop_message(NetworkStream* ns);
+/// @return Parsed Message if a complete message is found
+bool stream_pop_message(NetworkStream* ns, Message* message);
 
 #endif

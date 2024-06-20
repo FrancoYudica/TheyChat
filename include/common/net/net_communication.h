@@ -25,10 +25,10 @@ ErrorCode send_message(const Message* msg, ConnectionContext* connection_context
  *
  * @param network_stream The NetworkStream to monitor for incoming messages.
  * @param connection_context Pointer to the ConnectionContext structure containing the socket.
- * @param message Pointer to a pointer to store the parsed message received.
+ * @param message Pointer to store the parsed message received.
  * @return ErrorCode The network status indicating success or error.
  */
-ErrorCode wait_for_message(NetworkStream* network_stream, ConnectionContext* connection_context, Message** message);
+ErrorCode wait_for_message(NetworkStream* network_stream, ConnectionContext* connection_context, Message* message);
 
 /**
  * @brief Waits for a message of a specific type to be received on the network stream.
@@ -36,10 +36,10 @@ ErrorCode wait_for_message(NetworkStream* network_stream, ConnectionContext* con
  *
  * @param network_stream The NetworkStream to monitor for incoming messages.
  * @param connection_context Pointer to the ConnectionContext structure containing the socket.
- * @param message Pointer to a pointer to store the parsed message received.
+ * @param message Pointer to store the parsed message received.
  * @param type The type of message to wait for.
  * @return ErrorCode The network status indicating success or error.
  */
-ErrorCode wait_for_message_type(NetworkStream* network_stream, ConnectionContext* connection_context, Message** message, uint8_t type);
+ErrorCode wait_for_message_type(NetworkStream* network_stream, ConnectionContext* connection_context, Message* message, uint8_t type);
 
 #endif // __NET_COMMUNICATION_H__
