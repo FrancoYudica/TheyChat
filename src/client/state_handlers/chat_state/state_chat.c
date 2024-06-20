@@ -43,7 +43,7 @@ void* handle_messages(void* arg)
             entry.time.minute = time->tm_min;
 
             // Sends chat entry to UI
-            ui_add_chat_entry(&chat->ui, entry);
+            ui_add_chat_entry(entry);
             break;
         }
         case MSGT_SERVER_NOTIFICATION: {
@@ -61,11 +61,11 @@ void* handle_messages(void* arg)
             notification.time.hour = time->tm_hour;
             notification.time.minute = time->tm_min;
 
-            ui_add_chat_entry(&chat->ui, notification);
+            ui_add_chat_entry(notification);
         }
         case MSGT_CONNECTED_CLIENTS: {
-            chat->ui.connected_count = message.payload.connected_clients.client_count;
-            ui_refresh(&chat->ui);
+            ui_set_connected_count(message.payload.connected_clients.client_count);
+            ui_refresh();
             break;
         }
         default:
@@ -103,9 +103,6 @@ ErrorCode process_command(Chat* chat, const char* command)
     return execute_command_processor(chat->client_data, command_type, arg);
 }
 
-extern void render_input_window(UI* ui, char* input);
-extern void render_chat_window(UI*);
-
 void* handle_input(void* arg)
 {
     Chat* chat = (Chat*)arg;
@@ -124,7 +121,7 @@ void* handle_input(void* arg)
 
         // Renders input window, and blocks current thread until input is received
         input[0] = '\0';
-        render_input_window(&chat->ui, input);
+        ui_try_pop_input(input);
 
         if (strlen(input) == 0)
             continue;
@@ -138,10 +135,9 @@ void* handle_input(void* arg)
             message = create_user_chat_msg(trimmed_input, data->username);
             chat->input_error = send_message((const Message*)&message, data->connection_context);
 
-            uint32_t log_size = sizeof(chat->ui.log);
-            char log[log_size];
-            snprintf(log, log_size, "Sent `%s` to server.", trimmed_input);
-            ui_set_log_text(&chat->ui, log);
+            char log[256];
+            snprintf(log, 256, "Sent `%s` to server.", trimmed_input);
+            ui_set_log_text(log);
         }
 
         if (IS_NET_ERROR(chat->input_error))
@@ -160,14 +156,12 @@ ErrorCode handle_state_chat(ClientData* data, AppState* next_state)
     chat.active = true;
 
     // Initializes UI
-    UI* ui = &chat.ui;
-
-    ui_init(ui);
-    ui->connected_count = 1;
-    strcpy(ui->server_ip, data->connection_details.server_ip);
+    ui_init();
+    ui_set_connected_count(1);
+    ui_set_server_ip(data->connection_details.server_ip);
 
     // Renders the entire UI
-    ui_refresh(ui);
+    ui_refresh();
 
     // Initializes mutexes and condition
     pthread_mutex_init(&chat.mutex, NULL);
@@ -183,7 +177,7 @@ ErrorCode handle_state_chat(ClientData* data, AppState* next_state)
 
     *next_state = APP_STATE_DISCONNECT;
 
-    ui_free(&chat.ui);
+    ui_free();
 
     if (IS_NET_ERROR(chat.input_error))
         return chat.input_error;
