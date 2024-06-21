@@ -64,7 +64,7 @@ void ui_input_window_render()
     // to update
     nodelay(s_input_window, TRUE);
 
-    bool want_to_refresh = false;
+    bool want_to_scroll = false;
     box(s_input_window, 0, 0);
 
     if (s_input_enabled) {
@@ -106,10 +106,10 @@ void ui_input_window_render()
                 s_input_text[input_length - 1] = '\0';
             } else if (ch == KEY_UP) {
                 ui_chat_window_scroll_up();
-                want_to_refresh = true;
+                want_to_scroll = true;
             } else if (ch == KEY_DOWN) {
                 ui_chat_window_scroll_down();
-                want_to_refresh = true;
+                want_to_scroll = true;
             } else if (isprint(ch) && input_length < sizeof(s_input_text) - 1) {
                 // Append the typed character to the input text
                 s_input_text[input_length] = ch;
@@ -133,7 +133,7 @@ void ui_input_window_render()
                 last_input_text[sizeof(last_input_text) - 1] = '\0';
                 strncpy(last_input_text, s_input_text, sizeof(last_input_text) - 1);
             }
-            curs_set(0);
+            // curs_set(0);
         }
     } else {
         // Set the color pair for disabled input
@@ -148,10 +148,10 @@ void ui_input_window_render()
         wgetch(s_input_window);
     }
 
-    wrefresh(s_input_window);
+    wnoutrefresh(s_input_window);
     pthread_mutex_unlock(&ui.render_mutex);
 
-    if (want_to_refresh) {
+    // If it scrolls, renders the chat window
+    if (want_to_scroll)
         ui_refresh(ui);
-    }
 }

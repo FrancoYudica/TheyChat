@@ -89,14 +89,15 @@ static void render_server_notification_entry(const ChatEntry* entry, uint32_t* r
 void ui_chat_window_render()
 {
     pthread_mutex_lock(&ui.render_mutex);
-    wclear(s_chat_window);
+
+    werase(s_chat_window);
     uint32_t n_columns, n_rows;
     getmaxyx(s_chat_window, n_rows, n_columns);
 
     // Renders outline box
-    wattron(s_chat_window, COLOR_PAIR(ui.white_color_pair));
+    wattron(s_chat_window, COLOR_PAIR(ui.chat_box_color_pair));
     box(s_chat_window, 0, 0);
-    wattroff(s_chat_window, COLOR_PAIR(ui.white_color_pair));
+    wattroff(s_chat_window, COLOR_PAIR(ui.chat_box_color_pair));
 
     // Subtracts top and bottom box outline characters
     uint32_t bottom_row = n_rows - 2;
@@ -141,7 +142,7 @@ void ui_chat_window_render()
     chat_entries_free_iterator(iterator);
 
     // Refreshes after rendering
-    wrefresh(s_chat_window);
+    wnoutrefresh(s_chat_window);
     pthread_mutex_unlock(&ui.render_mutex);
 }
 

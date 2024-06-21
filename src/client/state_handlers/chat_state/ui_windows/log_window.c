@@ -39,7 +39,7 @@ void ui_log_window_render()
 {
     pthread_mutex_lock(&ui.render_mutex);
 
-    wclear(s_log_window);
+    werase(s_log_window);
 
     // Add a unique border style or color
     wattron(s_log_window, COLOR_PAIR(ui.soft_color_pair));
@@ -56,6 +56,6 @@ void ui_log_window_render()
         mvwaddnstr(s_log_window, 1, 1, s_log, n);
     }
     wattroff(s_log_window, COLOR_PAIR(ui.soft_color_pair));
-    wrefresh(s_log_window);
+    wnoutrefresh(s_log_window);
     pthread_mutex_unlock(&ui.render_mutex);
 }

@@ -44,7 +44,7 @@ void ui_header_window_render()
     pthread_mutex_lock(&ui.render_mutex);
 
     // Clear the screen before each update
-    wclear(s_header_window);
+    werase(s_header_window);
 
     // Centered title
     char title[] = "| THEY CHAT |";
@@ -70,6 +70,6 @@ void ui_header_window_render()
     mvwprintw(s_header_window, 0, 1, "Server (%s)", s_server_ip);
     wattroff(s_header_window, COLOR_PAIR(ui.soft_color_pair));
 
-    wrefresh(s_header_window);
+    wnoutrefresh(s_header_window);
     pthread_mutex_unlock(&ui.render_mutex);
 }

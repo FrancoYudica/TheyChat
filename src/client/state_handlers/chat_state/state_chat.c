@@ -94,7 +94,10 @@ ErrorCode process_command(Chat* chat, const char* command)
     } else if (starts_with(command, "users")) {
         command_type = CMDT_USERS;
     } else {
-        printf("Unrecognized command: %s\n", command);
+
+        char log[256];
+        sprintf(log, "Unrecognized command: %s\n", command);
+        ui_set_log_text(log);
     }
 
     if (command_type == CMDT_NULL)

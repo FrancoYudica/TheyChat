@@ -6,7 +6,7 @@
 
 typedef struct {
 
-    uint32_t white_color_pair;
+    uint32_t chat_box_color_pair;
     uint32_t soft_color_pair;
     uint32_t name_color_pair;
 

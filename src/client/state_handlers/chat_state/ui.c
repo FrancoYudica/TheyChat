@@ -8,23 +8,30 @@
 #include "chat_state/ui/input_window.h"
 #include <sys/ioctl.h>
 #include <unistd.h>
+
 UI ui;
 
 static void initialize_color_pairs()
 {
 
-    uint8_t SOFT_COLOR = 8;
+    uint8_t FONT_COLOR = 8;
+    uint8_t SOFT_COLOR = 9;
+    uint8_t NAME_COLOR = 10;
+    uint8_t CHAT_OUTLINE_COLOR = 11;
 
-    init_color(SOFT_COLOR, 700, 700, 700);
+    init_color(FONT_COLOR, 1000, 1000, 1000);
+    init_color(SOFT_COLOR, 600, 600, 600);
+    init_color(NAME_COLOR, 0, 1000, 0);
+    init_color(CHAT_OUTLINE_COLOR, 0, 400, 0);
 
-    ui.white_color_pair = 1;
+    ui.chat_box_color_pair = 1;
     ui.soft_color_pair = 2;
     ui.name_color_pair = 3;
 
     // Soft color
-    init_pair(ui.white_color_pair, COLOR_GREEN, COLOR_BLACK);
+    init_pair(ui.chat_box_color_pair, CHAT_OUTLINE_COLOR, COLOR_BLACK);
     init_pair(ui.soft_color_pair, SOFT_COLOR, COLOR_BLACK);
-    init_pair(ui.name_color_pair, COLOR_MAGENTA, COLOR_BLACK);
+    init_pair(ui.name_color_pair, NAME_COLOR, COLOR_BLACK);
 }
 
 static void window_resize()
@@ -34,7 +41,7 @@ static void window_resize()
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
     erase();
     resizeterm(w.ws_row, w.ws_col);
-    refresh(); // Refresh the screen to apply changes
+    refresh();
     pthread_mutex_unlock(&ui.render_mutex);
 
     ui_header_window_resize();
@@ -49,22 +56,20 @@ void ui_init()
     cbreak(); // Line buffering disabled
     noecho(); // Don't echo while we do getch
     curs_set(0); // Hides the cursor
-    if (has_colors() == FALSE) {
-        endwin();
-        printf("Your terminal does not support color\n");
-        exit(1);
-    }
 
     memset(&ui, 0, sizeof(UI));
     pthread_mutex_init(&ui.render_mutex, NULL);
+
     ui_header_window_create();
     ui_chat_window_create();
     ui_log_window_create();
     ui_input_window_create();
 
     // Sets up basic colors
-    start_color();
-    initialize_color_pairs(ui);
+    if (has_colors()) {
+        start_color();
+        initialize_color_pairs();
+    }
 
     // Enable function keys (F1, F2, arrow keys, etc.)
     keypad(stdscr, TRUE);
@@ -111,6 +116,8 @@ void ui_refresh()
     ui_header_window_render();
     ui_chat_window_render();
     ui_log_window_render();
+    ui_input_window_render();
+    doupdate();
 }
 void ui_free()
 {
