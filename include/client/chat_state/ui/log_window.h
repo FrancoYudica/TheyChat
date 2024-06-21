@@ -5,6 +5,7 @@
 
 void ui_log_window_create();
 void ui_log_window_free();
+void ui_log_window_resize();
 void ui_log_window_set_log(const char* log);
 void ui_log_window_render();
 

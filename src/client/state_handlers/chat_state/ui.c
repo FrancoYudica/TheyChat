@@ -6,7 +6,8 @@
 #include "chat_state/ui/chat_window.h"
 #include "chat_state/ui/log_window.h"
 #include "chat_state/ui/input_window.h"
-
+#include <sys/ioctl.h>
+#include <unistd.h>
 UI ui;
 
 static void initialize_color_pairs()
@@ -28,31 +29,18 @@ static void initialize_color_pairs()
 
 static void window_resize()
 {
-    uint32_t n_rows, n_cols;
-    getmaxyx(stdscr, n_rows, n_cols);
-    clear(); // Clear the screen before resizing
-
-    // Adjust header window
-    // werase(ui.header_window);
-    // wresize(ui.header_window, 1, n_cols);
-    // mvwin(ui.header_window, 0, 0); // Move to top-left corner
-
-    // Adjust chat window
-    // wresize(ui.chat_window, n_rows - 7, n_cols);
-    // mvwin(ui.chat_window, 1, 0); // Move just below header
-
-    // Move input window to the bottom
-    // mvwin(ui.input_window, n_rows - 3, 0);
-    // wresize(ui.input_window, 3, n_cols);
-
-    // Adjust log window below chat window
-    // uint32_t chat_bottom_row = getmaxy(ui.chat_window) + getbegy(ui.chat_window);
-    // mvwin(ui.log_window, chat_bottom_row + 1, 1); // Position just below chat window
-    // mvwin(ui.log_window, n_rows - 6, 1); // Position just below chat window
-    // wresize(ui.log_window, 3, n_cols - 2); // Adjust width accordingly
-
-    ui_refresh(ui);
+    pthread_mutex_lock(&ui.render_mutex);
+    struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+    erase();
+    resizeterm(w.ws_row, w.ws_col);
     refresh(); // Refresh the screen to apply changes
+    pthread_mutex_unlock(&ui.render_mutex);
+
+    ui_header_window_resize();
+    ui_chat_window_resize();
+    ui_log_window_resize();
+    ui_input_window_resize();
 }
 
 void ui_init()

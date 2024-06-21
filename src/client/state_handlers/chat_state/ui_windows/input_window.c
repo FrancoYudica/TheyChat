@@ -26,6 +26,16 @@ void ui_input_window_free()
     delwin(s_input_window);
 }
 
+void ui_input_window_resize()
+{
+    uint32_t n_rows, n_cols;
+    getmaxyx(stdscr, n_rows, n_cols);
+
+    werase(s_input_window);
+    wresize(s_input_window, 3, n_cols);
+    mvwin(s_input_window, n_rows - 3, 0);
+    ui_input_window_render();
+}
 void ui_input_window_set_enabled(bool enabled)
 {
     s_input_enabled = enabled;

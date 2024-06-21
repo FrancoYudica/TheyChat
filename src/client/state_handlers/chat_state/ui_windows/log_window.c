@@ -18,6 +18,18 @@ void ui_log_window_free()
     delwin(s_log_window);
 }
 
+void ui_log_window_resize()
+{
+    uint32_t n_rows, n_cols;
+    getmaxyx(stdscr, n_rows, n_cols);
+
+    werase(s_log_window);
+    wresize(s_log_window, 3, n_cols - 2);
+    mvwin(s_log_window, n_rows - 6, 1);
+
+    ui_log_window_render();
+}
+
 void ui_log_window_set_log(const char* log)
 {
     strcpy(s_log, log);

@@ -21,6 +21,14 @@ void ui_header_window_free()
     delwin(s_header_window);
 }
 
+void ui_header_window_resize()
+{
+    werase(s_header_window);
+    uint32_t n_cols = getmaxx(stdscr);
+    wresize(s_header_window, 1, n_cols);
+    mvwin(s_header_window, 0, 0);
+    ui_header_window_render();
+}
 void ui_header_window_set_connected_clients(uint32_t client_count)
 {
     s_client_count = client_count;

@@ -79,8 +79,7 @@ void ui_chat_window_resize()
     werase(s_chat_window);
     wresize(s_chat_window, rows - 7, cols);
     mvwin(s_chat_window, 1, 0);
-
-    // @todo render
+    ui_chat_window_render();
 }
 
 // Functions used to render the different ChatEntry types
