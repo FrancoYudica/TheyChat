@@ -4,12 +4,21 @@
 #include <pthread.h>
 #include "messages/message.h"
 
+enum UI_COLOR_PAIR {
+
+    // Bar color pairs
+    COLOR_PAIR_BAR = 1,
+    COLOR_PAIR_BAR_ENABLED,
+    COLOR_PAIR_BAR_DISABLED,
+
+    // Chat color pairs
+    COLOR_PAIR_CHAT,
+    COLOR_PAIR_CHAT_USERNAME,
+    COLOR_PAIR_CHAT_NOTIFICATION,
+    COLOR_PAIR_CHAT_ALTERNATIVE
+};
+
 typedef struct {
-
-    uint32_t chat_box_color_pair;
-    uint32_t soft_color_pair;
-    uint32_t name_color_pair;
-
     // Mutexes
     pthread_mutex_t render_mutex;
 

@@ -16,6 +16,7 @@ typedef struct
     {
         uint32_t port;
         const char* server_ip;
+        bool tls_enabled;
     } connection_details;
 
 } ClientData;

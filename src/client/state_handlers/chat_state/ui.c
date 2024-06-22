@@ -11,27 +11,39 @@
 
 UI ui;
 
+// ID for colors
+enum Colors {
+    BAR_BG_COLOR = 8,
+    BAR_ENABLED_COLOR,
+    BAR_DISABLED_COLOR,
+    CHAT_BG_COLOR,
+    CHAT_USERNAME_COLOR,
+    CHAT_NOTIFICATION_COLOR,
+    CHAT_ALTERNATIVE_COLOR
+};
+
 static void initialize_color_pairs()
 {
+    use_default_colors();
+    // Sets colors values
+    init_color(BAR_BG_COLOR, 329, 321, 500);
+    init_color(BAR_ENABLED_COLOR, 0, 1000, 0);
+    init_color(BAR_DISABLED_COLOR, 1000, 0, 0);
 
-    uint8_t FONT_COLOR = 8;
-    uint8_t SOFT_COLOR = 9;
-    uint8_t NAME_COLOR = 10;
-    uint8_t CHAT_OUTLINE_COLOR = 11;
+    init_color(CHAT_BG_COLOR, 100, 100, 150);
+    init_color(CHAT_USERNAME_COLOR, 0, 1000, 600);
+    init_color(CHAT_NOTIFICATION_COLOR, 1000, 600, 0);
+    init_color(CHAT_ALTERNATIVE_COLOR, 400, 400, 700);
 
-    init_color(FONT_COLOR, 1000, 1000, 1000);
-    init_color(SOFT_COLOR, 600, 600, 600);
-    init_color(NAME_COLOR, 0, 1000, 0);
-    init_color(CHAT_OUTLINE_COLOR, 0, 400, 0);
+    // Initializes color pairs, with corresponding backgrounds
+    init_pair(COLOR_PAIR_BAR, COLOR_WHITE, BAR_BG_COLOR);
+    init_pair(COLOR_PAIR_BAR_ENABLED, BAR_ENABLED_COLOR, BAR_BG_COLOR);
+    init_pair(COLOR_PAIR_BAR_DISABLED, BAR_DISABLED_COLOR, BAR_BG_COLOR);
 
-    ui.chat_box_color_pair = 1;
-    ui.soft_color_pair = 2;
-    ui.name_color_pair = 3;
-
-    // Soft color
-    init_pair(ui.chat_box_color_pair, CHAT_OUTLINE_COLOR, COLOR_BLACK);
-    init_pair(ui.soft_color_pair, SOFT_COLOR, COLOR_BLACK);
-    init_pair(ui.name_color_pair, NAME_COLOR, COLOR_BLACK);
+    init_pair(COLOR_PAIR_CHAT, COLOR_WHITE, CHAT_BG_COLOR);
+    init_pair(COLOR_PAIR_CHAT_USERNAME, CHAT_USERNAME_COLOR, CHAT_BG_COLOR);
+    init_pair(COLOR_PAIR_CHAT_NOTIFICATION, CHAT_NOTIFICATION_COLOR, CHAT_BG_COLOR);
+    init_pair(COLOR_PAIR_CHAT_ALTERNATIVE, CHAT_ALTERNATIVE_COLOR, CHAT_BG_COLOR);
 }
 
 static void window_resize()
@@ -60,16 +72,16 @@ void ui_init()
     memset(&ui, 0, sizeof(UI));
     pthread_mutex_init(&ui.render_mutex, NULL);
 
-    ui_header_window_create();
-    ui_chat_window_create();
-    ui_log_window_create();
-    ui_input_window_create();
-
     // Sets up basic colors
     if (has_colors()) {
         start_color();
         initialize_color_pairs();
     }
+
+    ui_header_window_create();
+    ui_chat_window_create();
+    ui_log_window_create();
+    ui_input_window_create();
 
     // Enable function keys (F1, F2, arrow keys, etc.)
     keypad(stdscr, TRUE);
@@ -80,6 +92,15 @@ void ui_init()
     // window_resize();
 }
 
+void ui_set_connected(bool is_connected)
+{
+    ui_header_set_connected(is_connected);
+}
+
+void ui_set_tls_enabled(bool tls_enabled)
+{
+    ui_header_window_set_tls_enabled(tls_enabled);
+}
 void ui_add_chat_entry(ChatEntry entry)
 {
     pthread_mutex_lock(&ui.render_mutex);

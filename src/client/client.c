@@ -10,12 +10,6 @@
 #include "client_data.h"
 #include "states_fsm.h"
 
-typedef struct
-{
-    uint32_t port;
-    char* server_ip;
-} ConnectionDetails;
-
 int main(int argc, char** argv)
 {
 
@@ -24,6 +18,11 @@ int main(int argc, char** argv)
     // Sets default connection details
     client.connection_details.port = 8000;
     client.connection_details.server_ip = "127.0.0.1";
+#ifdef THEY_CHAT_SSL
+    client.connection_details.tls_enabled = true;
+#else
+    client.connection_details.tls_enabled = false;
+#endif
 
     // Loads arguments
     int i = 0;

@@ -31,6 +31,7 @@ typedef union {
 typedef struct {
     uint8_t type;
 
+    char time_str[80];
     struct
     {
         uint8_t hour;

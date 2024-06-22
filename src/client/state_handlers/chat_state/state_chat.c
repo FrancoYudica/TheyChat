@@ -38,9 +38,9 @@ void* handle_messages(void* arg)
             strncpy(entry.data.user_text.text, user_chat->text, MAX_CHAT_TEXT_BYTES);
             strncpy(entry.data.user_text.ip, user_chat->ip, MAX_IP_BYTES);
 
+            // Format the time_info to a string
             struct tm* time = localtime((time_t*)&user_chat->time);
-            entry.time.hour = time->tm_hour;
-            entry.time.minute = time->tm_min;
+            strftime(entry.time_str, sizeof(entry.time_str), "%Y/%m/%d %H:%M:%S", time);
 
             // Sends chat entry to UI
             ui_add_chat_entry(entry);
@@ -50,18 +50,18 @@ void* handle_messages(void* arg)
             ServerNotificationPayload* server_notification = &message.payload.server_notification;
 
             // Sets up chat entry
-            ChatEntry notification;
-            notification.type = CHAT_ENTRY_SERVER_NOTIFICATION;
-            strcpy(notification.data.server_notification.text, server_notification->text);
-            struct tm* time = localtime((time_t*)&server_notification->time);
-            if (time == NULL) {
-                perror("time: ");
-                chat_exit(chat);
-            }
-            notification.time.hour = time->tm_hour;
-            notification.time.minute = time->tm_min;
+            ChatEntry entry;
+            entry.type = CHAT_ENTRY_SERVER_NOTIFICATION;
+            strcpy(entry.data.server_notification.text, server_notification->text);
 
-            ui_add_chat_entry(notification);
+            // Format the time_info to a string
+            struct tm* time = localtime((time_t*)&server_notification->time);
+            strftime(entry.time_str, sizeof(entry.time_str), "%Y/%m/%d %H:%M:%S", time);
+
+            entry.time.hour = time->tm_hour;
+            entry.time.minute = time->tm_min;
+
+            ui_add_chat_entry(entry);
         }
         case MSGT_CONNECTED_CLIENTS: {
             ui_set_connected_count(message.payload.connected_clients.client_count);
@@ -81,7 +81,7 @@ void* handle_messages(void* arg)
     return NULL;
 }
 
-ErrorCode process_command(Chat* chat, const char* command)
+ErrorCode process_command(ClientData* client_data, const char* command)
 {
     ErrorCode err = ERR_NET_OK;
 
@@ -103,7 +103,7 @@ ErrorCode process_command(Chat* chat, const char* command)
     if (command_type == CMDT_NULL)
         return ERR_NET_OK;
 
-    return execute_command_processor(chat->client_data, command_type, arg);
+    return execute_command_processor(client_data, command_type, arg);
 }
 
 void* handle_input(void* arg)
@@ -133,7 +133,7 @@ void* handle_input(void* arg)
         bool is_command = trimmed_input[0] == '/' && strlen(trimmed_input) > 1;
 
         if (is_command) {
-            chat->input_error = process_command(chat, (const char*)(trimmed_input + 1));
+            chat->input_error = process_command(chat->client_data, (const char*)(trimmed_input + 1));
         } else {
             message = create_user_chat_msg(trimmed_input, data->username);
             chat->input_error = send_message((const Message*)&message, data->connection_context);
@@ -162,7 +162,8 @@ ErrorCode handle_state_chat(ClientData* data, AppState* next_state)
     ui_init();
     ui_set_connected_count(1);
     ui_set_server_ip(data->connection_details.server_ip);
-
+    ui_set_connected(true);
+    ui_set_tls_enabled(data->connection_details.tls_enabled);
     // Renders the entire UI
     ui_refresh();
 

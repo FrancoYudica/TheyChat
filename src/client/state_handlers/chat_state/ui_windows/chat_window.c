@@ -8,8 +8,8 @@ extern UI ui;
 static WINDOW* s_chat_window;
 
 // Chat window data
-ChatEntries* chat_entries;
-uint32_t chat_entries_offset;
+static ChatEntries* s_chat_entries;
+static uint32_t s_chat_entries_offset;
 
 static uint32_t min(uint32_t a, uint32_t b)
 {
@@ -23,13 +23,10 @@ static void mvwprint_multiline(
     WINDOW* win,
     uint32_t* row,
     uint32_t src_column,
+    uint32_t max_row,
+    uint32_t max_column,
     const char* src_text)
 {
-    uint32_t n_columns, n_rows;
-    getmaxyx(win, n_rows, n_columns);
-
-    uint32_t max_column = n_columns - 2;
-    uint32_t max_row = n_rows - 2;
     uint32_t text_len = strlen(src_text);
     uint32_t text_space = max_column - src_column;
 
@@ -59,25 +56,24 @@ void ui_chat_window_create()
 {
     uint32_t rows, cols;
     getmaxyx(stdscr, rows, cols);
-    s_chat_window = newwin(rows - 7, cols, 1, 0);
-
-    chat_entries = chat_entries_create();
-    chat_entries_offset = 0;
+    s_chat_window = newwin(rows - 3, cols, 1, 0);
+    wbkgd(s_chat_window, COLOR_PAIR(COLOR_PAIR_CHAT));
+    s_chat_entries = chat_entries_create();
+    s_chat_entries_offset = 0;
 }
 
 void ui_chat_window_free()
 {
     delwin(s_chat_window);
-    chat_entries_free(chat_entries);
+    chat_entries_free(s_chat_entries);
 }
 
 void ui_chat_window_resize()
 {
     uint32_t rows, cols;
     getmaxyx(stdscr, rows, cols);
-
     werase(s_chat_window);
-    wresize(s_chat_window, rows - 7, cols);
+    wresize(s_chat_window, rows - 3, cols);
     mvwin(s_chat_window, 1, 0);
     ui_chat_window_render();
 }
@@ -94,20 +90,17 @@ void ui_chat_window_render()
     uint32_t n_columns, n_rows;
     getmaxyx(s_chat_window, n_rows, n_columns);
 
-    // Renders outline box
-    wattron(s_chat_window, COLOR_PAIR(ui.chat_box_color_pair));
-    box(s_chat_window, 0, 0);
-    wattroff(s_chat_window, COLOR_PAIR(ui.chat_box_color_pair));
-
     // Subtracts top and bottom box outline characters
-    uint32_t bottom_row = n_rows - 2;
+    uint32_t bottom_row = n_rows;
 
-    ChatEntriesIterator* iterator = chat_entries_create_iterator(chat_entries, chat_entries_offset);
+    ChatEntriesIterator* iterator = chat_entries_create_iterator(s_chat_entries, s_chat_entries_offset);
 
     uint32_t row = 0;
 
+    // Buffer that stores the formatted message prefix, containing date and time
+    char prefix_buffer[100];
+
     while (chat_entries_iterator_has_more(iterator)) {
-        row++;
 
         if (row > bottom_row)
             break;
@@ -116,13 +109,15 @@ void ui_chat_window_render()
         chat_entries_iterator_get_current(iterator, &entry);
 
         // Keeps track of column
-        uint32_t col = 1;
+        uint32_t col = 0;
 
         // Renders time
-        wattron(s_chat_window, COLOR_PAIR(ui.soft_color_pair));
-        mvwprintw(s_chat_window, row, col, "%03d %02d:%02d ", row + chat_entries_offset, entry->time.hour, entry->time.minute);
-        wattroff(s_chat_window, COLOR_PAIR(ui.soft_color_pair));
-        col += 11;
+        wattron(s_chat_window, COLOR_PAIR(COLOR_PAIR_CHAT_ALTERNATIVE));
+        sprintf(prefix_buffer, "%d %s - ", row + s_chat_entries_offset, entry->time_str);
+        mvwprintw(s_chat_window, row, col, "%s", prefix_buffer);
+        wattroff(s_chat_window, COLOR_PAIR(COLOR_PAIR_CHAT_ALTERNATIVE));
+
+        col += strlen(prefix_buffer);
 
         switch (entry->type) {
         case CHAT_ENTRY_USER_TEXT:
@@ -137,6 +132,7 @@ void ui_chat_window_render()
         }
 
         chat_entries_iterator_move_next(iterator);
+        row++;
     }
 
     chat_entries_free_iterator(iterator);
@@ -148,40 +144,56 @@ void ui_chat_window_render()
 
 void ui_chat_window_add_entry(ChatEntry chat_entry)
 {
-    chat_entries_add(chat_entries, chat_entry);
+    chat_entries_add(s_chat_entries, chat_entry);
 }
 void ui_chat_window_scroll_up()
 {
-    if (chat_entries_offset > 0)
-        chat_entries_offset--;
+    if (s_chat_entries_offset > 0)
+        s_chat_entries_offset--;
 }
 void ui_chat_window_scroll_down()
 {
-    chat_entries_offset++;
+    s_chat_entries_offset++;
 }
-static void render_user_text_entry(const ChatEntry* entry, uint32_t* row, uint32_t col)
+static void render_user_text_entry(
+    const ChatEntry* entry,
+    uint32_t* row,
+    uint32_t col)
 {
 
     const UserTextChatEntry* user_text = &entry->data.user_text;
 
     // Renders name
-    wattron(s_chat_window, COLOR_PAIR(ui.name_color_pair));
+    wattron(s_chat_window, COLOR_PAIR(COLOR_PAIR_CHAT_USERNAME));
     mvwprintw(s_chat_window, *row, col, "%s", user_text->name);
-    wattroff(s_chat_window, COLOR_PAIR(ui.name_color_pair));
+    wattroff(s_chat_window, COLOR_PAIR(COLOR_PAIR_CHAT_USERNAME));
     col += strlen(user_text->name);
 
-    // Renders IP
-    wattron(s_chat_window, COLOR_PAIR(ui.soft_color_pair));
-    mvwprintw(s_chat_window, *row, col, " (%s): ", user_text->ip);
-    wattroff(s_chat_window, COLOR_PAIR(ui.soft_color_pair));
-    col += strlen(user_text->ip) + 5;
+    wattron(s_chat_window, COLOR_PAIR(COLOR_PAIR_CHAT_ALTERNATIVE));
+    mvwprintw(s_chat_window, *row, col, ": ");
+    wattroff(s_chat_window, COLOR_PAIR(COLOR_PAIR_CHAT_ALTERNATIVE));
+    col += 2;
 
     // Renders text
-    mvwprint_multiline(s_chat_window, row, col, user_text->text);
+    uint32_t n_columns, n_rows;
+    getmaxyx(s_chat_window, n_rows, n_columns);
+    uint32_t max_column = n_columns;
+    uint32_t max_row = n_rows;
+    mvwprint_multiline(s_chat_window, row, col, max_row, max_column, user_text->text);
 }
 
-static void render_server_notification_entry(const ChatEntry* entry, uint32_t* row, uint32_t col)
+static void render_server_notification_entry(
+    const ChatEntry* entry,
+    uint32_t* row,
+    uint32_t col)
 {
     const ServerNotificationPayloadChatEntry* server_notification = &entry->data.server_notification;
-    mvwprint_multiline(s_chat_window, row, col, server_notification->text);
+    uint32_t n_columns, n_rows;
+    getmaxyx(s_chat_window, n_rows, n_columns);
+    uint32_t max_column = n_columns;
+    uint32_t max_row = n_rows;
+
+    wattron(s_chat_window, COLOR_PAIR(COLOR_PAIR_CHAT_NOTIFICATION));
+    mvwprint_multiline(s_chat_window, row, col, max_row, max_column, server_notification->text);
+    wattroff(s_chat_window, COLOR_PAIR(COLOR_PAIR_CHAT_NOTIFICATION));
 }
