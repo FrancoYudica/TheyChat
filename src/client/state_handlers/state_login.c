@@ -3,6 +3,7 @@
 ErrorCode handle_state_login(ClientData* data, AppState* next_state)
 {
     Message message;
+
     while (true) {
         // Gets username
         printf("%s", "Enter username: ");

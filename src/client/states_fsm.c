@@ -7,6 +7,7 @@
 
 extern ErrorCode handle_state_offline(ClientData* data, AppState* next_state);
 extern ErrorCode handle_state_connect(ClientData* data, AppState* next_state);
+extern ErrorCode handle_state_queue(ClientData* data, AppState* next_state);
 extern ErrorCode handle_state_login(ClientData* data, AppState* next_state);
 extern ErrorCode handle_state_chat(ClientData* data, AppState* next_state);
 extern ErrorCode handle_state_disconnect(ClientData* data, AppState* next_state);
@@ -27,6 +28,10 @@ void client_states_handler_fsm(ClientData* data, AppState initial_state)
 
         case APP_STATE_CONNECT:
             handler = handle_state_connect;
+            break;
+
+        case APP_STATE_QUEUE:
+            handler = handle_state_queue;
             break;
 
         case APP_STATE_LOGIN:

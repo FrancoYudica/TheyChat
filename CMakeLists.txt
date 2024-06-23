@@ -89,6 +89,7 @@ set(CLIENT_SOURCES
     src/client/command/command_processor.c
     src/client/state_handlers/state_offline.c
     src/client/state_handlers/state_connect.c
+    src/client/state_handlers/state_queue.c
     src/client/state_handlers/state_login.c
     src/client/state_handlers/state_disconnect.c
     src/client/state_handlers/chat_state/state_chat.c
