@@ -17,42 +17,40 @@ extern ErrorCode handle_state_disconnect(ServerStateData*, AppState*);
 /// error happens during handling, the client is cleanly disconnected and removed.
 static void server_states_handler_fsm(ServerStateData* state_data, AppState initial_state)
 {
-    AppState curent_state = initial_state;
+    AppState current_state = initial_state;
 
     // Function pointer of currently used state handler function
     ErrorCode (*handler)(ServerStateData*, AppState*);
 
     while (true) {
         debug_print_client(state_data->client);
-        printf("entered state: ");
+        printf("entered state: %s\n", get_application_state_name(current_state));
         // Gets next state handler
-        switch (curent_state) {
+        switch (current_state) {
         case APP_STATE_CONNECT:
             handler = handle_state_connect;
-            printf("%s\n", "CONNECT");
             break;
 
         case APP_STATE_LOGIN:
             handler = handle_state_login;
-            printf("%s\n", "LOGIN");
             break;
 
         case APP_STATE_CHAT:
             handler = handle_state_chat;
-            printf("%s\n", "CHAT");
             break;
 
         case APP_STATE_DISCONNECT:
-            printf("%s\n", "DISCONNECT");
 
             // Disconnects and exits function
             handle_state_disconnect(state_data, NULL);
             return;
 
         default:
-            printf("Unimplemented state handler type: %i\n", curent_state);
+            printf("Unimplemented state handler type: %i\n", current_state);
             break;
         }
+
+        state_data->client->current_state = current_state;
 
         // Executes handler
         AppState next_state = APP_STATE_NULL;
@@ -63,19 +61,19 @@ static void server_states_handler_fsm(ServerStateData* state_data, AppState init
             printf("Net error code: %i for in client: ", error);
             debug_print_client(state_data->client);
             printf("\n");
-            curent_state
+            current_state
                 = APP_STATE_DISCONNECT;
         }
 
         // In case the handler didn't set the next state
         else if (next_state == APP_STATE_NULL) {
-            printf("Forgot to set next_state in state handler of type %i\n", curent_state);
+            printf("Forgot to set next_state in state handler of type %i\n", current_state);
             exit(EXIT_FAILURE);
         }
 
         // Usual case where all things were right
         else
-            curent_state = next_state;
+            current_state = next_state;
     }
 }
 

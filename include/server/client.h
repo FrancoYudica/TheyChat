@@ -1,8 +1,8 @@
 #ifndef __CLIENT_TYPE_H__
 #define __CLIENT_TYPE_H__
-#include "arpa/inet.h"
 #include "net/net_stream.h"
 #include "net/net_primitives.h"
+#include "application_states.h"
 
 typedef struct
 {
@@ -11,6 +11,7 @@ typedef struct
     char name[MAX_USERNAME_BYTES];
     ConnectionContext* connection_context;
     NetworkStream stream;
+    AppState current_state;
 } Client;
 
 /// @brief Sets client attributes

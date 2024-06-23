@@ -16,6 +16,8 @@ add_subdirectory(libs)
 set(COMMON_SOURCES
 
     # Messages
+    src/common/application_states.c
+
     src/common/messages/message.c
     src/common/messages/messages_types.c
     

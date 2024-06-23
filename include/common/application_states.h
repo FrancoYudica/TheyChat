@@ -29,4 +29,6 @@ typedef enum {
     APP_STATE_DISCONNECT
 } AppState;
 
+const char* get_application_state_name(AppState);
+
 #endif
