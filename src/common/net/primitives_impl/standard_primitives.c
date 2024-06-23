@@ -56,18 +56,22 @@ ConnectionContext* net_server_create_socket(
     return context;
 }
 
-ConnectionContext* net_client_create_socket(
+ErrorCode net_client_create_socket(
     uint32_t server_port,
-    const char* server_ip)
+    const char* server_ip,
+    ConnectionContext** context_ref)
 {
-    ConnectionContext* context = (ConnectionContext*)malloc(sizeof(ConnectionContext));
+    *context_ref = (ConnectionContext*)malloc(sizeof(ConnectionContext));
+    ConnectionContext* context = *context_ref;
+
     memset(context, 0, sizeof(ConnectionContext));
 
     // Create TCP socket
     int32_t sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) {
-        perror("socket creation failed");
-        exit(EXIT_FAILURE);
+        return ERR_NET_SOCKET_CREATION_FAILED;
+        // perror("socket creation failed");
+        // exit(EXIT_FAILURE);
     }
 
     context->socketfd = sockfd;
@@ -88,10 +92,11 @@ ConnectionContext* net_client_create_socket(
         sizeof(const struct sockaddr_in));
 
     if (connection_status == -1) {
-        perror("Unable to connect");
-        exit(EXIT_FAILURE);
+        return ERR_NET_UNABLE_TO_CONNECT;
+        // perror("Unable to connect");
+        // exit(EXIT_FAILURE);
     }
-    return context;
+    return ERR_NET_OK;
 }
 
 void net_listen(ConnectionContext* context, uint32_t n)

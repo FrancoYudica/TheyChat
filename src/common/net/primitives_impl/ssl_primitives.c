@@ -36,30 +36,7 @@ static void configure_context(
     }
 }
 
-// static void ssl_connect(
-//     ConnectionContext* ctx,
-//     const char* host,
-//     uint16_t port)
-// {
-//     ctx->ssl = SSL_new(ctx->ctx);
-//     BIO* bio = BIO_new_ssl_connect(ctx->ctx);
-//     BIO_get_ssl(bio, &ctx->ssl);
-//     SSL_set_mode(ctx->ssl, SSL_MODE_AUTO_RETRY);
-
-//     char hostname[1024];
-//     snprintf(hostname, sizeof(hostname), "%s:%i", host, port);
-//     BIO_set_conn_hostname(bio, hostname);
-
-//     // Set hostname for TLS SNI extension
-//     SSL_set_tlsext_host_name(ctx->ssl, host);
-
-//     if (BIO_do_connect(bio) <= 0) {
-//         report_and_exit("BIO_do_connect");
-//     }
-//     ctx->socket = BIO_get_fd(bio, NULL);
-// }
-
-static void ssl_connect(
+static ErrorCode ssl_connect(
     ConnectionContext* ctx,
     const char* host,
     uint16_t port)
@@ -82,7 +59,8 @@ static void ssl_connect(
 
     // Perform SSL handshake
     if (BIO_do_connect(ctx->bio) <= 0) {
-        report_and_exit("BIO_do_connect");
+        // report_and_exit("BIO_do_connect");
+        return ERR_NET_UNABLE_TO_CONNECT;
     }
 
     // Verify server certificate
@@ -93,6 +71,8 @@ static void ssl_connect(
     // Get file descriptor for socket
     ctx->socket = BIO_get_fd(ctx->bio, NULL);
     BIO_set_fd(ctx->bio, -1, BIO_NOCLOSE);
+
+    return ERR_NET_OK;
 }
 
 void net_init()
@@ -137,20 +117,23 @@ ConnectionContext* net_server_create_socket(
     return context;
 }
 
-ConnectionContext* net_client_create_socket(
+ErrorCode net_client_create_socket(
     uint32_t server_port,
-    const char* server_ip)
+    const char* server_ip,
+    ConnectionContext** context_ref)
 {
-    ConnectionContext* context = (ConnectionContext*)malloc(sizeof(ConnectionContext));
+    *context_ref = (ConnectionContext*)malloc(sizeof(ConnectionContext));
+    ConnectionContext* context = *context_ref;
     memset(context, 0, sizeof(ConnectionContext));
 
     const SSL_METHOD* method = SSLv23_client_method();
     context->ctx = SSL_CTX_new(method);
     if (!context->ctx) {
-        report_and_exit("Unable to create SSL context");
+        return ERR_NET_SOCKET_CREATION_FAILED;
+        // report_and_exit("Unable to create SSL context");
     }
-    ssl_connect(context, server_ip, server_port);
-    return context;
+
+    return ssl_connect(context, server_ip, server_port);
 }
 
 void net_listen(ConnectionContext* context, uint32_t n)

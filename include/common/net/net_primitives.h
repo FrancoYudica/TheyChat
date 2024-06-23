@@ -28,7 +28,7 @@ ConnectionContext* net_server_create_socket(const char* cert_file, const char* k
  * @param server_ip The IP address of the server to connect to.
  * @return ConnectionContext* Pointer to the ConnectionContext structure representing the client socket.
  */
-ConnectionContext* net_client_create_socket(uint32_t server_port, const char* server_ip);
+ErrorCode net_client_create_socket(uint32_t server_port, const char* server_ip, ConnectionContext** context);
 
 /**
  * @brief Puts the server socket into listening mode.

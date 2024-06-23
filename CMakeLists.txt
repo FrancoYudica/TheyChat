@@ -87,6 +87,7 @@ target_link_libraries(server PRIVATE chat_lib)
 set(CLIENT_SOURCES
     src/client/states_fsm.c
     src/client/command/command_processor.c
+    src/client/state_handlers/state_offline.c
     src/client/state_handlers/state_connect.c
     src/client/state_handlers/state_login.c
     src/client/state_handlers/state_disconnect.c

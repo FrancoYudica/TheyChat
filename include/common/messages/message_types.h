@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <stdbool.h>
 
+#include "constants.h"
+
 enum MessageType {
     // User
     MSGT_USER_CHAT,
@@ -35,15 +37,6 @@ enum MessageType {
 
     MSGT_SERVER_NOTIFICATION
 };
-
-/// Amount of actual content bytes sent
-#define FILE_CONTENT_SIZE 512
-#define COMMAND_ARGUMENT_SIZE 512
-#define MAX_CHAT_TEXT_BYTES 128
-#define MAX_USERNAME_BYTES 32
-#define MAX_IP_BYTES sizeof("255.255.255.255")
-#define STATUS_MSG_SUCCESS 1
-#define STATUS_MSG_FAILURE 0
 
 /// @return String name of the Message
 const char* msg_get_type_name(uint8_t type);

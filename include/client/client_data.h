@@ -1,9 +1,9 @@
 #ifndef __CLIENT_DATA_H__
 #define __CLIENT_DATA_H__
 #include <stdint.h>
+#include "constants.h"
 #include "net/net_stream.h"
 #include "net/net_primitives.h"
-
 typedef struct
 {
     char username[128];
@@ -15,7 +15,7 @@ typedef struct
     struct
     {
         uint32_t port;
-        const char* server_ip;
+        char server_ip[MAX_IP_BYTES];
         bool tls_enabled;
     } connection_details;
 
