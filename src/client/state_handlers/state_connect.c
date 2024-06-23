@@ -23,6 +23,7 @@ ErrorCode handle_state_connect(ClientData* data, AppState* next_state)
 
     Message message;
 
+    // Waits for connected, or on queue message
     ErrorCode status = wait_for_message(
         &data->stream,
         data->connection_context,

@@ -43,9 +43,8 @@ void client_states_handler_fsm(ClientData* data, AppState initial_state)
             break;
 
         case APP_STATE_DISCONNECT:
-            // Disconnects and exits function
-            handle_state_disconnect(data, NULL);
-            return;
+            handler = handle_state_disconnect;
+            break;
 
         default:
             printf("Unimplemented state handler type: %i\n", curent_state);
