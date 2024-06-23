@@ -11,7 +11,7 @@
 struct ConnectionContext {
     SSL_CTX* ctx;
     SSL* ssl;
-    int32_t socket;
+    int32_t socketfd;
     BIO* bio;
 };
 
@@ -36,7 +36,7 @@ static void configure_context(
     }
 }
 
-static ErrorCode ssl_connect(
+static Error* ssl_connect(
     ConnectionContext* ctx,
     const char* host,
     uint16_t port)
@@ -58,21 +58,19 @@ static ErrorCode ssl_connect(
     BIO_set_conn_hostname(ctx->bio, hostname);
 
     // Perform SSL handshake
-    if (BIO_do_connect(ctx->bio) <= 0) {
-        // report_and_exit("BIO_do_connect");
-        return ERR_NET_UNABLE_TO_CONNECT;
-    }
+    if (BIO_do_connect(ctx->bio) <= 0)
+        return CREATE_ERRNO(ERR_NET_UNABLE_TO_CONNECT, "Unable to perform SSL handshake");
 
     // Verify server certificate
     if (SSL_get_verify_result(ctx->ssl) != X509_V_OK) {
         printf("Couldn't verify certificate...\n");
     }
 
-    // Get file descriptor for socket
-    ctx->socket = BIO_get_fd(ctx->bio, NULL);
+    // Get file descriptor for socketfd
+    ctx->socketfd = BIO_get_fd(ctx->bio, NULL);
     BIO_set_fd(ctx->bio, -1, BIO_NOCLOSE);
 
-    return ERR_OK;
+    return CREATE_ERR_OK;
 }
 
 void net_init()
@@ -82,28 +80,28 @@ void net_init()
     OpenSSL_add_all_algorithms();
 }
 
-ConnectionContext* net_server_create_socket(
+Error* net_server_create_socket(
     const char* cert_file,
     const char* key_file,
-    uint32_t port)
+    uint32_t port,
+    ConnectionContext** context_ref)
 {
-    ConnectionContext* context = (ConnectionContext*)malloc(sizeof(ConnectionContext));
+    *context_ref = (ConnectionContext*)malloc(sizeof(ConnectionContext));
+    ConnectionContext* context = *context_ref;
     memset(context, 0, sizeof(ConnectionContext));
     // Creates SSL context with the latest version possible
     const SSL_METHOD* method = SSLv23_server_method();
     context->ctx = SSL_CTX_new(method);
-    if (!context->ctx) {
-        report_and_exit("Unable to create SSL context");
-    }
+    if (!context->ctx)
+        return CREATE_ERRNO(ERR_NET_FAILURE, "Unable to create SSL context");
 
     // Configures certificate and key
     configure_context(context, cert_file, key_file);
 
-    // Creates TCP socket
-    context->socket = socket(AF_INET, SOCK_STREAM, 0);
-    if (context->socket < 0) {
-        report_and_exit("socket");
-    }
+    // Creates TCP socketfd
+    context->socketfd = socket(AF_INET, SOCK_STREAM, 0);
+    if (context->socketfd < 0)
+        return CREATE_ERRNO(ERR_NET_SOCKET_CREATION_FAILED, "Unable to create socketfd");
 
     struct sockaddr_in addr;
     addr.sin_family = AF_INET;
@@ -111,13 +109,13 @@ ConnectionContext* net_server_create_socket(
     addr.sin_addr.s_addr = INADDR_ANY;
 
     // Binds to port
-    if (bind(context->socket, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
-        report_and_exit("bind");
-    }
-    return context;
+    if (bind(context->socketfd, (struct sockaddr*)&addr, sizeof(addr)) < 0)
+        return CREATE_ERRNO(ERR_NET_FAILURE, "Unable to bind socketfd");
+
+    return CREATE_ERR_OK;
 }
 
-ErrorCode net_client_create_socket(
+Error* net_client_create_socket(
     uint32_t server_port,
     const char* server_ip,
     ConnectionContext** context_ref)
@@ -128,21 +126,22 @@ ErrorCode net_client_create_socket(
 
     const SSL_METHOD* method = SSLv23_client_method();
     context->ctx = SSL_CTX_new(method);
-    if (!context->ctx) {
-        return ERR_NET_SOCKET_CREATION_FAILED;
-        // report_and_exit("Unable to create SSL context");
-    }
+    if (!context->ctx)
+        return CREATE_ERRNO(ERR_NET_FAILURE, "Unable to create SSL context");
 
     return ssl_connect(context, server_ip, server_port);
 }
 
-void net_listen(ConnectionContext* context, uint32_t n)
+Error* net_listen(
+    ConnectionContext* context,
+    uint32_t n)
 {
-    if (listen(context->socket, n) < 0) {
-        report_and_exit("listen");
-    }
+    if (listen(context->socketfd, n) == -1)
+        return CREATE_ERRNO(ERR_NET_FAILURE, "Listen failed");
+
+    return CREATE_ERR_OK;
 }
-ErrorCode net_accept_connection(
+Error* net_accept_connection(
     ConnectionContext* server_context,
     ConnectionContext** client_context_ref)
 {
@@ -150,27 +149,27 @@ ErrorCode net_accept_connection(
     ConnectionContext* client_context = malloc(sizeof(ConnectionContext));
     *client_context_ref = client_context;
 
-    // Accepts connection with usual socket
+    // Accepts connection with usual socketfd
     struct sockaddr_in client_addr;
     socklen_t client_len = sizeof(client_addr);
-    client_context->socket = accept(server_context->socket, (struct sockaddr*)&client_addr, &client_len);
-    if (client_context->socket < 0) {
-        return ERR_NET_ACCEPT_FAIL;
-    }
+    client_context->socketfd = accept(server_context->socketfd, (struct sockaddr*)&client_addr, &client_len);
+
+    if (client_context->socketfd == -1)
+        return CREATE_ERRNO(ERR_NET_FAILURE, "Accept fail");
 
     // Sets context and file descriptor
     client_context->ctx = server_context->ctx;
     client_context->ssl = SSL_new(client_context->ctx);
-    SSL_set_fd(client_context->ssl, client_context->socket);
+    SSL_set_fd(client_context->ssl, client_context->socketfd);
 
     // Accepts with SSL
-    if (SSL_accept(client_context->ssl) <= 0) {
-        return ERR_NET_ACCEPT_FAIL;
-    }
-    return ERR_OK;
+    if (SSL_accept(client_context->ssl) <= 0)
+        return CREATE_ERRNO(ERR_NET_FAILURE, "SSL accept fail");
+
+    return CREATE_ERR_OK;
 }
 
-ErrorCode net_send(
+Error* net_send(
     ConnectionContext* context,
     const uint8_t* buffer,
     uint32_t size,
@@ -178,15 +177,15 @@ ErrorCode net_send(
 {
     int bytes = SSL_write(context->ssl, buffer, size);
     if (bytes <= 0)
-        return ERR_NET_SEND_FAIL;
+        return CREATE_ERRNO(ERR_NET_FAILURE, "SSL_write failure");
 
     if (bytes_sent != NULL)
         *bytes_sent = bytes;
 
-    return ERR_OK;
+    return CREATE_ERR_OK;
 }
 
-ErrorCode net_receive(
+Error* net_receive(
     ConnectionContext* context,
     uint8_t* buffer,
     uint32_t size,
@@ -194,22 +193,28 @@ ErrorCode net_receive(
 {
     int read = SSL_read(context->ssl, buffer, size);
     if (read == -1)
-        return ERR_NET_RECEIVE_FAIL;
+        return CREATE_ERRNO(ERR_NET_FAILURE, "`SSL_read` failure");
+
     if (read == 0)
-        return ERR_NET_PEER_DISCONNECTED;
+        return CREATE_ERRNO(ERR_NET_PEER_DISCONNECTED, "Peer disconnected");
 
     if (bytes_read != NULL)
         *bytes_read = read;
 
-    return ERR_OK;
+    return CREATE_ERR_OK;
 }
 
-void net_close(ConnectionContext* context)
+Error* net_close(ConnectionContext* context)
 {
     SSL_shutdown(context->ssl);
     SSL_free(context->ssl);
-    close(context->socket);
+    int32_t socketfd = context->socketfd;
     free(context);
+
+    if (close(socketfd) == -1)
+        return CREATE_ERRNO(ERR_CLOSE_FD, "Error while closing ConnectionContext socketfd file descriptor");
+
+    return CREATE_ERR_OK;
 }
 
 void net_shutdown()
@@ -217,33 +222,24 @@ void net_shutdown()
     EVP_cleanup();
 }
 
-ErrorCode net_get_ip(ConnectionContext* context, char* ip_buffer, size_t ip_buffer_size)
+Error* net_get_ip(ConnectionContext* context, char* ip_buffer, size_t ip_buffer_size)
 {
-    if (context->ssl == NULL || ip_buffer == NULL) {
-        return ERR_INVALID_ARGUMENT;
-    }
-
     // Get the underlying file descriptor from the SSL object
-    int fd = SSL_get_fd(context->ssl);
-    if (fd < 0) {
-        perror("SSL_get_fd");
-        return ERR_NET_FAILURE;
-    }
+    int32_t fd = SSL_get_fd(context->ssl);
+    if (fd == -1)
+        return CREATE_ERRNO(ERR_CLOSE_FD, "Error while getting context socket file descriptor");
 
     // Get the peer address
     struct sockaddr_in peer_addr;
     socklen_t peer_addr_len = sizeof(peer_addr);
-    if (getpeername(fd, (struct sockaddr*)&peer_addr, &peer_addr_len) < 0) {
-        perror("getpeername");
-        return ERR_NET_FAILURE;
-    }
+
+    if (getpeername(fd, (struct sockaddr*)&peer_addr, &peer_addr_len) < 0)
+        return CREATE_ERRNO(ERR_NET_FAILURE, "Error while getting peer address");
 
     // Convert the IP address to a human-readable form
     const char* result = inet_ntop(AF_INET, &peer_addr.sin_addr, ip_buffer, ip_buffer_size);
-    if (result == NULL) {
-        perror("inet_ntop");
-        return ERR_NET_FAILURE;
-    }
+    if (result == NULL)
+        return CREATE_ERRNO(ERR_NET_FAILURE, "Error while converting IP to human-readable form");
 
-    return ERR_OK;
+    return CREATE_ERR_OK;
 }

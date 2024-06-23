@@ -14,9 +14,9 @@ typedef struct ConnectionContext ConnectionContext;
  *
  * @param msg Pointer to the Message to send.
  * @param connection_context Pointer to the ConnectionContext structure containing the socket.
- * @return ErrorCode Error code indicating success or failure.
+ * @return Error* indicating success or failure.
  */
-ErrorCode send_message(const Message* msg, ConnectionContext* connection_context);
+Error* send_message(const Message* msg, ConnectionContext* connection_context);
 
 /**
  * @brief Waits for a message to be received on the network stream.
@@ -26,9 +26,9 @@ ErrorCode send_message(const Message* msg, ConnectionContext* connection_context
  * @param network_stream The NetworkStream to monitor for incoming messages.
  * @param connection_context Pointer to the ConnectionContext structure containing the socket.
  * @param message Pointer to store the parsed message received.
- * @return ErrorCode The network status indicating success or error.
+ * @return Error* The network status indicating success or error.
  */
-ErrorCode wait_for_message(NetworkStream* network_stream, ConnectionContext* connection_context, Message* message);
+Error* wait_for_message(NetworkStream* network_stream, ConnectionContext* connection_context, Message* message);
 
 /**
  * @brief Waits for a message of a specific type to be received on the network stream.
@@ -38,8 +38,8 @@ ErrorCode wait_for_message(NetworkStream* network_stream, ConnectionContext* con
  * @param connection_context Pointer to the ConnectionContext structure containing the socket.
  * @param message Pointer to store the parsed message received.
  * @param type The type of message to wait for.
- * @return ErrorCode The network status indicating success or error.
+ * @return Error* The network status indicating success or error.
  */
-ErrorCode wait_for_message_type(NetworkStream* network_stream, ConnectionContext* connection_context, Message* message, uint8_t type);
+Error* wait_for_message_type(NetworkStream* network_stream, ConnectionContext* connection_context, Message* message, uint8_t type);
 
 #endif // __NET_COMMUNICATION_H__

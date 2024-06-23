@@ -1,6 +1,6 @@
 #include "state_handler_utils.h"
 
-ErrorCode handle_state_connect(ClientData* data, AppState* next_state)
+Error* handle_state_connect(ClientData* data, AppState* next_state)
 {
 
     // Establishes connection with serer
@@ -9,22 +9,22 @@ ErrorCode handle_state_connect(ClientData* data, AppState* next_state)
         data->connection_details.server_ip,
         data->connection_details.port);
 
-    ErrorCode connection_status = net_client_create_socket(
+    Error* err = net_client_create_socket(
         data->connection_details.port,
         data->connection_details.server_ip,
         &data->connection_context);
 
     // Unable to connect, goes back to offline state
-    if (IS_NET_ERROR(connection_status)) {
-        printf("Unable to connect to server... ErrorCode: %i\n", connection_status);
+    if (IS_NET_ERROR(err)) {
+        print_error(err);
         *next_state = APP_STATE_OFFLINE;
-        return ERR_OK;
+        return CREATE_ERR_OK;
     }
 
     Message message;
 
     // Waits for connected, or on queue message
-    ErrorCode status = wait_for_message(
+    Error* status = wait_for_message(
         &data->stream,
         data->connection_context,
         &message);

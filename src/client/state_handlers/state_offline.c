@@ -1,6 +1,6 @@
 #include "state_handler_utils.h"
 
-ErrorCode handle_state_offline(ClientData* data, AppState* next_state)
+Error* handle_state_offline(ClientData* data, AppState* next_state)
 {
     // Gets username
     printf("%s", "Server IP: ");
@@ -10,13 +10,25 @@ ErrorCode handle_state_offline(ClientData* data, AppState* next_state)
     char port[6];
     fgets(port, sizeof(port), stdin);
 
-    // Removes '\n' character in both inputs
-    data->connection_details.server_ip[strlen(data->connection_details.server_ip) - 1] = '\0';
-    port[strlen(port) - 1] = '\0';
+    // Default IP
+    if (data->connection_details.server_ip[0] == '\n') {
+        strcpy(data->connection_details.server_ip, "127.0.0.1");
+    } else {
+        // Removes '\n' character in both inputs
+        data->connection_details.server_ip[strlen(data->connection_details.server_ip) - 1] = '\0';
+    }
+
+    // Default port
+    if (port[0] == '\n') {
+        strcpy(port, "8000");
+    } else {
+        // Removes '\n' character in both inputs
+        port[strlen(port) - 1] = '\0';
+    }
 
     data->connection_details.port = atoi(port);
 
     // Initializes socket and connects to server
     *next_state = APP_STATE_CONNECT;
-    return ERR_OK;
+    return CREATE_ERR_OK;
 }

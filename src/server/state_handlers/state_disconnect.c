@@ -1,7 +1,7 @@
 #include "state_handler_utils.h"
 #include "broadcast_message.h"
 
-ErrorCode handle_state_disconnect(ServerStateData* handler_data, AppState* _)
+Error* handle_state_disconnect(ServerStateData* handler_data, AppState* _)
 {
     Client* client = handler_data->client;
     Server* server = handler_data->server;
@@ -22,5 +22,5 @@ ErrorCode handle_state_disconnect(ServerStateData* handler_data, AppState* _)
     // Notifies all clients that a client was removed
     server_client_count_update(server);
 
-    return ERR_OK;
+    return CREATE_ERR_OK;
 }

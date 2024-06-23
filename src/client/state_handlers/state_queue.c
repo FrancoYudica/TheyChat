@@ -1,18 +1,18 @@
 #include "state_handler_utils.h"
 
-ErrorCode handle_state_queue(ClientData* data, AppState* next_state)
+Error* handle_state_queue(ClientData* data, AppState* next_state)
 {
     Message message;
-
+    Error* err;
     printf("You are on queue, please wait...\n");
 
     // Waits for connection
     bool waiting_in_queue = true;
     while (waiting_in_queue) {
-        ErrorCode status = wait_for_message(&data->stream, data->connection_context, &message);
+        err = wait_for_message(&data->stream, data->connection_context, &message);
 
-        if (IS_NET_ERROR(status))
-            return status;
+        if (IS_NET_ERROR(err))
+            return err;
 
         // Client connected successfully;
         if (message.type == MSGT_CLIENT_CONNECTED) {
@@ -29,5 +29,5 @@ ErrorCode handle_state_queue(ClientData* data, AppState* next_state)
     }
 
     *next_state = APP_STATE_LOGIN;
-    return ERR_OK;
+    return err;
 }

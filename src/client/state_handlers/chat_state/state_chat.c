@@ -81,10 +81,8 @@ void* handle_messages(void* arg)
     return NULL;
 }
 
-ErrorCode process_command(ClientData* client_data, const char* command)
+Error* process_command(ClientData* client_data, const char* command)
 {
-    ErrorCode err = ERR_OK;
-
     uint8_t command_type = CMDT_NULL;
     const char* arg = NULL;
 
@@ -101,7 +99,7 @@ ErrorCode process_command(ClientData* client_data, const char* command)
     }
 
     if (command_type == CMDT_NULL)
-        return ERR_OK;
+        return CREATE_ERR_OK;
 
     return execute_command_processor(client_data, command_type, arg);
 }
@@ -150,12 +148,12 @@ void* handle_input(void* arg)
     return NULL;
 }
 
-ErrorCode handle_state_chat(ClientData* data, AppState* next_state)
+Error* handle_state_chat(ClientData* data, AppState* next_state)
 {
     // Sets up chat data structure
     chat.client_data = data;
-    chat.input_error = ERR_OK;
-    chat.messages_error = ERR_OK;
+    chat.input_error = CREATE_ERR_OK;
+    chat.messages_error = CREATE_ERR_OK;
     chat.active = true;
 
     // Initializes UI
@@ -188,5 +186,5 @@ ErrorCode handle_state_chat(ClientData* data, AppState* next_state)
     if (IS_NET_ERROR(chat.messages_error))
         return chat.messages_error;
 
-    return ERR_OK;
+    return CREATE_ERR_OK;
 }

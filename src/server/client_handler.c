@@ -8,10 +8,10 @@
 #include "application_states.h"
 
 // Used external state handler functions
-extern ErrorCode handle_state_connect(ServerStateData*, AppState*);
-extern ErrorCode handle_state_login(ServerStateData*, AppState*);
-extern ErrorCode handle_state_chat(ServerStateData*, AppState*);
-extern ErrorCode handle_state_disconnect(ServerStateData*, AppState*);
+extern Error* handle_state_connect(ServerStateData*, AppState*);
+extern Error* handle_state_login(ServerStateData*, AppState*);
+extern Error* handle_state_chat(ServerStateData*, AppState*);
+extern Error* handle_state_disconnect(ServerStateData*, AppState*);
 
 /// @brief State machine that handles and executes each state. It also ensures that if any
 /// error happens during handling, the client is cleanly disconnected and removed.
@@ -20,7 +20,7 @@ static void server_states_handler_fsm(ServerStateData* state_data, AppState init
     AppState current_state = initial_state;
 
     // Function pointer of currently used state handler function
-    ErrorCode (*handler)(ServerStateData*, AppState*);
+    Error* (*handler)(ServerStateData*, AppState*);
 
     while (true) {
         debug_print_client(state_data->client);
@@ -54,15 +54,19 @@ static void server_states_handler_fsm(ServerStateData* state_data, AppState init
 
         // Executes handler
         AppState next_state = APP_STATE_NULL;
-        ErrorCode error = handler(state_data, &next_state);
+        Error* err = handler(state_data, &next_state);
 
         // Manually sets disconnect state if there is any error
-        if (IS_NET_ERROR(error)) {
-            printf("Net error code: %i for in client: ", error);
-            debug_print_client(state_data->client);
-            printf("\n");
-            current_state
-                = APP_STATE_DISCONNECT;
+        if (IS_NET_ERROR(err)) {
+
+            if (err->code != ERR_NET_PEER_DISCONNECTED) {
+                printf("Net error code: %i for in client: ", err->code);
+                debug_print_client(state_data->client);
+                printf("\n");
+                print_error(err);
+                free_error(err);
+            }
+            current_state = APP_STATE_DISCONNECT;
         }
 
         // In case the handler didn't set the next state

@@ -2,9 +2,9 @@
 #include "net/net_communication.h"
 #include <unistd.h>
 
-ErrorCode send_file(const char* filepath, uint32_t sockfd)
+Error* send_file(const char* filepath, uint32_t sockfd)
 {
-    return ERR_OK;
+    return CREATE_ERR_OK;
     // // Opens file
     // FILE* file = fopen(filepath, "rb");
     // if (file == NULL) {
@@ -17,7 +17,7 @@ ErrorCode send_file(const char* filepath, uint32_t sockfd)
     // size_t file_size = ftell(file);
     // fseek(file, 0, SEEK_SET);
 
-    // ErrorCode err = ERR_OK;
+    // Error* err = CREATE_ERR_OK;
 
     // // Sends header
     // {
@@ -62,9 +62,9 @@ bool file_exists(const char* filepath)
     return access(filepath, F_OK);
 }
 
-ErrorCode receive_file(uint32_t sockfd)
+Error* receive_file(uint32_t sockfd)
 {
-    return ERR_OK;
+    return CREATE_ERR_OK;
 
     // char buffer[FILE_CONTENT_SIZE];
     // size_t file_size;
@@ -74,7 +74,7 @@ ErrorCode receive_file(uint32_t sockfd)
 
     // // Waits for header
     // FileHeaderMsg* header;
-    // ErrorCode err = wait_for_message_type(&stream, sockfd, (Message**)&header, MSGT_FILE_HEADER);
+    // Error* err = wait_for_message_type(&stream, sockfd, (Message**)&header, MSGT_FILE_HEADER);
 
     // if (IS_NET_ERROR(err))
     //     return err;

@@ -2,12 +2,12 @@
 #include "messages/message_types.h"
 #include "net/net_communication.h"
 
-ErrorCode process_users_command(ClientData* data)
+Error* process_users_command(ClientData* data)
 {
     Message message;
 
     // Gets header of the sequence
-    ErrorCode err = wait_for_message_type(
+    Error* err = wait_for_message_type(
         &data->stream,
         data->connection_context,
         &message,
@@ -40,30 +40,27 @@ ErrorCode process_users_command(ClientData* data)
         } else if (message_type == MSGT_SEQUENCE_END) {
             break;
         } else
-            return ERR_NET_RECEIVED_INVALID_TYPE;
+            return CREATE_ERR(ERR_NET_RECEIVED_INVALID_TYPE, "Expected MSGT_HEAP_SEQUENCE or MSGT_SEQUENCE_END");
     }
 
-    return ERR_OK;
+    return err;
 }
 
-ErrorCode execute_command_processor(ClientData* data, uint8_t command_type, const char* command_arg)
+Error* execute_command_processor(ClientData* data, uint8_t command_type, const char* command_arg)
 {
     // Sends command msg to server, telling that a command arrived
     Message message = create_command_msg(command_type, command_arg);
-    ErrorCode err = send_message((const Message*)&message, data->connection_context);
+    Error* err = send_message((const Message*)&message, data->connection_context);
 
     if (IS_NET_ERROR(err))
         return err;
 
     switch (command_type) {
     case CMDT_DISCONNECT:
-        return ERR_NET_DISCONNECT;
-        break;
+        return CREATE_ERR(ERR_NET_DISCONNECT, "Disconnecting with command");
 
-    case CMDT_USERS: {
-        err = process_users_command(data);
-        break;
-    }
+    case CMDT_USERS:
+        return process_users_command(data);
 
     default:
         break;

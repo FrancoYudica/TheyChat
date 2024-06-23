@@ -5,7 +5,7 @@
 #include "net/net_communication.h"
 #include "net/serialization/net_message_serializer.h"
 
-ErrorCode send_message(const Message* msg, ConnectionContext* connection_context)
+Error* send_message(const Message* msg, ConnectionContext* connection_context)
 {
     // Allocates memory for serialized message
     uint8_t serialized_message[1024];
@@ -21,7 +21,7 @@ ErrorCode send_message(const Message* msg, ConnectionContext* connection_context
     while (total_bytes_sent < serialized_buffer_size) {
         uint32_t bytes_sent;
 
-        ErrorCode err = net_send(
+        Error* err = net_send(
             connection_context,
             serialized_message + total_bytes_sent,
             serialized_buffer_size - total_bytes_sent,
@@ -33,14 +33,14 @@ ErrorCode send_message(const Message* msg, ConnectionContext* connection_context
         total_bytes_sent += bytes_sent;
     }
 
-    return ERR_OK;
+    return CREATE_ERR_OK;
 }
 
 /// @brief Receives bytes from a network socket and writes them into a network stream.
 /// @param network_stream Pointer to the NetworkStream to write the received bytes into.
 /// @param sockfd The file descriptor of the socket to receive bytes from.
 /// @return status
-static ErrorCode receive(NetworkStream* network_stream, ConnectionContext* connection_context)
+static Error* receive(NetworkStream* network_stream, ConnectionContext* connection_context)
 {
     // Pointer to the free space
     uint8_t* empty_region_ptr = network_stream->stream + network_stream->written_bytes;
@@ -48,22 +48,29 @@ static ErrorCode receive(NetworkStream* network_stream, ConnectionContext* conne
     // Amount of free space in bytes
     uint32_t empty_region_size = sizeof(network_stream->stream) - network_stream->written_bytes;
 
-    if (empty_region_size == 0)
-        return ERR_NET_STREAM_OVERFLOW;
+    if (empty_region_size == 0) {
+        char err_msg[128];
+        sprintf(
+            err_msg,
+            "NetworkStream overflow while waiting for message. NetworkStream of size: %ld",
+            sizeof(network_stream->stream));
+
+        return CREATE_ERR(ERR_NET_STREAM_OVERFLOW, err_msg);
+    }
 
     // Blocks current thread until it receives data
     uint32_t bytes_read;
-    ErrorCode err = net_receive(connection_context, empty_region_ptr, empty_region_size, &bytes_read);
+    Error* err = net_receive(connection_context, empty_region_ptr, empty_region_size, &bytes_read);
 
     if (IS_NET_ERROR(err))
         return err;
 
     network_stream->written_bytes += bytes_read;
 
-    return ERR_OK;
+    return CREATE_ERR_OK;
 }
 
-ErrorCode wait_for_message(NetworkStream* network_stream, ConnectionContext* connection_context, Message* message)
+Error* wait_for_message(NetworkStream* network_stream, ConnectionContext* connection_context, Message* message)
 {
 
     // Tries to pop message
@@ -72,29 +79,32 @@ ErrorCode wait_for_message(NetworkStream* network_stream, ConnectionContext* con
     // If no messages are popped
     // Receives data until a complete message arrives
     while (!popped) {
-        ErrorCode receive_status = receive(network_stream, connection_context);
-        if (IS_NET_ERROR(receive_status))
-            return receive_status;
+        Error* err = receive(network_stream, connection_context);
+        if (IS_NET_ERROR(err))
+            return err;
 
         popped = stream_pop_message(network_stream, message);
     }
 
-    return ERR_OK;
+    return CREATE_ERR_OK;
 }
 
-ErrorCode wait_for_message_type(NetworkStream* network_stream, ConnectionContext* connection_context, Message* message, uint8_t type)
+Error* wait_for_message_type(NetworkStream* network_stream, ConnectionContext* connection_context, Message* message, uint8_t type)
 {
 
-    ErrorCode status = wait_for_message(network_stream, connection_context, message);
-    if (IS_NET_ERROR(status))
-        return status;
+    Error* err = wait_for_message(network_stream, connection_context, message);
+    if (IS_NET_ERROR(err))
+        return err;
 
     if (message->type != type) {
-        printf("ERROR: Received unexpected message type. Expected %i, and received %i. ", type, message->type);
-        printf("Received message: ");
-        print_message(message);
 
-        return ERR_NET_RECEIVED_INVALID_TYPE;
+        char err_log[128];
+        sprintf(
+            "Received unexpected message type. Expected type %i but received %i",
+            msg_get_type_name(type),
+            msg_get_type_name(message->type));
+
+        return CREATE_ERR(ERR_NET_RECEIVED_INVALID_TYPE, err_log);
     }
-    return ERR_OK;
+    return CREATE_ERR_OK;
 }

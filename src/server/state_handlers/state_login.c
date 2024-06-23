@@ -1,23 +1,25 @@
 #include "state_handler_utils.h"
 #include "broadcast_message.h"
 
-ErrorCode handle_state_login(ServerStateData* handler_data, AppState* next_state)
+Error* handle_state_login(ServerStateData* handler_data, AppState* next_state)
 {
     Client* client = handler_data->client;
     bool logged = false;
     Message message;
 
+    Error* err;
+
     while (!logged) {
 
         // Waits for login
-        ErrorCode status = wait_for_message_type(
+        err = wait_for_message_type(
             &client->stream,
             client->connection_context,
             &message,
             MSGT_USER_LOGIN);
 
-        if (IS_NET_ERROR(status))
-            return status;
+        if (IS_NET_ERROR(err))
+            return err;
 
         const char* username = message.payload.user_login.username;
         logged = NULL == client_list_find_by_name(handler_data->server->client_list, username);
@@ -29,17 +31,17 @@ ErrorCode handle_state_login(ServerStateData* handler_data, AppState* next_state
             char text_buffer[128];
             sprintf(text_buffer, "A user named \"%s\" already exists", username);
             message = create_status_msg(STATUS_MSG_FAILURE, text_buffer);
-            status = send_message(&message, client->connection_context);
-            if (IS_NET_ERROR(status))
-                return status;
+            err = send_message(&message, client->connection_context);
+            if (IS_NET_ERROR(err))
+                return err;
         }
     }
 
     message = create_status_msg(STATUS_MSG_SUCCESS, "Login success");
-    ErrorCode status = send_message(&message, client->connection_context);
+    err = send_message(&message, client->connection_context);
 
-    if (IS_NET_ERROR(status))
-        return status;
+    if (IS_NET_ERROR(err))
+        return err;
 
     // Tells all the clients that a new client connected.
     {
@@ -54,5 +56,5 @@ ErrorCode handle_state_login(ServerStateData* handler_data, AppState* next_state
     debug_print_client(client);
     printf(" logged in!\n");
     *next_state = APP_STATE_CHAT;
-    return ERR_OK;
+    return CREATE_ERR_OK;
 }

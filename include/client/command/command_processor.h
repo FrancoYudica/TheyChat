@@ -3,6 +3,6 @@
 #include "they_chat_error.h"
 #include "client_data.h"
 
-ErrorCode execute_command_processor(ClientData* data, uint8_t command_type, const char* command_arg);
+Error* execute_command_processor(ClientData* data, uint8_t command_type, const char* command_arg);
 
 #endif

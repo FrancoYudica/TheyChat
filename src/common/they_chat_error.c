@@ -2,8 +2,9 @@
 #include <stdio.h>
 #include <malloc.h>
 #include <string.h>
+#include <stdlib.h>
 
-Error* create_error(
+Error* _create_error(
     ErrorCode code,
     const char* message,
     const char* errno_msg,
@@ -37,10 +38,10 @@ void free_error(Error* error)
 
 void print_error(const Error* err)
 {
-    if (err) {
+    if (err == NULL)
         printf("Null err\n");
-    }
-    if (err->code != ERR_OK) {
+
+    else if (err->code != ERR_OK) {
         fprintf(
             stderr,
             "Error: %s\n Errno msg: %s\n Code: %d\nFile: %s\nLine: %d\n",
@@ -49,5 +50,14 @@ void print_error(const Error* err)
             err->code,
             err->file,
             err->line);
+    }
+}
+
+void _assert_net_error(Error* err)
+{
+    if (IS_NET_ERROR(err)) {
+        print_error(err);
+        free_error(err);
+        exit(EXIT_FAILURE);
     }
 }

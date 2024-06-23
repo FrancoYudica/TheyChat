@@ -1,10 +1,10 @@
 #include "state_handler_utils.h"
 
-ErrorCode handle_state_connect(ServerStateData* handler_data, AppState* next_state)
+Error* handle_state_connect(ServerStateData* handler_data, AppState* next_state)
 {
     // Tells client that it's connected
     Message message = create_client_connected();
-    ErrorCode err = send_message(
+    Error* err = send_message(
         (const Message*)&message,
         handler_data->client->connection_context);
 
@@ -13,5 +13,5 @@ ErrorCode handle_state_connect(ServerStateData* handler_data, AppState* next_sta
 
     *next_state = APP_STATE_LOGIN;
 
-    return ERR_OK;
+    return CREATE_ERR_OK;
 }

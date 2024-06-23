@@ -14,14 +14,14 @@
 Server* server_create(uint16_t port, uint32_t max_client_count);
 
 /// @brief Frees server and related memory
-void server_free(Server* server);
+Error* server_free(Server* server);
 
 /// @brief Initializes the server socket
-void server_init_network(Server* server);
+Error* server_init_network(Server* server);
 
 /// @brief Accepts client connections, and create a handle thread
 /// for each new connection.
-void server_accept_clients(Server* server);
+Error* server_accept_clients(Server* server);
 
 int main(int argc, char** argv)
 {
@@ -51,11 +51,14 @@ int main(int argc, char** argv)
     // Creates server with the input parameters
     Server* server = server_create(port, max_client_count);
 
-    server_init_network(server);
+    Error* err = server_init_network(server);
+    ASSERT_NET_ERROR(err);
 
-    server_accept_clients(server);
+    err = server_accept_clients(server);
+    ASSERT_NET_ERROR(err);
 
     server_free(server);
+    ASSERT_NET_ERROR(err);
 
     return EXIT_SUCCESS;
 }
@@ -77,21 +80,23 @@ Server* server_create(uint16_t port, uint32_t max_client_count)
     return server;
 }
 
-void server_free(Server* server)
+Error* server_free(Server* server)
 {
-    net_close(server->context);
+    Error* err = net_close(server->context);
     thpool_destroy(server->client_thread_pool);
     client_list_destroy(server->client_list);
     pthread_mutex_destroy(&server->client_list_mutex);
     pthread_mutex_destroy(&server->broadcast_mutex);
     net_shutdown();
+    return err;
 }
 
-void server_init_network(Server* server)
+Error* server_init_network(Server* server)
 {
 
     // Initializes network module.
     net_init();
+    Error* err;
 
 #ifdef THEY_CHAT_SSL
     printf("Loading SSL certificate and key\n");
@@ -105,19 +110,23 @@ void server_init_network(Server* server)
     printf("- Certificate path: %s\n", cert_file);
     printf("- Private key path: %s\n", key_file);
     // Initializes socket with certificates
-    server->context = net_server_create_socket(cert_file, key_file, server->port);
+    err = net_server_create_socket(cert_file, key_file, server->port, &server->context);
 
 #else
     // Not using SSL, certificates not needed
-    server->context = net_server_create_socket(NULL, NULL, server->port);
+    err = net_server_create_socket(NULL, NULL, server->port, &server->context);
 #endif
+    return err;
 }
 
-void server_accept_clients(Server* server)
+Error* server_accept_clients(Server* server)
 {
 
     // Sets up listen
-    net_listen(server->context, 5);
+    Error* err = net_listen(server->context, 5);
+    if (IS_NET_ERROR(err))
+        return err;
+
     printf("Listening on port %i. Waiting for client connections...\n", server->port);
 
     // Message sent to client in case there aren't any free
@@ -128,7 +137,7 @@ void server_accept_clients(Server* server)
 
         // Accepts client connections
         ConnectionContext* client_context;
-        ErrorCode err = net_accept_connection(server->context, &client_context);
+        err = net_accept_connection(server->context, &client_context);
 
         if (IS_NET_ERROR(err))
             break;
@@ -151,4 +160,5 @@ void server_accept_clients(Server* server)
         handler_data->client = client;
         thpool_submit(server->client_thread_pool, (thread_task_t)handle_client_task, handler_data);
     }
+    return err;
 }

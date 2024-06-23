@@ -8,7 +8,7 @@
 typedef enum {
     ERR_OK = 0,
     ERR_OPEN_FILE,
-    ERR_INVALID_ARGUMENT,
+    ERR_CLOSE_FD,
 
     // Network errors
     ERR_NET_SOCKET_CREATION_FAILED,
@@ -16,15 +16,11 @@ typedef enum {
     ERR_NET_DISCONNECT,
     ERR_NET_FAILURE,
     ERR_NET_PEER_DISCONNECTED,
-    ERR_NET_SEND_FAIL,
-    ERR_NET_RECEIVE_FAIL,
     ERR_NET_RECEIVED_INVALID_TYPE,
-    ERR_NET_STREAM_OVERFLOW,
-    ERR_NET_ACCEPT_FAIL
+    ERR_NET_STREAM_OVERFLOW
 } ErrorCode;
 
-#define IS_NET_ERROR(X) ((X) != ERR_OK)
-#define ASSERT_NET_ERROR(X) assert(!IS_NET_ERROR(X))
+#define IS_NET_ERROR(X) ((X) != NULL)
 
 typedef struct
 {
@@ -35,7 +31,7 @@ typedef struct
     uint32_t line;
 } Error;
 
-Error* create_error(
+Error* _create_error(
     ErrorCode code,
     const char* message,
     const char* errno_msg,
@@ -46,8 +42,17 @@ void free_error(Error* error);
 
 void print_error(const Error* err);
 
-#define CREATE_ERROR(code, msg) create_error((code), (msg), NULL, __FILE__, __LINE__)
-#define CREATE_ERROR_ERRNO(code, msg) create_error((code), (msg), strerror(errno), __FILE__, __LINE__)
-#define CREATE_ERR_OK CREATE_ERROR(ERR_OK, NULL)
+void _assert_net_error(Error* err);
+
+#define ASSERT_NET_ERROR(X) _assert_net_error(X)
+
+// Creates an error without using the errno variable
+#define CREATE_ERR(code, msg) _create_error((code), (msg), NULL, __FILE__, __LINE__)
+
+// Crates an error using errno variable
+#define CREATE_ERRNO(code, msg) _create_error((code), (msg), strerror(errno), __FILE__, __LINE__)
+
+// Creates OK error, as NULL Error
+#define CREATE_ERR_OK (Error*)NULL
 
 #endif

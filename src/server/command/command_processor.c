@@ -1,9 +1,9 @@
 #include "command/command_processor.h"
 #include "net/net_communication.h"
 
-ErrorCode process_users_command(ServerStateData* data)
+Error* process_users_command(ServerStateData* data)
 {
-    ErrorCode err;
+    Error* err;
     Message message;
 
     // Sequence start
@@ -38,23 +38,20 @@ ErrorCode process_users_command(ServerStateData* data)
     return err;
 }
 
-ErrorCode execute_command_processor(ServerStateData* data, Message* command_message)
+Error* execute_command_processor(ServerStateData* data, Message* command_message)
 {
     printf("RECEIVED COMMAND MESSAGE!\n");
 
     switch (command_message->payload.command.command_type) {
     case CMDT_DISCONNECT:
-        return ERR_NET_PEER_DISCONNECTED;
-        break;
+        return CREATE_ERR(ERR_NET_PEER_DISCONNECTED, "Peer disconnected");
 
-    case CMDT_USERS: {
+    case CMDT_USERS:
         return process_users_command(data);
-        break;
-    }
 
     default:
         break;
     }
 
-    return ERR_OK;
+    return CREATE_ERR_OK;
 }
