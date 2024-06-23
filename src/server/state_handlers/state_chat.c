@@ -7,14 +7,14 @@ ErrorCode handle_state_chat(ServerStateData* state_data, AppState* next_state)
 {
     Client* client = state_data->client;
 
-    ErrorCode error = ERR_NET_OK;
+    ErrorCode error = ERR_OK;
     Message message;
     while (true) {
 
         ErrorCode receive_status = wait_for_message(&client->stream, client->connection_context, &message);
 
         if (IS_NET_ERROR(receive_status)) {
-            if (receive_status != ERR_PEER_DISCONNECTED)
+            if (receive_status != ERR_NET_PEER_DISCONNECTED)
                 printf("NETWORK ERROR type %i while handling client %d\n", receive_status, client->id);
 
             error = receive_status;

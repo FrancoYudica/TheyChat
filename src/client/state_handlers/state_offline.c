@@ -18,5 +18,5 @@ ErrorCode handle_state_offline(ClientData* data, AppState* next_state)
 
     // Initializes socket and connects to server
     *next_state = APP_STATE_CONNECT;
-    return ERR_NET_OK;
+    return ERR_OK;
 }

@@ -4,7 +4,7 @@
 
 ErrorCode send_file(const char* filepath, uint32_t sockfd)
 {
-    return ERR_NET_OK;
+    return ERR_OK;
     // // Opens file
     // FILE* file = fopen(filepath, "rb");
     // if (file == NULL) {
@@ -17,7 +17,7 @@ ErrorCode send_file(const char* filepath, uint32_t sockfd)
     // size_t file_size = ftell(file);
     // fseek(file, 0, SEEK_SET);
 
-    // ErrorCode err = ERR_NET_OK;
+    // ErrorCode err = ERR_OK;
 
     // // Sends header
     // {
@@ -64,7 +64,7 @@ bool file_exists(const char* filepath)
 
 ErrorCode receive_file(uint32_t sockfd)
 {
-    return ERR_NET_OK;
+    return ERR_OK;
 
     // char buffer[FILE_CONTENT_SIZE];
     // size_t file_size;

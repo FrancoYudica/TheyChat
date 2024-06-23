@@ -17,6 +17,7 @@ set(COMMON_SOURCES
 
     # Messages
     src/common/application_states.c
+    src/common/they_chat_error.c
 
     src/common/messages/message.c
     src/common/messages/messages_types.c
@@ -24,7 +25,6 @@ set(COMMON_SOURCES
     # Networking
     src/common/net/net_communication.c
     src/common/net/net_stream.c
-    src/common/net/net_error.c
     src/common/net/file_transfer.c
     src/common/net/serialization/net_serializer.c
     src/common/net/serialization/net_message_serializer.c

@@ -3,7 +3,7 @@
 #include "messages/message_types.h"
 #include "application_states.h"
 #include "net/net_communication.h"
-#include "net/net_error.h"
+#include "they_chat_error.h"
 #include "server.h"
 #include "client.h"
 #include "server_state_data.h"

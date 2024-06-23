@@ -29,5 +29,5 @@ ErrorCode handle_state_queue(ClientData* data, AppState* next_state)
     }
 
     *next_state = APP_STATE_LOGIN;
-    return ERR_NET_OK;
+    return ERR_OK;
 }

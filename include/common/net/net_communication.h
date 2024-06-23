@@ -4,7 +4,7 @@
 #include <assert.h>
 #include "messages/message.h"
 #include "net/net_stream.h"
-#include "net/net_error.h"
+#include "they_chat_error.h"
 
 // Forward declaration of the ConnectionContext structure
 typedef struct ConnectionContext ConnectionContext;

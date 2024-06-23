@@ -4,7 +4,7 @@
 #include "messages/message_types.h"
 #include "application_states.h"
 #include "net/net_communication.h"
-#include "net/net_error.h"
+#include "they_chat_error.h"
 #include "client_data.h"
 
 #endif

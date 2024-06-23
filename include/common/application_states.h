@@ -17,7 +17,7 @@ typedef enum {
     APP_STATE_CONNECT,
 
     /// @brief Server max capacity reached, client in queue
-    APP_STATE_QUEUE,
+    APP_STATE_ONQUEUE,
 
     /// @brief Asks user for valid credentials
     APP_STATE_LOGIN,

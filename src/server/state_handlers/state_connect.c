@@ -13,5 +13,5 @@ ErrorCode handle_state_connect(ServerStateData* handler_data, AppState* next_sta
 
     *next_state = APP_STATE_LOGIN;
 
-    return ERR_NET_OK;
+    return ERR_OK;
 }

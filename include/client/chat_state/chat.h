@@ -2,7 +2,7 @@
 #define __CHAT_DATA_H__
 #include <pthread.h>
 #include <stdbool.h>
-#include "net/net_error.h"
+#include "they_chat_error.h"
 #include "client_data.h"
 #include "chat_state/ui.h"
 

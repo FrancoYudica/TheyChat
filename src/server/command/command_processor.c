@@ -44,7 +44,7 @@ ErrorCode execute_command_processor(ServerStateData* data, Message* command_mess
 
     switch (command_message->payload.command.command_type) {
     case CMDT_DISCONNECT:
-        return ERR_PEER_DISCONNECTED;
+        return ERR_NET_PEER_DISCONNECTED;
         break;
 
     case CMDT_USERS: {
@@ -56,5 +56,5 @@ ErrorCode execute_command_processor(ServerStateData* data, Message* command_mess
         break;
     }
 
-    return ERR_NET_OK;
+    return ERR_OK;
 }

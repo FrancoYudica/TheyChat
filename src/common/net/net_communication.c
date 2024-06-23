@@ -33,7 +33,7 @@ ErrorCode send_message(const Message* msg, ConnectionContext* connection_context
         total_bytes_sent += bytes_sent;
     }
 
-    return ERR_NET_OK;
+    return ERR_OK;
 }
 
 /// @brief Receives bytes from a network socket and writes them into a network stream.
@@ -60,7 +60,7 @@ static ErrorCode receive(NetworkStream* network_stream, ConnectionContext* conne
 
     network_stream->written_bytes += bytes_read;
 
-    return ERR_NET_OK;
+    return ERR_OK;
 }
 
 ErrorCode wait_for_message(NetworkStream* network_stream, ConnectionContext* connection_context, Message* message)
@@ -79,7 +79,7 @@ ErrorCode wait_for_message(NetworkStream* network_stream, ConnectionContext* con
         popped = stream_pop_message(network_stream, message);
     }
 
-    return ERR_NET_OK;
+    return ERR_OK;
 }
 
 ErrorCode wait_for_message_type(NetworkStream* network_stream, ConnectionContext* connection_context, Message* message, uint8_t type)
@@ -94,7 +94,7 @@ ErrorCode wait_for_message_type(NetworkStream* network_stream, ConnectionContext
         printf("Received message: ");
         print_message(message);
 
-        return ERR_RECEIVED_INVALID_TYPE;
+        return ERR_NET_RECEIVED_INVALID_TYPE;
     }
-    return ERR_NET_OK;
+    return ERR_OK;
 }

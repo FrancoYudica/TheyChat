@@ -29,5 +29,5 @@ ErrorCode handle_state_login(ClientData* data, AppState* next_state)
         }
     }
     *next_state = APP_STATE_CHAT;
-    return ERR_NET_OK;
+    return ERR_OK;
 }

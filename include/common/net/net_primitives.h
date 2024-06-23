@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 #include <arpa/inet.h>
-#include "net/net_error.h"
+#include "they_chat_error.h"
 
 // Forward declaration of the ConnectionContext structure
 typedef struct ConnectionContext ConnectionContext;

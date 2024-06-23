@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "states_fsm.h"
-#include "net/net_error.h"
+#include "they_chat_error.h"
 
 extern ErrorCode handle_state_offline(ClientData* data, AppState* next_state);
 extern ErrorCode handle_state_connect(ClientData* data, AppState* next_state);
@@ -30,7 +30,7 @@ void client_states_handler_fsm(ClientData* data, AppState initial_state)
             handler = handle_state_connect;
             break;
 
-        case APP_STATE_QUEUE:
+        case APP_STATE_ONQUEUE:
             handler = handle_state_queue;
             break;
 

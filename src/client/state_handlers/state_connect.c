@@ -18,7 +18,7 @@ ErrorCode handle_state_connect(ClientData* data, AppState* next_state)
     if (IS_NET_ERROR(connection_status)) {
         printf("Unable to connect to server... ErrorCode: %i\n", connection_status);
         *next_state = APP_STATE_OFFLINE;
-        return ERR_NET_OK;
+        return ERR_OK;
     }
 
     Message message;
@@ -33,7 +33,7 @@ ErrorCode handle_state_connect(ClientData* data, AppState* next_state)
         return status;
 
     if (message.type == MSGT_CLIENT_ON_QUEUE)
-        *next_state = APP_STATE_QUEUE;
+        *next_state = APP_STATE_ONQUEUE;
 
     else if (message.type == MSGT_CLIENT_CONNECTED) {
         *next_state = APP_STATE_LOGIN;

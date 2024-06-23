@@ -22,5 +22,5 @@ ErrorCode handle_state_disconnect(ServerStateData* handler_data, AppState* _)
     // Notifies all clients that a client was removed
     server_client_count_update(server);
 
-    return ERR_NET_OK;
+    return ERR_OK;
 }

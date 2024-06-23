@@ -96,7 +96,7 @@ ErrorCode net_client_create_socket(
         // perror("Unable to connect");
         // exit(EXIT_FAILURE);
     }
-    return ERR_NET_OK;
+    return ERR_OK;
 }
 
 void net_listen(ConnectionContext* context, uint32_t n)
@@ -127,7 +127,7 @@ ErrorCode net_accept_connection(
     }
 
     client_context->socketfd = client_sock_fd;
-    return ERR_NET_OK;
+    return ERR_OK;
 }
 
 ErrorCode net_send(
@@ -140,11 +140,11 @@ ErrorCode net_send(
 
     if (sent == -1) {
         perror("`send` in `send_buffer_to_socketfd failed`");
-        return ERR_SEND_FAIL;
+        return ERR_NET_SEND_FAIL;
     }
     if (bytes_sent != NULL)
         *bytes_sent = sent;
-    return ERR_NET_OK;
+    return ERR_OK;
 }
 
 ErrorCode net_receive(
@@ -155,13 +155,13 @@ ErrorCode net_receive(
 {
     int32_t read = recv(context->socketfd, buffer, size, 0);
     if (read == -1)
-        return ERR_RECEIVE_FAIL;
+        return ERR_NET_RECEIVE_FAIL;
     if (read == 0)
-        return ERR_PEER_DISCONNECTED;
+        return ERR_NET_PEER_DISCONNECTED;
 
     if (bytes_read != NULL)
         *bytes_read = read;
-    return ERR_NET_OK;
+    return ERR_OK;
 }
 
 void net_close(ConnectionContext* context)
@@ -185,5 +185,5 @@ ErrorCode net_get_ip(ConnectionContext* context, char* ip_buffer, size_t ip_buff
         return ERR_NET_FAILURE;
     }
 
-    return ERR_NET_OK;
+    return ERR_OK;
 }

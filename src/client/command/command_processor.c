@@ -40,10 +40,10 @@ ErrorCode process_users_command(ClientData* data)
         } else if (message_type == MSGT_SEQUENCE_END) {
             break;
         } else
-            return ERR_RECEIVED_INVALID_TYPE;
+            return ERR_NET_RECEIVED_INVALID_TYPE;
     }
 
-    return ERR_NET_OK;
+    return ERR_OK;
 }
 
 ErrorCode execute_command_processor(ClientData* data, uint8_t command_type, const char* command_arg)

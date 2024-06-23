@@ -72,7 +72,7 @@ static ErrorCode ssl_connect(
     ctx->socket = BIO_get_fd(ctx->bio, NULL);
     BIO_set_fd(ctx->bio, -1, BIO_NOCLOSE);
 
-    return ERR_NET_OK;
+    return ERR_OK;
 }
 
 void net_init()
@@ -167,7 +167,7 @@ ErrorCode net_accept_connection(
     if (SSL_accept(client_context->ssl) <= 0) {
         return ERR_NET_ACCEPT_FAIL;
     }
-    return ERR_NET_OK;
+    return ERR_OK;
 }
 
 ErrorCode net_send(
@@ -178,12 +178,12 @@ ErrorCode net_send(
 {
     int bytes = SSL_write(context->ssl, buffer, size);
     if (bytes <= 0)
-        return ERR_SEND_FAIL;
+        return ERR_NET_SEND_FAIL;
 
     if (bytes_sent != NULL)
         *bytes_sent = bytes;
 
-    return ERR_NET_OK;
+    return ERR_OK;
 }
 
 ErrorCode net_receive(
@@ -194,14 +194,14 @@ ErrorCode net_receive(
 {
     int read = SSL_read(context->ssl, buffer, size);
     if (read == -1)
-        return ERR_RECEIVE_FAIL;
+        return ERR_NET_RECEIVE_FAIL;
     if (read == 0)
-        return ERR_PEER_DISCONNECTED;
+        return ERR_NET_PEER_DISCONNECTED;
 
     if (bytes_read != NULL)
         *bytes_read = read;
 
-    return ERR_NET_OK;
+    return ERR_OK;
 }
 
 void net_close(ConnectionContext* context)
@@ -245,5 +245,5 @@ ErrorCode net_get_ip(ConnectionContext* context, char* ip_buffer, size_t ip_buff
         return ERR_NET_FAILURE;
     }
 
-    return ERR_NET_OK;
+    return ERR_OK;
 }
