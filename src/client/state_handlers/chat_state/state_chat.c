@@ -5,6 +5,7 @@
 #include "command/command_processor.h"
 #include "chat_state/chat.h"
 #include "ui/ui.h"
+#include "ui/input_handler.h"
 
 static Chat chat;
 
@@ -104,55 +105,24 @@ Error* process_command(ClientData* client_data, const char* command)
     return execute_command_processor(client_data, command_type, arg);
 }
 
-void* handle_input(void* arg)
+static Error* input_callback(const char* input)
 {
-    Chat* chat = (Chat*)arg;
+    static Message message;
+    Chat* chat = (Chat*)input_handler_get_user_data();
     ClientData* data = chat->client_data;
-    Message message;
 
-    // Holds client input
-    char input[MAX_CHAT_TEXT_BYTES];
-
-    while (true) {
-
-        usleep(1000); // Sleep for 20ms to prevent high CPU usage
-
-        if (!chat->active)
-            break;
-
-        // Renders input window, and blocks current thread until input is received
-        input[0] = '\0';
-        ui_try_pop_input(input);
-
-        if (strlen(input) == 0)
-            continue;
-
-        char* trimmed_input = trim(input);
-        bool is_command = trimmed_input[0] == '/' && strlen(trimmed_input) > 1;
-
-        if (is_command) {
-            chat->input_error = process_command(chat->client_data, (const char*)(trimmed_input + 1));
-        } else {
-            message = create_user_chat_msg(trimmed_input, data->username);
-            chat->input_error = send_message((const Message*)&message, data->connection_context);
-
-            char log[256];
-            snprintf(log, 256, "Sent `%s` to server.", trimmed_input);
-            ui_set_log_text(log);
-        }
-
-        if (IS_NET_ERROR(chat->input_error))
-            break;
-    }
-    chat_exit(chat);
-    return NULL;
+    message = create_user_chat_msg(input, data->username);
+    Error* error = send_message((const Message*)&message, data->connection_context);
+    char log[256];
+    snprintf(log, 256, "Sent `%s` to server.", input);
+    ui_set_log_text(log);
+    return error;
 }
 
-Error* handle_state_chat(ClientData* data, AppState* next_state)
+Error* handle_state_chat(ClientData* data)
 {
     // Sets up chat data structure
     chat.client_data = data;
-    chat.input_error = CREATE_ERR_OK;
     chat.messages_error = CREATE_ERR_OK;
     chat.active = true;
 
@@ -162,6 +132,7 @@ Error* handle_state_chat(ClientData* data, AppState* next_state)
     ui_set_server_ip(data->connection_details.server_ip);
     ui_set_connected(true);
     ui_set_tls_enabled(data->connection_details.tls_enabled);
+
     // Renders the entire UI
     ui_refresh();
 
@@ -170,19 +141,21 @@ Error* handle_state_chat(ClientData* data, AppState* next_state)
     pthread_mutex_init(&chat.condition_mutex, NULL);
     pthread_cond_init(&chat.exit_condition, NULL);
 
-    // Creates thread for handling input and receiving messages from server
-    pthread_create(&chat.input_thread, NULL, handle_input, &chat);
+    // Initializes messages thread for receiving server messages
     pthread_create(&chat.messages_thread, NULL, handle_messages, &chat);
+
+    // Sets callback to NULL, so it can safely change the user data
+    input_handler_set_callback(NULL);
+    input_handler_set_user_data((void*)&chat);
+    input_handler_set_callback(input_callback);
 
     // Waits for exit condition
     pthread_cond_wait(&chat.exit_condition, &chat.condition_mutex);
 
-    *next_state = APP_STATE_DISCONNECT;
+    state_handler_set_next(APP_STATE_DISCONNECT);
 
     ui_free();
 
-    if (IS_NET_ERROR(chat.input_error))
-        return chat.input_error;
     if (IS_NET_ERROR(chat.messages_error))
         return chat.messages_error;
 

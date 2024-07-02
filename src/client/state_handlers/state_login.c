@@ -1,6 +1,6 @@
 #include "state_handler_utils.h"
 
-Error* handle_state_login(ClientData* data, AppState* next_state)
+Error* handle_state_login(ClientData* data)
 {
     Message message;
     Error* err;
@@ -29,6 +29,6 @@ Error* handle_state_login(ClientData* data, AppState* next_state)
             break;
         }
     }
-    *next_state = APP_STATE_CHAT;
+    state_handler_set_next(APP_STATE_CHAT);
     return CREATE_ERR_OK;
 }

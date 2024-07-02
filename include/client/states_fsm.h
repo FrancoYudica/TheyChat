@@ -5,6 +5,8 @@
 
 /// @brief State machine that handles and executes each state. It also ensures that if any
 /// error happens in any state, the application exits safely.
-void client_states_handler_fsm(ClientData* data, AppState initial_state);
+void state_handler_fsm(ClientData* data, AppState initial_state);
+
+void state_handler_set_next(AppState next_state);
 
 #endif

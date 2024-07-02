@@ -1,6 +1,6 @@
 #include "state_handler_utils.h"
 
-Error* handle_state_queue(ClientData* data, AppState* next_state)
+Error* handle_state_queue(ClientData* data)
 {
     Message message;
     Error* err;
@@ -28,6 +28,6 @@ Error* handle_state_queue(ClientData* data, AppState* next_state)
         }
     }
 
-    *next_state = APP_STATE_LOGIN;
+    state_handler_set_next(APP_STATE_LOGIN);
     return err;
 }

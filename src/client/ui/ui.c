@@ -1,13 +1,14 @@
+#include <sys/ioctl.h>
+#include <unistd.h>
+#include <signal.h>
 #include "ui/ui.h"
+#include "ui/input_handler.h"
 #include "ui/chat_entries.h"
-#include "signal.h"
 #include "ui/ui_data.h"
 #include "ui/ui_windows/header_window.h"
 #include "ui/ui_windows/chat_window.h"
 #include "ui/ui_windows/log_window.h"
 #include "ui/ui_windows/input_window.h"
-#include <sys/ioctl.h>
-#include <unistd.h>
 
 UI ui;
 
@@ -89,7 +90,8 @@ void ui_init()
     // Window resize signal handler
     signal(SIGWINCH, window_resize);
 
-    // window_resize();
+    // Initializes input handler, a new thread to receive input
+    input_handler_init();
 }
 
 void ui_set_connected(bool is_connected)

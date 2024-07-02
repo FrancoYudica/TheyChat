@@ -1,6 +1,6 @@
 #include "state_handler_utils.h"
 
-Error* handle_state_connect(ClientData* data, AppState* next_state)
+Error* handle_state_connect(ClientData* data)
 {
 
     // Establishes connection with serer
@@ -17,7 +17,7 @@ Error* handle_state_connect(ClientData* data, AppState* next_state)
     // Unable to connect, goes back to offline state
     if (IS_NET_ERROR(err)) {
         print_error(err);
-        *next_state = APP_STATE_OFFLINE;
+        state_handler_set_next(APP_STATE_OFFLINE);
         return CREATE_ERR_OK;
     }
 
@@ -32,14 +32,15 @@ Error* handle_state_connect(ClientData* data, AppState* next_state)
     if (IS_NET_ERROR(status))
         return status;
 
-    if (message.type == MSGT_CLIENT_ON_QUEUE)
-        *next_state = APP_STATE_ONQUEUE;
+    if (message.type == MSGT_CLIENT_ON_QUEUE) {
+        state_handler_set_next(APP_STATE_ONQUEUE);
+    }
 
     else if (message.type == MSGT_CLIENT_CONNECTED) {
-        *next_state = APP_STATE_LOGIN;
+        state_handler_set_next(APP_STATE_LOGIN);
     } else {
         printf("Received unexpected type: %i\n", message.type);
-        *next_state = APP_STATE_OFFLINE;
+        state_handler_set_next(APP_STATE_OFFLINE);
     }
 
     return status;

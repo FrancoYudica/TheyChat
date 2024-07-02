@@ -10,7 +10,6 @@ typedef struct
 {
 
     ClientData* client_data;
-    Error* input_error;
     Error* messages_error;
     pthread_t input_thread, messages_thread;
     pthread_mutex_t mutex;

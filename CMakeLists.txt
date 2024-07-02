@@ -98,6 +98,7 @@ set(CLIENT_SOURCES
     src/client/state_handlers/chat_state/chat.c
     src/client/ui/ui.c
     src/client/ui/chat_entries.c
+    src/client/ui/input_handler.c
     src/client/ui/ui_windows/header_window.c
     src/client/ui/ui_windows/chat_window.c
     src/client/ui/ui_windows/log_window.c

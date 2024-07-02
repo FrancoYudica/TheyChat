@@ -27,7 +27,7 @@ int main(int argc, char** argv)
 
     // Starts execution of FSM
     printf("Entering application...\n");
-    client_states_handler_fsm(&client, APP_STATE_OFFLINE);
+    state_handler_fsm(&client, APP_STATE_OFFLINE);
 
     net_shutdown();
     return EXIT_SUCCESS;

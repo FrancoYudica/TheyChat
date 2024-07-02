@@ -1,6 +1,6 @@
 #include "state_handler_utils.h"
 
-Error* handle_state_offline(ClientData* data, AppState* next_state)
+Error* handle_state_offline(ClientData* data)
 {
     // Gets username
     printf("%s", "Server IP: ");
@@ -28,7 +28,6 @@ Error* handle_state_offline(ClientData* data, AppState* next_state)
 
     data->connection_details.port = atoi(port);
 
-    // Initializes socket and connects to server
-    *next_state = APP_STATE_CONNECT;
+    state_handler_set_next(APP_STATE_CONNECT);
     return CREATE_ERR_OK;
 }
