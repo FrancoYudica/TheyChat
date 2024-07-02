@@ -4,7 +4,7 @@
 #include "string/utils.h"
 #include "command/command_processor.h"
 #include "chat_state/chat.h"
-#include "chat_state/ui.h"
+#include "ui/ui.h"
 
 static Chat chat;
 

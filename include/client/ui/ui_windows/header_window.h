@@ -1,6 +1,7 @@
 #ifndef __HEADER_WINDOW_H__
 #define __HEADER_WINDOW_H__
 #include <stdint.h>
+#include <stdbool.h>
 
 void ui_header_window_create();
 void ui_header_window_free();

@@ -1,11 +1,11 @@
-#include "chat_state/ui.h"
-#include "chat_state/chat_entries.h"
+#include "ui/ui.h"
+#include "ui/chat_entries.h"
 #include "signal.h"
-#include "chat_state/ui_data.h"
-#include "chat_state/ui/header_window.h"
-#include "chat_state/ui/chat_window.h"
-#include "chat_state/ui/log_window.h"
-#include "chat_state/ui/input_window.h"
+#include "ui/ui_data.h"
+#include "ui/ui_windows/header_window.h"
+#include "ui/ui_windows/chat_window.h"
+#include "ui/ui_windows/log_window.h"
+#include "ui/ui_windows/input_window.h"
 #include <sys/ioctl.h>
 #include <unistd.h>
 

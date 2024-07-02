@@ -1,4 +1,4 @@
-#include "chat_state/chat_entries.h"
+#include "ui/chat_entries.h"
 
 #define CHAT_ENTRIES_MAX_SIZE 128
 

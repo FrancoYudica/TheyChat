@@ -1,7 +1,7 @@
-#include "chat_state/ui.h"
-#include "chat_state/chat_entries.h"
-#include "chat_state/ui/chat_window.h"
-#include "chat_state/ui_data.h"
+#include "ui/ui.h"
+#include "ui/chat_entries.h"
+#include "ui/ui_windows/chat_window.h"
+#include "ui/ui_data.h"
 
 extern UI ui;
 

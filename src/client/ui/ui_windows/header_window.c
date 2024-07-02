@@ -1,6 +1,7 @@
-#include "chat_state/ui.h"
-#include "chat_state/ui_data.h"
-#include "chat_state/ui/header_window.h"
+#include "ui/ui.h"
+#include "ui/chat_entries.h"
+#include "ui/ui_windows/header_window.h"
+#include "ui/ui_data.h"
 
 extern UI ui;
 static WINDOW* s_header_window;

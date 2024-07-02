@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include "they_chat_error.h"
 #include "client_data.h"
-#include "chat_state/ui.h"
+#include "ui/ui.h"
 
 typedef struct
 {
