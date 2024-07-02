@@ -2,6 +2,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <assert.h>
 #include "states_fsm.h"
 #include "they_chat_error.h"
 
@@ -10,13 +11,13 @@ extern Error* handle_state_connect(ClientData*);
 extern Error* handle_state_queue(ClientData*);
 extern Error* handle_state_login(ClientData*);
 extern Error* handle_state_chat(ClientData*);
-extern Error* handle_state_disconnect(ClientData* data);
+extern Error* handle_state_disconnect(ClientData*);
 
-static AppState s_current_state;
+static AppState s_current_state = APP_STATE_NULL;
 
 void state_handler_fsm(ClientData* data, AppState initial_state)
 {
-    s_current_state = initial_state;
+    state_handler_set_next(initial_state);
 
     // Function pointer of currently used state handler function
     Error* (*handler)(ClientData*);
@@ -75,5 +76,9 @@ void state_handler_fsm(ClientData* data, AppState initial_state)
 
 void state_handler_set_next(AppState next_state)
 {
+    // Ensures that setting the state doesn't override any
+    // other state previously set. In a good architecture,
+    // this shouldn't fail, since next states aren't overwritten
+    assert(s_current_state == APP_STATE_NULL || next_state == APP_STATE_NULL);
     s_current_state = next_state;
 }

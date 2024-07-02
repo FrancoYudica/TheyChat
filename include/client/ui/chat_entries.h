@@ -30,17 +30,11 @@ typedef union {
 
 typedef struct {
     uint8_t type;
-
     char time_str[80];
-    struct
-    {
-        uint8_t hour;
-        uint8_t minute;
-    } time;
-
     ChatEntryData data;
-
 } ChatEntry;
+
+void chat_entry_format_time(ChatEntry* entry, time_t t);
 
 typedef struct chat_entries ChatEntries;
 

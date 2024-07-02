@@ -1,6 +1,5 @@
 #include <string.h>
 #include <unistd.h>
-
 #include "ui/input_handler.h"
 #include "ui/ui.h"
 #include "string/utils.h"
@@ -63,13 +62,19 @@ void input_handler_init()
     pthread_mutex_init(&s_input_data.mutex, NULL);
 }
 
-void input_handler_set_callback(Error* (*input_callback)(const char*))
+void input_handler_set_input_callback(Error* (*input_callback)(const char*))
 {
     pthread_mutex_lock(&s_input_data.mutex);
     s_input_data.input_callback = input_callback;
     pthread_mutex_unlock(&s_input_data.mutex);
 }
 
+void input_handler_set_command_callback(Error* (*input_callback)(const char*))
+{
+    pthread_mutex_lock(&s_input_data.mutex);
+    s_input_data.input_callback = input_callback;
+    pthread_mutex_unlock(&s_input_data.mutex);
+}
 void input_handler_set_user_data(void* data)
 {
     pthread_mutex_lock(&s_input_data.mutex);

@@ -38,10 +38,7 @@ void* handle_messages(void* arg)
             strncpy(entry.data.user_text.name, user_chat->username, MAX_USERNAME_BYTES);
             strncpy(entry.data.user_text.text, user_chat->text, MAX_CHAT_TEXT_BYTES);
             strncpy(entry.data.user_text.ip, user_chat->ip, MAX_IP_BYTES);
-
-            // Format the time_info to a string
-            struct tm* time = localtime((time_t*)&user_chat->time);
-            strftime(entry.time_str, sizeof(entry.time_str), "%Y/%m/%d %H:%M:%S", time);
+            chat_entry_format_time(&entry, user_chat->time);
 
             // Sends chat entry to UI
             ui_add_chat_entry(entry);
@@ -54,13 +51,7 @@ void* handle_messages(void* arg)
             ChatEntry entry;
             entry.type = CHAT_ENTRY_SERVER_NOTIFICATION;
             strcpy(entry.data.server_notification.text, server_notification->text);
-
-            // Format the time_info to a string
-            struct tm* time = localtime((time_t*)&server_notification->time);
-            strftime(entry.time_str, sizeof(entry.time_str), "%Y/%m/%d %H:%M:%S", time);
-
-            entry.time.hour = time->tm_hour;
-            entry.time.minute = time->tm_min;
+            chat_entry_format_time(&entry, server_notification->time);
 
             ui_add_chat_entry(entry);
         }
@@ -126,13 +117,6 @@ Error* handle_state_chat(ClientData* data)
     chat.messages_error = CREATE_ERR_OK;
     chat.active = true;
 
-    // Initializes UI
-    ui_init();
-    ui_set_connected_count(1);
-    ui_set_server_ip(data->connection_details.server_ip);
-    ui_set_connected(true);
-    ui_set_tls_enabled(data->connection_details.tls_enabled);
-
     // Renders the entire UI
     ui_refresh();
 
@@ -145,9 +129,9 @@ Error* handle_state_chat(ClientData* data)
     pthread_create(&chat.messages_thread, NULL, handle_messages, &chat);
 
     // Sets callback to NULL, so it can safely change the user data
-    input_handler_set_callback(NULL);
+    input_handler_set_input_callback(NULL);
     input_handler_set_user_data((void*)&chat);
-    input_handler_set_callback(input_callback);
+    input_handler_set_input_callback(input_callback);
 
     // Waits for exit condition
     pthread_cond_wait(&chat.exit_condition, &chat.condition_mutex);
