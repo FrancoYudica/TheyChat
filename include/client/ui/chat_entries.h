@@ -21,11 +21,11 @@ typedef struct
 typedef struct
 {
     char text[MAX_CHAT_TEXT_BYTES];
-} ServerNotificationPayloadChatEntry;
+} TextChatEntry;
 
 typedef union {
     UserTextChatEntry user_text;
-    ServerNotificationPayloadChatEntry server_notification;
+    TextChatEntry text;
 } ChatEntryData;
 
 typedef struct {

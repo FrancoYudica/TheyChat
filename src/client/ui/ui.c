@@ -1,6 +1,9 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 #include <signal.h>
+#include <stdio.h>
+#include <stdarg.h>
+
 #include "ui/ui.h"
 #include "ui/input_handler.h"
 #include "ui/chat_entries.h"
@@ -132,6 +135,33 @@ void ui_try_pop_input(char* output_buffer)
 {
     ui_input_window_render();
     ui_input_window_try_pop_input(output_buffer);
+}
+
+void ui_set_input_prompt(const char* text)
+{
+    ui_input_window_set_prompt(text);
+}
+
+void ui_push_text_entry(enum TextEntryType type, const char* format, ...)
+{
+    char buffer[256]; // Adjust the size as needed
+    va_list args;
+
+    // Start the varargs processing
+    va_start(args, format);
+
+    // Format the string into the buffer
+    vsnprintf(buffer, sizeof(buffer), format, args);
+
+    // End the varargs processing
+    va_end(args);
+
+    // Create and populate the ChatEntry
+    ChatEntry entry;
+    entry.type = CHAT_ENTRY_SERVER_NOTIFICATION;
+    strncpy(entry.data.text.text, buffer, sizeof(entry.data.text.text));
+    chat_entry_format_time(&entry, time(NULL));
+    ui_add_chat_entry(entry);
 }
 
 void ui_refresh()

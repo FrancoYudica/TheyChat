@@ -6,22 +6,12 @@
 static pthread_mutex_t s_mutex;
 static pthread_cond_t s_logged_cond;
 
-static void push_entry(const char* text)
-{
-    ChatEntry entry;
-    entry.type = CHAT_ENTRY_SERVER_NOTIFICATION;
-    strcpy(entry.data.server_notification.text, text);
-    chat_entry_format_time(&entry, time(NULL));
-    ui_add_chat_entry(entry);
-}
-
 static Error* input_callback(const char* input)
 {
     // Sends message telling that the username
     static Message message;
     ClientData* data = (ClientData*)input_handler_get_user_data();
     message = create_user_login_msg(input);
-    push_entry(input);
     send_message((const Message*)&message, data->connection_context);
 
     // Waits confirmation of the login
@@ -31,9 +21,10 @@ static Error* input_callback(const char* input)
         return err;
 
     if (message.payload.status.status == STATUS_MSG_FAILURE)
-        push_entry(message.payload.status.text);
+        ui_push_text_entry(TEXT_ENTRY_TYPE_SERVER, message.payload.status.text);
     else {
         strcpy(data->username, input);
+        ui_push_text_entry(TEXT_ENTRY_TYPE_SERVER, "Logged with username \"%s\"", data->username);
         pthread_cond_signal(&s_logged_cond);
     }
     return CREATE_ERR_OK;
@@ -58,6 +49,7 @@ Error* handle_state_login(ClientData* data)
     ui_set_server_ip(data->connection_details.server_ip);
     ui_set_connected(true);
     ui_set_tls_enabled(data->connection_details.tls_enabled);
+    ui_set_input_prompt("Type your username:");
 
     // Renders the entire UI
     ui_refresh();
@@ -69,7 +61,7 @@ Error* handle_state_login(ClientData* data)
     input_handler_set_input_callback(input_callback);
     input_handler_set_command_callback(input_callback);
 
-    push_entry("Successfully connected to server!. Please enter your unique username");
+    ui_push_text_entry(TEXT_ENTRY_TYPE_SERVER, "Successfully connected to server!. Please enter your unique username");
 
     // Waits for login condition
     pthread_cond_wait(&s_logged_cond, &s_mutex);

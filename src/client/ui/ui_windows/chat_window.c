@@ -187,13 +187,13 @@ static void render_server_notification_entry(
     uint32_t* row,
     uint32_t col)
 {
-    const ServerNotificationPayloadChatEntry* server_notification = &entry->data.server_notification;
+    const TextChatEntry* text = &entry->data.text;
     uint32_t n_columns, n_rows;
     getmaxyx(s_chat_window, n_rows, n_columns);
     uint32_t max_column = n_columns;
     uint32_t max_row = n_rows;
 
     wattron(s_chat_window, COLOR_PAIR(COLOR_PAIR_CHAT_NOTIFICATION));
-    mvwprint_multiline(s_chat_window, row, col, max_row, max_column, server_notification->text);
+    mvwprint_multiline(s_chat_window, row, col, max_row, max_column, text->text);
     wattroff(s_chat_window, COLOR_PAIR(COLOR_PAIR_CHAT_NOTIFICATION));
 }

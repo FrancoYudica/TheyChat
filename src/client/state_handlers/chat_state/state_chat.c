@@ -46,14 +46,7 @@ void* handle_messages(void* arg)
         }
         case MSGT_SERVER_NOTIFICATION: {
             ServerNotificationPayload* server_notification = &message.payload.server_notification;
-
-            // Sets up chat entry
-            ChatEntry entry;
-            entry.type = CHAT_ENTRY_SERVER_NOTIFICATION;
-            strcpy(entry.data.server_notification.text, server_notification->text);
-            chat_entry_format_time(&entry, server_notification->time);
-
-            ui_add_chat_entry(entry);
+            ui_push_text_entry(TEXT_ENTRY_TYPE_SERVER, "%s", server_notification->text);
         }
         case MSGT_CONNECTED_CLIENTS: {
             ui_set_connected_count(message.payload.connected_clients.client_count);
@@ -119,6 +112,8 @@ Error* handle_state_chat(ClientData* data)
 
     // Renders the entire UI
     ui_refresh();
+
+    ui_set_input_prompt("Type message:");
 
     // Initializes mutexes and condition
     pthread_mutex_init(&chat.mutex, NULL);
