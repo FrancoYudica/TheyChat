@@ -3,9 +3,6 @@
 #include "ui/ui.h"
 #include "ui/input_handler.h"
 
-static pthread_mutex_t s_mutex;
-static pthread_cond_t s_logged_cond;
-
 static Error* input_callback(const char* input)
 {
     // Sends message telling that the username
@@ -25,7 +22,7 @@ static Error* input_callback(const char* input)
     else {
         strcpy(data->username, input);
         ui_push_text_entry(TEXT_ENTRY_TYPE_SERVER, "Logged with username \"%s\"", data->username);
-        pthread_cond_signal(&s_logged_cond);
+        state_handler_set_next(APP_STATE_CHAT);
     }
     return CREATE_ERR_OK;
 }
@@ -39,9 +36,6 @@ Error* handle_state_login(ClientData* data)
 {
     Message message;
     Error* err;
-
-    pthread_mutex_init(&s_mutex, NULL);
-    pthread_cond_init(&s_logged_cond, NULL);
 
     // Initializes UI
     ui_init();
@@ -63,12 +57,8 @@ Error* handle_state_login(ClientData* data)
 
     ui_push_text_entry(TEXT_ENTRY_TYPE_SERVER, "Successfully connected to server!. Please enter your unique username");
 
-    // Waits for login condition
-    pthread_cond_wait(&s_logged_cond, &s_mutex);
+    // Waits for next state set condition
+    state_handler_wait_next_state_cond();
 
-    pthread_mutex_destroy(&s_mutex);
-    pthread_cond_destroy(&s_logged_cond);
-
-    state_handler_set_next(APP_STATE_CHAT);
     return CREATE_ERR_OK;
 }

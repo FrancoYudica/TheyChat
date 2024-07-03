@@ -14,10 +14,15 @@ extern Error* handle_state_chat(ClientData*);
 extern Error* handle_state_disconnect(ClientData*);
 
 static AppState s_current_state = APP_STATE_NULL;
+static pthread_mutex_t s_cond_mutex;
+static pthread_cond_t s_next_state_cond;
 
 void state_handler_fsm(ClientData* data, AppState initial_state)
 {
-    state_handler_set_next(initial_state);
+    pthread_mutex_init(&s_cond_mutex, NULL);
+    pthread_cond_init(&s_next_state_cond, NULL);
+
+    s_current_state = initial_state;
 
     // Function pointer of currently used state handler function
     Error* (*handler)(ClientData*);
@@ -56,7 +61,7 @@ void state_handler_fsm(ClientData* data, AppState initial_state)
 
         // Executes handler
         AppState executing_state = s_current_state;
-        state_handler_set_next(APP_STATE_NULL);
+        s_current_state = APP_STATE_NULL;
         Error* err = handler(data);
 
         // Manually sets disconnect state if there is any error
@@ -81,4 +86,10 @@ void state_handler_set_next(AppState next_state)
     // this shouldn't fail, since next states aren't overwritten
     assert(s_current_state == APP_STATE_NULL || next_state == APP_STATE_NULL);
     s_current_state = next_state;
+    pthread_cond_signal(&s_next_state_cond);
+}
+
+void state_handler_wait_next_state_cond()
+{
+    pthread_cond_wait(&s_next_state_cond, &s_cond_mutex);
 }

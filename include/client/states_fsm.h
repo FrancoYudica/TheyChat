@@ -9,4 +9,7 @@ void state_handler_fsm(ClientData* data, AppState initial_state);
 
 void state_handler_set_next(AppState next_state);
 
+/// @brief Blocks thread and waits for next state set condition
+void state_handler_wait_next_state_cond();
+
 #endif

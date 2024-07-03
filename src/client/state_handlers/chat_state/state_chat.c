@@ -8,6 +8,8 @@
 #include "ui/input_handler.h"
 
 static Chat chat;
+static pthread_t s_receive_thread;
+static Error* s_receive_error = CREATE_ERR_OK;
 
 /// @brief Receives messages from the server
 void* handle_messages(void* arg)
@@ -17,16 +19,17 @@ void* handle_messages(void* arg)
 
     Message message;
 
-    while (true) {
+    bool receiving = true;
 
-        if (!chat->active)
-            break;
+    while (receiving) {
 
         // Waits for server message
-        chat->messages_error = wait_for_message(&data->stream, data->connection_context, &message);
+        s_receive_error = wait_for_message(&data->stream, data->connection_context, &message);
 
-        if (IS_NET_ERROR(chat->messages_error))
+        if (IS_NET_ERROR(s_receive_error)) {
+            receiving = false;
             break;
+        }
 
         switch (message.type) {
         case MSGT_USER_CHAT: {
@@ -54,15 +57,12 @@ void* handle_messages(void* arg)
             break;
         }
         default:
-            printf("Received unexpected message type\n");
-            print_message(&message);
-            chat_exit(chat);
+            ui_set_log_text("Received unexpected message type... Disconnecting");
+            receiving = false;
             break;
         }
     }
-
-    chat_exit(chat);
-
+    state_handler_set_next(APP_STATE_DISCONNECT);
     return NULL;
 }
 
@@ -91,6 +91,12 @@ Error* process_command(ClientData* client_data, const char* command)
 
 static Error* input_callback(const char* input)
 {
+
+    if (!strcmp(input, ".q")) {
+        ui_set_log_text("Disconnecting...");
+        state_handler_set_next(APP_STATE_DISCONNECT);
+    }
+
     static Message message;
     Chat* chat = (Chat*)input_handler_get_user_data();
     ClientData* data = chat->client_data;
@@ -108,20 +114,14 @@ Error* handle_state_chat(ClientData* data)
     // Sets up chat data structure
     chat.client_data = data;
     chat.messages_error = CREATE_ERR_OK;
-    chat.active = true;
 
     // Renders the entire UI
     ui_refresh();
 
     ui_set_input_prompt("Type message:");
 
-    // Initializes mutexes and condition
-    pthread_mutex_init(&chat.mutex, NULL);
-    pthread_mutex_init(&chat.condition_mutex, NULL);
-    pthread_cond_init(&chat.exit_condition, NULL);
-
     // Initializes messages thread for receiving server messages
-    pthread_create(&chat.messages_thread, NULL, handle_messages, &chat);
+    pthread_create(&s_receive_thread, NULL, handle_messages, &chat);
 
     // Sets callback to NULL, so it can safely change the user data
     input_handler_set_input_callback(NULL);
@@ -129,14 +129,11 @@ Error* handle_state_chat(ClientData* data)
     input_handler_set_input_callback(input_callback);
 
     // Waits for exit condition
-    pthread_cond_wait(&chat.exit_condition, &chat.condition_mutex);
+    state_handler_wait_next_state_cond();
+    pthread_detach(s_receive_thread);
 
-    state_handler_set_next(APP_STATE_DISCONNECT);
-
-    ui_free();
-
-    if (IS_NET_ERROR(chat.messages_error))
-        return chat.messages_error;
+    if (IS_NET_ERROR(s_receive_error))
+        return s_receive_error;
 
     return CREATE_ERR_OK;
 }
