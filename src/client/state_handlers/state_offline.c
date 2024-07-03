@@ -20,8 +20,6 @@ Error* handle_state_offline()
 {
     Client* data = get_client();
 
-    // Initializes UI
-    ui_init();
     ui_set_connected(false);
     ui_set_input_prompt("Type:");
     ui_push_text_entry(TEXT_ENTRY_TYPE_SERVER, "Welcome to They Chat!, you can execute commands now. Use /h to see all commands");

@@ -9,8 +9,9 @@
 #include "net/net_communication.h"
 #include "client.h"
 #include "states_fsm.h"
+#include "ui/ui.h"
 
-int main(int argc, char** argv)
+int main()
 {
     Client* client = get_client();
 
@@ -25,10 +26,14 @@ int main(int argc, char** argv)
     // Initializes network stream
     init_net_stream(&client->stream);
 
+    // Initializes UI
+    ui_init();
+    ui_set_connected(false);
+
     // Starts execution of FSM
-    printf("Entering application...\n");
     state_handler_fsm(APP_STATE_OFFLINE);
 
+    ui_free();
     net_shutdown();
     return EXIT_SUCCESS;
 }
