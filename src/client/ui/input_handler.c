@@ -72,7 +72,7 @@ void input_handler_set_input_callback(Error* (*input_callback)(const char*))
 void input_handler_set_command_callback(Error* (*input_callback)(const char*))
 {
     pthread_mutex_lock(&s_input_data.mutex);
-    s_input_data.input_callback = input_callback;
+    s_input_data.command_callback = input_callback;
     pthread_mutex_unlock(&s_input_data.mutex);
 }
 void input_handler_set_user_data(void* data)

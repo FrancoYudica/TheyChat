@@ -1,4 +1,5 @@
 #include "command/command_processor.h"
+#include "command_types.h"
 #include "messages/message_types.h"
 #include "net/net_communication.h"
 
@@ -56,10 +57,10 @@ Error* execute_command_processor(ClientData* data, uint8_t command_type, const c
         return err;
 
     switch (command_type) {
-    case CMDT_DISCONNECT:
+    case CMD_DISCONNECT:
         return CREATE_ERR(ERR_NET_DISCONNECT, "Disconnecting with command");
 
-    case CMDT_USERS:
+    case CMD_USERS:
         return process_users_command(data);
 
     default:

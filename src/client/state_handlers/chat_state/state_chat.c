@@ -6,6 +6,7 @@
 #include "chat_state/chat.h"
 #include "ui/ui.h"
 #include "ui/input_handler.h"
+#include "command/command.h"
 
 static Chat chat;
 static pthread_t s_receive_thread;
@@ -66,24 +67,14 @@ void* handle_messages(void* arg)
     return NULL;
 }
 
-Error* process_command(ClientData* client_data, const char* command)
+static Error* command_callback(const char* input)
 {
-    uint8_t command_type = CMDT_NULL;
-    const char* arg = NULL;
-
-    // Gets command type from string
-    if (starts_with(command, "disconnect")) {
-        command_type = CMDT_DISCONNECT;
-    } else if (starts_with(command, "users")) {
-        command_type = CMDT_USERS;
-    } else {
-        ui_set_log_text("Unrecognized command: %s", command);
-    }
-
-    if (command_type == CMDT_NULL)
-        return CREATE_ERR_OK;
-
-    return execute_command_processor(client_data, command_type, arg);
+    return dispatch_command(
+        input,
+        3,
+        CMD_HELP,
+        CMD_DISCONNECT,
+        CMD_QUIT);
 }
 
 static Error* input_callback(const char* input)
@@ -120,8 +111,10 @@ Error* handle_state_chat(ClientData* data)
 
     // Sets callback to NULL, so it can safely change the user data
     input_handler_set_input_callback(NULL);
+    input_handler_set_command_callback(NULL);
     input_handler_set_user_data((void*)&chat);
     input_handler_set_input_callback(input_callback);
+    input_handler_set_command_callback(command_callback);
 
     // Waits for exit condition
     state_handler_wait_next_state_cond();

@@ -65,12 +65,6 @@ typedef struct
     char bytes[128];
 } Bytes128Payload;
 
-enum CommandType {
-    CMDT_NULL = 0,
-    CMDT_DISCONNECT,
-    CMDT_USERS
-};
-
 typedef struct
 {
     uint8_t command_type;
