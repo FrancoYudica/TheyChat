@@ -6,6 +6,6 @@
 #include "states_fsm.h"
 #include "net/net_communication.h"
 #include "they_chat_error.h"
-#include "client_data.h"
+#include "client.h"
 
 #endif

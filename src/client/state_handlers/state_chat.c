@@ -3,20 +3,17 @@
 #include "state_handler_utils.h"
 #include "string/utils.h"
 #include "command/command_processor.h"
-#include "chat_state/chat.h"
 #include "ui/ui.h"
 #include "ui/input_handler.h"
 #include "command/command.h"
 
-static Chat chat;
 static pthread_t s_receive_thread;
 static Error* s_receive_error = CREATE_ERR_OK;
 
 /// @brief Receives messages from the server
 void* handle_messages(void* arg)
 {
-    Chat* chat = (Chat*)arg;
-    ClientData* data = chat->client_data;
+    Client* data = get_client();
 
     Message message;
 
@@ -86,8 +83,7 @@ static Error* input_callback(const char* input)
     }
 
     static Message message;
-    Chat* chat = (Chat*)input_handler_get_user_data();
-    ClientData* data = chat->client_data;
+    Client* data = get_client();
 
     message = create_user_chat_msg(input, data->username);
     Error* error = send_message((const Message*)&message, data->connection_context);
@@ -95,11 +91,9 @@ static Error* input_callback(const char* input)
     return error;
 }
 
-Error* handle_state_chat(ClientData* data)
+Error* handle_state_chat()
 {
-    // Sets up chat data structure
-    chat.client_data = data;
-    chat.messages_error = CREATE_ERR_OK;
+    Client* data = get_client();
 
     // Renders the entire UI
     ui_refresh();
@@ -107,12 +101,11 @@ Error* handle_state_chat(ClientData* data)
     ui_set_input_prompt("Type message:");
 
     // Initializes messages thread for receiving server messages
-    pthread_create(&s_receive_thread, NULL, handle_messages, &chat);
+    pthread_create(&s_receive_thread, NULL, handle_messages, NULL);
 
     // Sets callback to NULL, so it can safely change the user data
     input_handler_set_input_callback(NULL);
     input_handler_set_command_callback(NULL);
-    input_handler_set_user_data((void*)&chat);
     input_handler_set_input_callback(input_callback);
     input_handler_set_command_callback(command_callback);
 

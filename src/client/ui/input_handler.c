@@ -75,14 +75,3 @@ void input_handler_set_command_callback(Error* (*input_callback)(const char*))
     s_input_data.command_callback = input_callback;
     pthread_mutex_unlock(&s_input_data.mutex);
 }
-void input_handler_set_user_data(void* data)
-{
-    pthread_mutex_lock(&s_input_data.mutex);
-    s_input_data.user_data = data;
-    pthread_mutex_unlock(&s_input_data.mutex);
-}
-
-void* input_handler_get_user_data()
-{
-    return s_input_data.user_data;
-}

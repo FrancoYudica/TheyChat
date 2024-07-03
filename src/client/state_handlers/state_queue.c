@@ -1,7 +1,8 @@
 #include "state_handler_utils.h"
 
-Error* handle_state_queue(ClientData* data)
+Error* handle_state_queue()
 {
+    Client* data = get_client();
     Message message;
     Error* err;
     printf("You are on queue, please wait...\n");

@@ -4,6 +4,7 @@
 enum CommandType {
     CMD_NULL = 0,
     CMD_HELP,
+    CMD_CONNECT,
     CMD_DISCONNECT,
     CMD_QUIT,
     CMD_USERS

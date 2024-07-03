@@ -1,7 +1,8 @@
 #include "state_handler_utils.h"
 
-Error* handle_state_offline(ClientData* data)
+Error* handle_state_offline()
 {
+    Client* data = get_client();
     // Gets username
     printf("%s", "Server IP: ");
     fgets(data->connection_details.server_ip, sizeof(data->connection_details.server_ip), stdin);

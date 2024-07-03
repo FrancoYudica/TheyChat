@@ -6,18 +6,18 @@
 #include "states_fsm.h"
 #include "they_chat_error.h"
 
-extern Error* handle_state_offline(ClientData*);
-extern Error* handle_state_connect(ClientData*);
-extern Error* handle_state_queue(ClientData*);
-extern Error* handle_state_login(ClientData*);
-extern Error* handle_state_chat(ClientData*);
-extern Error* handle_state_disconnect(ClientData*);
+extern Error* handle_state_offline();
+extern Error* handle_state_connect();
+extern Error* handle_state_queue();
+extern Error* handle_state_login();
+extern Error* handle_state_chat();
+extern Error* handle_state_disconnect();
 
 static AppState s_current_state = APP_STATE_NULL;
 static pthread_mutex_t s_cond_mutex;
 static pthread_cond_t s_next_state_cond;
 
-void state_handler_fsm(ClientData* data, AppState initial_state)
+void state_handler_fsm(AppState initial_state)
 {
     pthread_mutex_init(&s_cond_mutex, NULL);
     pthread_cond_init(&s_next_state_cond, NULL);
@@ -25,7 +25,7 @@ void state_handler_fsm(ClientData* data, AppState initial_state)
     s_current_state = initial_state;
 
     // Function pointer of currently used state handler function
-    Error* (*handler)(ClientData*);
+    Error* (*handler)(void);
 
     while (true) {
         // Gets next state handler
@@ -62,7 +62,7 @@ void state_handler_fsm(ClientData* data, AppState initial_state)
         // Executes handler
         AppState executing_state = s_current_state;
         s_current_state = APP_STATE_NULL;
-        Error* err = handler(data);
+        Error* err = handler();
 
         // Manually sets disconnect state if there is any error
         if (IS_NET_ERROR(err)) {

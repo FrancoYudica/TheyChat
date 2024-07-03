@@ -1,7 +1,8 @@
 #include "state_handler_utils.h"
 
-Error* handle_state_connect(ClientData* data)
+Error* handle_state_connect()
 {
+    Client* data = get_client();
 
     // Establishes connection with serer
     printf(

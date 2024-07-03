@@ -22,7 +22,5 @@ typedef struct
 void input_handler_init();
 void input_handler_set_input_callback(Error* (*input_callback)(const char*));
 void input_handler_set_command_callback(Error* (*input_callback)(const char*));
-void input_handler_set_user_data(void*);
-void* input_handler_get_user_data();
 
 #endif

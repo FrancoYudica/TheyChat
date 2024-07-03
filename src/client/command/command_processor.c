@@ -3,7 +3,7 @@
 #include "messages/message_types.h"
 #include "net/net_communication.h"
 
-Error* process_users_command(ClientData* data)
+Error* process_users_command(Client* data)
 {
     Message message;
 
@@ -47,7 +47,7 @@ Error* process_users_command(ClientData* data)
     return err;
 }
 
-Error* execute_command_processor(ClientData* data, uint8_t command_type, const char* command_arg)
+Error* execute_command_processor(Client* data, uint8_t command_type, const char* command_arg)
 {
     // Sends command msg to server, telling that a command arrived
     Message message = create_command_msg(command_type, command_arg);

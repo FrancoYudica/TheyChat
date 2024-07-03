@@ -7,7 +7,8 @@ static Error* input_callback(const char* input)
 {
     // Sends message telling that the username
     static Message message;
-    ClientData* data = (ClientData*)input_handler_get_user_data();
+
+    Client* data = get_client();
     message = create_user_login_msg(input);
     send_message((const Message*)&message, data->connection_context);
 
@@ -35,8 +36,9 @@ static Error* command_callback(const char* command)
     return CREATE_ERR_OK;
 }
 
-Error* handle_state_login(ClientData* data)
+Error* handle_state_login()
 {
+    Client* data = get_client();
     Message message;
     Error* err;
 
@@ -54,7 +56,6 @@ Error* handle_state_login(ClientData* data)
     // Sets input callbacks and user data
     input_handler_set_input_callback(NULL);
     input_handler_set_command_callback(NULL);
-    input_handler_set_user_data((ClientData*)data);
     input_handler_set_input_callback(input_callback);
     input_handler_set_command_callback(input_callback);
 
