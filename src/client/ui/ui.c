@@ -115,9 +115,15 @@ void ui_add_chat_entry(ChatEntry entry)
     ui_chat_window_render();
 }
 
-void ui_set_log_text(const char* text)
+void ui_set_log_text(const char* format, ...)
 {
-    ui_log_window_set_log(text);
+    char buffer[512];
+    va_list args;
+    va_start(args, format);
+    vsnprintf(buffer, sizeof(buffer), format, args);
+    va_end(args);
+
+    ui_log_window_set_log(buffer);
     ui_log_window_render();
 }
 

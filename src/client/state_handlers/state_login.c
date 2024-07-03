@@ -17,11 +17,14 @@ static Error* input_callback(const char* input)
     if (IS_NET_ERROR(err))
         return err;
 
-    if (message.payload.status.status == STATUS_MSG_FAILURE)
+    if (message.payload.status.status == STATUS_MSG_FAILURE) {
         ui_push_text_entry(TEXT_ENTRY_TYPE_SERVER, message.payload.status.text);
+        ui_set_log_text("A user named \"%s\" already exists. Choose another name", input);
+    }
+
     else {
         strcpy(data->username, input);
-        ui_push_text_entry(TEXT_ENTRY_TYPE_SERVER, "Logged with username \"%s\"", data->username);
+        ui_set_log_text("Logged with username \"%s\"", data->username);
         state_handler_set_next(APP_STATE_CHAT);
     }
     return CREATE_ERR_OK;
@@ -55,7 +58,8 @@ Error* handle_state_login(ClientData* data)
     input_handler_set_input_callback(input_callback);
     input_handler_set_command_callback(input_callback);
 
-    ui_push_text_entry(TEXT_ENTRY_TYPE_SERVER, "Successfully connected to server!. Please enter your unique username");
+    ui_push_text_entry(TEXT_ENTRY_TYPE_SERVER, "Successfully connected to server!.");
+    ui_set_log_text("Enter your unique username");
 
     // Waits for next state set condition
     state_handler_wait_next_state_cond();

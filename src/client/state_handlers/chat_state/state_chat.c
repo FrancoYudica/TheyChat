@@ -57,7 +57,7 @@ void* handle_messages(void* arg)
             break;
         }
         default:
-            ui_set_log_text("Received unexpected message type... Disconnecting");
+            ui_set_log_text("Received unexpected message type %s... Disconnecting", msg_get_type_name(message.type));
             receiving = false;
             break;
         }
@@ -77,10 +77,7 @@ Error* process_command(ClientData* client_data, const char* command)
     } else if (starts_with(command, "users")) {
         command_type = CMDT_USERS;
     } else {
-
-        char log[256];
-        sprintf(log, "Unrecognized command: %s\n", command);
-        ui_set_log_text(log);
+        ui_set_log_text("Unrecognized command: %s", command);
     }
 
     if (command_type == CMDT_NULL)
@@ -103,9 +100,7 @@ static Error* input_callback(const char* input)
 
     message = create_user_chat_msg(input, data->username);
     Error* error = send_message((const Message*)&message, data->connection_context);
-    char log[256];
-    snprintf(log, 256, "Sent `%s` to server.", input);
-    ui_set_log_text(log);
+    ui_set_log_text("Sent `%s` to server.", input);
     return error;
 }
 
