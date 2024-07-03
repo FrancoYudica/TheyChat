@@ -117,6 +117,7 @@ void ui_add_chat_entry(ChatEntry entry)
 
 void ui_set_log_text(const char* format, ...)
 {
+    pthread_mutex_lock(&ui.render_mutex);
     char buffer[512];
     va_list args;
     va_start(args, format);
@@ -124,6 +125,8 @@ void ui_set_log_text(const char* format, ...)
     va_end(args);
 
     ui_log_window_set_log(buffer);
+    pthread_mutex_unlock(&ui.render_mutex);
+
     ui_log_window_render();
 }
 

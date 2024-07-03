@@ -53,7 +53,7 @@ static Error* disconnect_handler(uint8_t, char**)
 
 Error* connect_handler(uint8_t argc, char** argv)
 {
-    Client* data;
+    Client* data = get_client();
 
     // Localhost with default port
     if (argc == 1) {

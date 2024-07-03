@@ -1,34 +1,40 @@
 #include "state_handler_utils.h"
 
+static Error* input_callback(const char* input)
+{
+    ui_push_text_entry(TEXT_ENTRY_TYPE_LOG, input);
+    return CREATE_ERR_OK;
+}
+
+static Error* command_callback(const char* input)
+{
+    return dispatch_command(
+        input,
+        1,
+        CMD_CONNECT);
+}
+
 Error* handle_state_offline()
 {
     Client* data = get_client();
-    // Gets username
-    printf("%s", "Server IP: ");
-    fgets(data->connection_details.server_ip, sizeof(data->connection_details.server_ip), stdin);
 
-    printf("%s", "Server port: ");
-    char port[6];
-    fgets(port, sizeof(port), stdin);
+    // Initializes UI
+    ui_init();
+    ui_set_connected(false);
+    ui_set_input_prompt("Type:");
+    ui_push_text_entry(TEXT_ENTRY_TYPE_SERVER, "Welcome to They Chat!, you can execute commands now. Use /h to see all commands");
 
-    // Default IP
-    if (data->connection_details.server_ip[0] == '\n') {
-        strcpy(data->connection_details.server_ip, "127.0.0.1");
-    } else {
-        // Removes '\n' character in both inputs
-        data->connection_details.server_ip[strlen(data->connection_details.server_ip) - 1] = '\0';
-    }
+    // Renders the entire UI
+    ui_refresh();
 
-    // Default port
-    if (port[0] == '\n') {
-        strcpy(port, "8000");
-    } else {
-        // Removes '\n' character in both inputs
-        port[strlen(port) - 1] = '\0';
-    }
+    // Sets input callbacks and user data
+    input_handler_set_input_callback(NULL);
+    input_handler_set_command_callback(NULL);
+    input_handler_set_input_callback(input_callback);
+    input_handler_set_command_callback(command_callback);
 
-    data->connection_details.port = atoi(port);
+    // Waits for next state set condition
+    state_handler_wait_next_state_cond();
 
-    state_handler_set_next(APP_STATE_CONNECT);
     return CREATE_ERR_OK;
 }

@@ -4,12 +4,12 @@ Error* handle_state_connect()
 {
     Client* data = get_client();
 
-    // Establishes connection with serer
-    printf(
-        "Connecting to server ip (%s) and port (%d)...\n",
+    ui_set_log_text(
+        "Connecting to server ip (%s) and port (%d)...",
         data->connection_details.server_ip,
         data->connection_details.port);
 
+    // Establishes connection with serer
     Error* err = net_client_create_socket(
         data->connection_details.port,
         data->connection_details.server_ip,
@@ -38,9 +38,17 @@ Error* handle_state_connect()
     }
 
     else if (message.type == MSGT_CLIENT_CONNECTED) {
+        ui_set_connected_count(1);
+        ui_set_server_ip(data->connection_details.server_ip);
+        ui_set_tls_enabled(data->connection_details.tls_enabled);
+        ui_set_connected(true);
         state_handler_set_next(APP_STATE_LOGIN);
     } else {
-        printf("Received unexpected type: %i\n", message.type);
+
+        ui_set_log_text(
+            "Received unexpected type: %i",
+            message.type);
+
         state_handler_set_next(APP_STATE_OFFLINE);
     }
 

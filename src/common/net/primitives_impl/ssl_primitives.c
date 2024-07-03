@@ -63,7 +63,8 @@ static Error* ssl_connect(
 
     // Verify server certificate
     if (SSL_get_verify_result(ctx->ssl) != X509_V_OK) {
-        printf("Couldn't verify certificate...\n");
+        // printf("Couldn't verify certificate...\n");
+        // TODO: Verify certificate
     }
 
     // Get file descriptor for socketfd

@@ -1,4 +1,3 @@
-#include <unistd.h>
 #include "state_handler_utils.h"
 
 extern Error* handle_state_disconnect()

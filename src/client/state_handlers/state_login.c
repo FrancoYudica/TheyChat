@@ -1,7 +1,4 @@
-#include <pthread.h>
 #include "state_handler_utils.h"
-#include "ui/ui.h"
-#include "ui/input_handler.h"
 
 static Error* input_callback(const char* input)
 {
@@ -42,12 +39,6 @@ Error* handle_state_login()
     Message message;
     Error* err;
 
-    // Initializes UI
-    ui_init();
-    ui_set_connected_count(1);
-    ui_set_server_ip(data->connection_details.server_ip);
-    ui_set_connected(true);
-    ui_set_tls_enabled(data->connection_details.tls_enabled);
     ui_set_input_prompt("Type your username:");
 
     // Renders the entire UI
@@ -57,7 +48,6 @@ Error* handle_state_login()
     input_handler_set_input_callback(NULL);
     input_handler_set_command_callback(NULL);
     input_handler_set_input_callback(input_callback);
-    input_handler_set_command_callback(input_callback);
 
     ui_push_text_entry(TEXT_ENTRY_TYPE_SERVER, "Successfully connected to server!.");
     ui_set_log_text("Enter your unique username");

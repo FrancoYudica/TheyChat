@@ -1,11 +1,4 @@
-#include <unistd.h>
-#include <pthread.h>
 #include "state_handler_utils.h"
-#include "string/utils.h"
-#include "command/command_processor.h"
-#include "ui/ui.h"
-#include "ui/input_handler.h"
-#include "command/command.h"
 
 static pthread_t s_receive_thread;
 static Error* s_receive_error = CREATE_ERR_OK;
