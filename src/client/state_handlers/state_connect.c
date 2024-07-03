@@ -34,6 +34,10 @@ Error* handle_state_connect()
         return status;
 
     if (message.type == MSGT_CLIENT_ON_QUEUE) {
+        ui_set_connected_count(1);
+        ui_set_server_ip(data->connection_details.server_ip);
+        ui_set_tls_enabled(data->connection_details.tls_enabled);
+        ui_set_connected(true);
         state_handler_set_next(APP_STATE_ONQUEUE);
     }
 
