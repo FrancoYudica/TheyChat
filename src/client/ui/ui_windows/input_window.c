@@ -1,15 +1,16 @@
 #include <ctype.h>
-#include "chat_state/ui.h"
-#include "chat_state/ui_data.h"
-#include "chat_state/ui/chat_window.h"
-#include "chat_state/ui/input_window.h"
+#include "ui/ui.h"
+#include "ui/chat_entries.h"
+#include "ui/ui_windows/chat_window.h"
+#include "ui/ui_windows/input_window.h"
+#include "ui/ui_data.h"
 
 extern UI ui;
 static WINDOW* s_input_window;
 static bool s_input_enabled = true;
 static char s_input_text[MAX_CHAT_TEXT_BYTES];
 static char s_submitted_text[MAX_CHAT_TEXT_BYTES];
-static char s_prompt_message[] = "Type message:";
+static char s_prompt_message[128] = "Type message:";
 static char s_disabled_prompt[] = "Input disabled";
 
 void ui_input_window_create()
@@ -46,6 +47,12 @@ void ui_input_window_set_enabled(bool enabled)
 void ui_input_window_set_prompt(const char* text)
 {
     strcpy(s_prompt_message, text);
+
+    // Clears previous prompt message
+    pthread_mutex_lock(&ui.render_mutex);
+    wmove(s_input_window, 0, 0);
+    wclrtoeol(s_input_window);
+    pthread_mutex_unlock(&ui.render_mutex);
 }
 void ui_input_window_try_pop_input(char* out)
 {
@@ -130,7 +137,7 @@ void ui_input_window_render()
                     start_str += 1 + input_length - max_input_length;
 
                 // Display the input text
-                mvwprintw(s_input_window, 0, sizeof(s_prompt_message), "%s", start_str);
+                mvwprintw(s_input_window, 0, prompt_length + 1, "%s", start_str);
                 // Clear the rest of the line
                 wclrtoeol(s_input_window);
 

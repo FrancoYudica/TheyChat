@@ -1,3 +1,4 @@
+#include "command_types.h"
 #include "command/command_processor.h"
 #include "net/net_communication.h"
 
@@ -43,10 +44,10 @@ Error* execute_command_processor(ServerStateData* data, Message* command_message
     printf("RECEIVED COMMAND MESSAGE!\n");
 
     switch (command_message->payload.command.command_type) {
-    case CMDT_DISCONNECT:
+    case CMD_DISCONNECT:
         return CREATE_ERR(ERR_NET_PEER_DISCONNECTED, "Peer disconnected");
 
-    case CMDT_USERS:
+    case CMD_USERS:
         return process_users_command(data);
 
     default:

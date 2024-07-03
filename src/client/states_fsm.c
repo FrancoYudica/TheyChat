@@ -2,26 +2,34 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <assert.h>
 #include "states_fsm.h"
 #include "they_chat_error.h"
 
-extern Error* handle_state_offline(ClientData* data, AppState* next_state);
-extern Error* handle_state_connect(ClientData* data, AppState* next_state);
-extern Error* handle_state_queue(ClientData* data, AppState* next_state);
-extern Error* handle_state_login(ClientData* data, AppState* next_state);
-extern Error* handle_state_chat(ClientData* data, AppState* next_state);
-extern Error* handle_state_disconnect(ClientData* data, AppState* next_state);
+extern Error* handle_state_offline();
+extern Error* handle_state_connect();
+extern Error* handle_state_queue();
+extern Error* handle_state_login();
+extern Error* handle_state_chat();
+extern Error* handle_state_disconnect();
 
-void client_states_handler_fsm(ClientData* data, AppState initial_state)
+static AppState s_current_state = APP_STATE_NULL;
+static pthread_mutex_t s_cond_mutex;
+static pthread_cond_t s_next_state_cond;
+
+void state_handler_fsm(AppState initial_state)
 {
-    AppState curent_state = initial_state;
+    pthread_mutex_init(&s_cond_mutex, NULL);
+    pthread_cond_init(&s_next_state_cond, NULL);
+
+    s_current_state = initial_state;
 
     // Function pointer of currently used state handler function
-    Error* (*handler)(ClientData*, AppState*);
+    Error* (*handler)(void);
 
     while (true) {
         // Gets next state handler
-        switch (curent_state) {
+        switch (s_current_state) {
         case APP_STATE_OFFLINE:
             handler = handle_state_offline;
             break;
@@ -47,29 +55,41 @@ void client_states_handler_fsm(ClientData* data, AppState initial_state)
             break;
 
         default:
-            printf("Unimplemented state handler type: %i\n", curent_state);
+            printf("Unimplemented state handler type: %i\n", s_current_state);
             break;
         }
 
         // Executes handler
-        AppState next_state = APP_STATE_NULL;
-        Error* err = handler(data, &next_state);
+        AppState executing_state = s_current_state;
+        s_current_state = APP_STATE_NULL;
+        Error* err = handler();
 
         // Manually sets disconnect state if there is any error
         if (IS_NET_ERROR(err)) {
             print_error(err);
-            curent_state = APP_STATE_DISCONNECT;
+            s_current_state = APP_STATE_DISCONNECT;
             free_error(err);
         }
 
         // In case the handler didn't set the next state
-        else if (next_state == APP_STATE_NULL) {
-            printf("Forgot to set next_state in state handler of type %i\n", curent_state);
+        else if (s_current_state == APP_STATE_NULL) {
+            printf("Forgot to set next_state in state handler of type %i\n", executing_state);
             exit(EXIT_FAILURE);
         }
-
-        // Usual case where all things were right
-        else
-            curent_state = next_state;
     }
+}
+
+void state_handler_set_next(AppState next_state)
+{
+    // Ensures that setting the state doesn't override any
+    // other state previously set. In a good architecture,
+    // this shouldn't fail, since next states aren't overwritten
+    assert(s_current_state == APP_STATE_NULL || next_state == APP_STATE_NULL);
+    s_current_state = next_state;
+    pthread_cond_signal(&s_next_state_cond);
+}
+
+void state_handler_wait_next_state_cond()
+{
+    pthread_cond_wait(&s_next_state_cond, &s_cond_mutex);
 }

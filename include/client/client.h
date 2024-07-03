@@ -1,5 +1,5 @@
-#ifndef __CLIENT_DATA_H__
-#define __CLIENT_DATA_H__
+#ifndef __CLIENT_H__
+#define __CLIENT_H__
 #include <stdint.h>
 #include "constants.h"
 #include "net/net_stream.h"
@@ -19,6 +19,9 @@ typedef struct
         bool tls_enabled;
     } connection_details;
 
-} ClientData;
+} Client;
+
+/// @brief Singleton client getter
+Client* get_client();
 
 #endif

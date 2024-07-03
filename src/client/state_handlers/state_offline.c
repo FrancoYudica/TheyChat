@@ -1,34 +1,40 @@
 #include "state_handler_utils.h"
 
-Error* handle_state_offline(ClientData* data, AppState* next_state)
+static Error* input_callback(const char* input)
 {
-    // Gets username
-    printf("%s", "Server IP: ");
-    fgets(data->connection_details.server_ip, sizeof(data->connection_details.server_ip), stdin);
+    ui_push_text_entry(TEXT_ENTRY_TYPE_LOG, input);
+    return CREATE_ERR_OK;
+}
 
-    printf("%s", "Server port: ");
-    char port[6];
-    fgets(port, sizeof(port), stdin);
+static Error* command_callback(const char* input)
+{
+    return dispatch_command(
+        input,
+        3,
+        CMD_HELP,
+        CMD_CONNECT,
+        CMD_QUIT);
+}
 
-    // Default IP
-    if (data->connection_details.server_ip[0] == '\n') {
-        strcpy(data->connection_details.server_ip, "127.0.0.1");
-    } else {
-        // Removes '\n' character in both inputs
-        data->connection_details.server_ip[strlen(data->connection_details.server_ip) - 1] = '\0';
-    }
+Error* handle_state_offline()
+{
+    Client* data = get_client();
 
-    // Default port
-    if (port[0] == '\n') {
-        strcpy(port, "8000");
-    } else {
-        // Removes '\n' character in both inputs
-        port[strlen(port) - 1] = '\0';
-    }
+    ui_set_connected(false);
+    ui_set_input_prompt("Type:");
+    ui_push_text_entry(TEXT_ENTRY_TYPE_SERVER, "Welcome to They Chat!, you can execute commands now. Use /h to see all commands");
 
-    data->connection_details.port = atoi(port);
+    // Renders the entire UI
+    ui_refresh();
 
-    // Initializes socket and connects to server
-    *next_state = APP_STATE_CONNECT;
+    // Sets input callbacks and user data
+    input_handler_set_input_callback(NULL);
+    input_handler_set_command_callback(NULL);
+    input_handler_set_input_callback(input_callback);
+    input_handler_set_command_callback(command_callback);
+
+    // Waits for next state set condition
+    state_handler_wait_next_state_cond();
+
     return CREATE_ERR_OK;
 }

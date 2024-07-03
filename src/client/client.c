@@ -7,28 +7,33 @@
 #include "messages/message_types.h"
 #include "net/serialization/net_message_serializer.h"
 #include "net/net_communication.h"
-#include "client_data.h"
+#include "client.h"
 #include "states_fsm.h"
+#include "ui/ui.h"
 
-int main(int argc, char** argv)
+int main()
 {
-    ClientData client;
+    Client* client = get_client();
 
 #ifdef THEY_CHAT_SSL
-    client.connection_details.tls_enabled = true;
+    client->connection_details.tls_enabled = true;
 #else
-    client.connection_details.tls_enabled = false;
+    client->connection_details.tls_enabled = false;
 #endif
 
     net_init();
 
     // Initializes network stream
-    init_net_stream(&client.stream);
+    init_net_stream(&client->stream);
+
+    // Initializes UI
+    ui_init();
+    ui_set_connected(false);
 
     // Starts execution of FSM
-    printf("Entering application...\n");
-    client_states_handler_fsm(&client, APP_STATE_OFFLINE);
+    state_handler_fsm(APP_STATE_OFFLINE);
 
+    ui_free();
     net_shutdown();
     return EXIT_SUCCESS;
 }

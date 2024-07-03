@@ -1,10 +1,10 @@
-#include "chat_state/ui.h"
-#include "chat_state/ui_data.h"
-#include "chat_state/ui/log_window.h"
-
+#include "ui/ui.h"
+#include "ui/chat_entries.h"
+#include "ui/ui_windows/log_window.h"
+#include "ui/ui_data.h"
 extern UI ui;
 static WINDOW* s_log_window;
-static char s_log[256] = "Welcome to They Chat!.";
+static char s_log[512] = "Welcome to They Chat!.";
 
 void ui_log_window_create()
 {
@@ -31,9 +31,12 @@ void ui_log_window_resize()
     ui_log_window_render();
 }
 
-void ui_log_window_set_log(const char* log)
+void ui_log_window_set_log(const char* format, ...)
 {
-    strcpy(s_log, log);
+    va_list args;
+    va_start(args, format);
+    vsnprintf(s_log, sizeof(s_log), format, args);
+    va_end(args);
 }
 
 void ui_log_window_render()

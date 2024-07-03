@@ -1,6 +1,16 @@
-#include "chat_state/chat_entries.h"
-
+#include <time.h>
+#include "ui/chat_entries.h"
 #define CHAT_ENTRIES_MAX_SIZE 128
+
+void chat_entry_format_time(ChatEntry* entry, time_t t)
+{
+    struct tm* time = localtime((time_t*)&t);
+    strftime(
+        entry->time_str,
+        sizeof(entry->time_str),
+        "%Y/%m/%d %H:%M:%S",
+        time);
+}
 
 // Define the structure for a single chat entry node (hidden from the public interface)
 typedef struct chat_entry_node {

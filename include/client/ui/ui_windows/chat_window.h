@@ -1,6 +1,6 @@
 #ifndef __CHAT_WINDOW_H__
 #define __CHAT_WINDOW_H__
-#include "chat_state/ui.h"
+#include "ui/ui.h"
 
 void ui_chat_window_create();
 void ui_chat_window_free();
