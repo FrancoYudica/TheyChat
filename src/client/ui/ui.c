@@ -153,7 +153,7 @@ void ui_set_input_prompt(const char* text)
 
 void ui_push_text_entry(enum TextEntryType type, const char* format, ...)
 {
-    char buffer[256]; // Adjust the size as needed
+    char buffer[1024]; // Adjust the size as needed
     va_list args;
 
     // Start the varargs processing

@@ -32,9 +32,10 @@ static Error* command_callback(const char* command)
 {
     return dispatch_command(
         command,
-        2,
+        3,
         CMD_HELP,
-        CMD_DISCONNECT);
+        CMD_DISCONNECT,
+        CMD_QUIT);
 }
 
 Error* handle_state_login()

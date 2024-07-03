@@ -10,8 +10,10 @@ static Error* command_callback(const char* input)
 {
     return dispatch_command(
         input,
-        1,
-        CMD_CONNECT);
+        3,
+        CMD_HELP,
+        CMD_CONNECT,
+        CMD_QUIT);
 }
 
 Error* handle_state_offline()
