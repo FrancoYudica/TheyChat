@@ -30,7 +30,11 @@ static Error* input_callback(const char* input)
 
 static Error* command_callback(const char* command)
 {
-    return CREATE_ERR_OK;
+    return dispatch_command(
+        command,
+        2,
+        CMD_HELP,
+        CMD_DISCONNECT);
 }
 
 Error* handle_state_login()
@@ -48,6 +52,7 @@ Error* handle_state_login()
     input_handler_set_input_callback(NULL);
     input_handler_set_command_callback(NULL);
     input_handler_set_input_callback(input_callback);
+    input_handler_set_command_callback(command_callback);
 
     ui_push_text_entry(TEXT_ENTRY_TYPE_SERVER, "Successfully connected to server!.");
     ui_set_log_text("Enter your unique username");
