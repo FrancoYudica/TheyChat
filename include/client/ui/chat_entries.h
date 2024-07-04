@@ -6,10 +6,12 @@
 #include <string.h>
 #include <stdint.h>
 #include "messages/message.h"
+#include "string/string_list.h"
 
 enum ChatEntryType {
     CHAT_ENTRY_USER_TEXT,
-    CHAT_ENTRY_TEXT
+    CHAT_ENTRY_TEXT,
+    CHAT_ENTRY_LIST
 };
 
 typedef struct
@@ -31,9 +33,16 @@ typedef struct
     char text[MAX_CHAT_TEXT_BYTES];
 } TextChatEntry;
 
+typedef struct
+{
+    char header[MAX_CHAT_TEXT_BYTES];
+    StringList* list;
+} ListChatEntry;
+
 typedef union {
     UserTextChatEntry user_text;
     TextChatEntry text;
+    ListChatEntry list;
 } ChatEntryData;
 
 typedef struct {

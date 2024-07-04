@@ -44,9 +44,9 @@ Error* dispatch_command(const char* input, uint32_t cmd_count, ...)
                 return err;
             }
         }
+        ui_set_log_text("Can't execute command: \"%s\" in this context", argv[0]);
     }
     va_end(args);
-    ui_set_log_text("Can't execute command: \"%s\" in this context", argv[0]);
     return err;
 }
 
@@ -61,25 +61,34 @@ static void help_handler(uint32_t cmd_count, va_list args)
 
     static CommandDefinition command_help[] = {
         [CMD_HELP] = { "\"/h\" or \"/help\"", "Lists all the commands" },
-        [CMD_CONNECT] = { "\"/c\" or \"/connect\"", "Establishes connection with server. First argument, specifies server ip, and second, the port, both are optional" },
+        [CMD_CONNECT] = { "\"/c\" or \"/connect\"", "Establishes connection with server. \"/connect {server_ip} {port}\"" },
         [CMD_DISCONNECT] = { "\"/d\" or \"/disconnect\"", "Disconnects from server, and transitions to offline state" },
         [CMD_QUIT] = { "\"/q\" or \"/quit\"", "Quits the application" },
         [CMD_USERS] = { "\"/users\"", "Lists all connected users" }
     };
 
-    ui_push_text_entry(TEXT_ENTRY_TYPE_LOG, "Listing commands:");
+    ChatEntry entry;
+    entry.type = CHAT_ENTRY_LIST;
+    strcpy(entry.data.list.header, "Listing commands:");
+    entry.data.list.list = string_list_create();
+    StringList* str_list = entry.data.list.list;
+    chat_entry_format_time(&entry, time(NULL));
 
     uint32_t command_width = 25;
+    char buffer[1024];
     for (uint32_t i = 0; i < cmd_count; i++) {
         enum CommandType cmd_type = va_arg(args, uint32_t);
 
-        ui_push_text_entry(
-            TEXT_ENTRY_TYPE_LOG,
-            "   %-*s - %s",
+        sprintf(
+            buffer,
+            "%-*s - %s",
             command_width,
             command_help[cmd_type].name,
             command_help[cmd_type].description);
+
+        string_list_add(str_list, buffer);
     }
+    ui_add_chat_entry(entry);
 }
 
 static Error* unimplemented_handler(uint8_t argc, char** argv)

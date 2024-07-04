@@ -81,6 +81,7 @@ void ui_chat_window_resize()
 // Functions used to render the different ChatEntry types
 static void render_user_text_entry(const ChatEntry* entry, uint32_t* row, uint32_t col);
 static void render_text_entry(const ChatEntry* entry, uint32_t* row, uint32_t col);
+static void render_list_entry(const ChatEntry* entry, uint32_t* row, uint32_t col);
 
 void ui_chat_window_render()
 {
@@ -126,6 +127,9 @@ void ui_chat_window_render()
 
         case CHAT_ENTRY_TEXT:
             render_text_entry(entry, &row, col);
+            break;
+        case CHAT_ENTRY_LIST:
+            render_list_entry(entry, &row, col);
             break;
         default:
             break;
@@ -217,4 +221,49 @@ static void render_text_entry(
     wattron(s_chat_window, COLOR_PAIR(color_pair));
     mvwprint_multiline(s_chat_window, row, col, max_row, max_column, text->text);
     wattroff(s_chat_window, COLOR_PAIR(color_pair));
+}
+
+static void render_list_entry(
+    const ChatEntry* entry,
+    uint32_t* row,
+    uint32_t col)
+{
+    const ListChatEntry* list_entry = &entry->data.list;
+
+    // Gets display boundaries
+    uint32_t n_columns, n_rows;
+    getmaxyx(s_chat_window, n_rows, n_columns);
+    uint32_t max_column = n_columns;
+    uint32_t max_row = n_rows;
+
+    // Displays header
+    wattron(s_chat_window, COLOR_PAIR(COLOR_PAIR_CHAT_TEXT));
+    mvwprint_multiline(s_chat_window, row, col, max_row, max_column, list_entry->header);
+    wattroff(s_chat_window, COLOR_PAIR(COLOR_PAIR_CHAT_TEXT));
+    *row += 1;
+
+    StringList* list = list_entry->list;
+
+    StringListIterator* it = string_list_iterator_create(list);
+    const char* str = NULL;
+
+    // Formats and displays all the strings
+    uint32_t i = 0;
+    char number_str[8];
+    while (str = string_list_iterator_next(it)) {
+        sprintf(number_str, "%d. ", ++i);
+
+        wattron(s_chat_window, COLOR_PAIR(COLOR_PAIR_CHAT_ALTERNATIVE));
+        mvwprint_multiline(s_chat_window, row, col, max_row, max_column, number_str);
+        wattroff(s_chat_window, COLOR_PAIR(COLOR_PAIR_CHAT_ALTERNATIVE));
+
+        wattron(s_chat_window, COLOR_PAIR(COLOR_PAIR_CHAT_TEXT));
+        mvwprint_multiline(s_chat_window, row, col + strlen(number_str), max_row, max_column, str);
+        wattroff(s_chat_window, COLOR_PAIR(COLOR_PAIR_CHAT_TEXT));
+
+        *row += 1;
+    }
+    *row -= 1;
+
+    string_list_iterator_destroy(it);
 }
