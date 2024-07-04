@@ -1,20 +1,9 @@
-#include <time.h>
 #include "ui/chat_entries.h"
 #define CHAT_ENTRIES_MAX_SIZE 128
 
-void chat_entry_format_time(ChatEntry* entry, time_t t)
-{
-    struct tm* time = localtime((time_t*)&t);
-    strftime(
-        entry->time_str,
-        sizeof(entry->time_str),
-        "%Y/%m/%d %H:%M:%S",
-        time);
-}
-
 // Define the structure for a single chat entry node (hidden from the public interface)
 typedef struct chat_entry_node {
-    ChatEntry entry;
+    ChatEntry* entry;
     struct chat_entry_node* next; // Pointer to the next chat entry node
 } ChatEntryNode;
 
@@ -45,7 +34,7 @@ ChatEntries* chat_entries_create()
     return list;
 }
 
-void chat_entries_add(ChatEntries* list, ChatEntry entry)
+void chat_entries_add(ChatEntries* list, ChatEntry* entry)
 {
     ChatEntryNode* new_node = (ChatEntryNode*)malloc(sizeof(ChatEntryNode));
     new_node->entry = entry;
@@ -82,6 +71,7 @@ void chat_entries_free(ChatEntries* list)
     ChatEntryNode* current = list->head;
     while (current != NULL) {
         ChatEntryNode* next = current->next;
+        chat_entry_free(current->entry);
         chat_entries_free_node(list, current);
         current = next;
     }
@@ -104,7 +94,7 @@ bool chat_entries_iterator_get_current(const ChatEntriesIterator* iterator, cons
     if (iterator->current == NULL) {
         return false; // No current chat entry
     }
-    *entry = &iterator->current->entry;
+    *entry = iterator->current->entry;
     return true;
 }
 

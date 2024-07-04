@@ -26,13 +26,10 @@ void* handle_messages(void* arg)
         case MSGT_USER_CHAT: {
 
             UserChatPayload* user_chat = &message.payload.user_chat;
-            // Sets up chat entry
-            ChatEntry entry;
-            entry.type = CHAT_ENTRY_USER_TEXT;
-            strncpy(entry.data.user_text.name, user_chat->username, MAX_USERNAME_BYTES);
-            strncpy(entry.data.user_text.text, user_chat->text, MAX_CHAT_TEXT_BYTES);
-            strncpy(entry.data.user_text.ip, user_chat->ip, MAX_IP_BYTES);
-            chat_entry_format_time(&entry, user_chat->time);
+
+            // Sets up chat entry and formats with sent time
+            ChatEntry* entry = chat_entry_create_user(user_chat->username, user_chat->text);
+            chat_entry_format_time(entry, user_chat->time);
 
             // Sends chat entry to UI
             ui_add_chat_entry(entry);

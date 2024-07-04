@@ -67,13 +67,8 @@ static void help_handler(uint32_t cmd_count, va_list args)
         [CMD_USERS] = { "\"/users\"", "Lists all connected users" }
     };
 
-    ChatEntry entry;
-    entry.type = CHAT_ENTRY_LIST;
-    strcpy(entry.data.list.header, "Listing commands:");
-    entry.data.list.list = string_list_create();
-    StringList* str_list = entry.data.list.list;
-    chat_entry_format_time(&entry, time(NULL));
-
+    ChatEntry* entry = chat_entry_create_list("Listing commands:");
+    StringList* str_list = entry->data.list.list;
     uint32_t command_width = 25;
     char buffer[1024];
     for (uint32_t i = 0; i < cmd_count; i++) {

@@ -5,7 +5,7 @@
 #include "chat_entries.h"
 
 void ui_init();
-void ui_add_chat_entry(ChatEntry entry);
+void ui_add_chat_entry(ChatEntry* entry);
 void ui_set_log_text(const char* format, ...);
 void ui_refresh();
 void ui_free();

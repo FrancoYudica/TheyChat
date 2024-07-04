@@ -114,7 +114,7 @@ void ui_set_tls_enabled(bool tls_enabled)
 {
     ui_header_window_set_tls_enabled(tls_enabled);
 }
-void ui_add_chat_entry(ChatEntry entry)
+void ui_add_chat_entry(ChatEntry* entry)
 {
     pthread_mutex_lock(&ui.render_mutex);
     ui_chat_window_add_entry(entry);
@@ -174,11 +174,7 @@ void ui_push_text_entry(enum TextEntryType type, const char* format, ...)
     va_end(args);
 
     // Create and populate the ChatEntry
-    ChatEntry entry;
-    entry.type = CHAT_ENTRY_TEXT;
-    entry.data.text.text_type = type;
-    strncpy(entry.data.text.text, buffer, sizeof(entry.data.text.text));
-    chat_entry_format_time(&entry, time(NULL));
+    ChatEntry* entry = chat_entry_create_text(type, buffer);
     ui_add_chat_entry(entry);
 }
 

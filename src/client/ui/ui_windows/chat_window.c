@@ -146,7 +146,7 @@ void ui_chat_window_render()
     pthread_mutex_unlock(&ui.render_mutex);
 }
 
-void ui_chat_window_add_entry(ChatEntry chat_entry)
+void ui_chat_window_add_entry(ChatEntry* chat_entry)
 {
     chat_entries_add(s_chat_entries, chat_entry);
 }
