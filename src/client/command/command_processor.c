@@ -56,16 +56,5 @@ Error* execute_command_processor(Client* data, uint8_t command_type, const char*
     if (IS_NET_ERROR(err))
         return err;
 
-    switch (command_type) {
-    case CMD_DISCONNECT:
-        return CREATE_ERR(ERR_NET_DISCONNECT, "Disconnecting with command");
-
-    case CMD_USERS:
-        return process_users_command(data);
-
-    default:
-        break;
-    }
-
     return err;
 }
