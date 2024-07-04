@@ -9,7 +9,7 @@
 
 enum ChatEntryType {
     CHAT_ENTRY_USER_TEXT,
-    CHAT_ENTRY_SERVER_NOTIFICATION
+    CHAT_ENTRY_TEXT
 };
 
 typedef struct
@@ -18,8 +18,16 @@ typedef struct
     char text[MAX_CHAT_TEXT_BYTES];
     char ip[MAX_IP_BYTES];
 } UserTextChatEntry;
+
+enum TextEntryType {
+    TEXT_ENTRY_TYPE_LOG,
+    TEXT_ENTRY_TYPE_SERVER,
+    TEXT_ENTRY_TYPE_WARNING,
+    TEXT_ENTRY_TYPE_ERROR
+};
 typedef struct
 {
+    enum TextEntryType text_type;
     char text[MAX_CHAT_TEXT_BYTES];
 } TextChatEntry;
 
@@ -29,7 +37,7 @@ typedef union {
 } ChatEntryData;
 
 typedef struct {
-    uint8_t type;
+    enum ChatEntryType type;
     char time_str[80];
     ChatEntryData data;
 } ChatEntry;

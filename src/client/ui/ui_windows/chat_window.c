@@ -80,7 +80,7 @@ void ui_chat_window_resize()
 
 // Functions used to render the different ChatEntry types
 static void render_user_text_entry(const ChatEntry* entry, uint32_t* row, uint32_t col);
-static void render_server_notification_entry(const ChatEntry* entry, uint32_t* row, uint32_t col);
+static void render_text_entry(const ChatEntry* entry, uint32_t* row, uint32_t col);
 
 void ui_chat_window_render()
 {
@@ -124,8 +124,8 @@ void ui_chat_window_render()
             render_user_text_entry(entry, &row, col);
             break;
 
-        case CHAT_ENTRY_SERVER_NOTIFICATION:
-            render_server_notification_entry(entry, &row, col);
+        case CHAT_ENTRY_TEXT:
+            render_text_entry(entry, &row, col);
             break;
         default:
             break;
@@ -179,21 +179,42 @@ static void render_user_text_entry(
     getmaxyx(s_chat_window, n_rows, n_columns);
     uint32_t max_column = n_columns;
     uint32_t max_row = n_rows;
+    wattron(s_chat_window, COLOR_PAIR(COLOR_PAIR_CHAT_TEXT));
     mvwprint_multiline(s_chat_window, row, col, max_row, max_column, user_text->text);
+    wattroff(s_chat_window, COLOR_PAIR(COLOR_PAIR_CHAT_TEXT));
 }
 
-static void render_server_notification_entry(
+static void render_text_entry(
     const ChatEntry* entry,
     uint32_t* row,
     uint32_t col)
 {
     const TextChatEntry* text = &entry->data.text;
+
+    // Gets color pair
+    uint8_t color_pair = 0;
+    switch (text->text_type) {
+    case TEXT_ENTRY_TYPE_LOG:
+        color_pair = COLOR_PAIR_CHAT_TEXT;
+        break;
+    case TEXT_ENTRY_TYPE_SERVER:
+        color_pair = COLOR_PAIR_CHAT_SERVER;
+        break;
+    case TEXT_ENTRY_TYPE_WARNING:
+        color_pair = COLOR_PAIR_CHAT_WARNING;
+        break;
+    default:
+        break;
+    }
+
+    // Gets display boundaries
     uint32_t n_columns, n_rows;
     getmaxyx(s_chat_window, n_rows, n_columns);
     uint32_t max_column = n_columns;
     uint32_t max_row = n_rows;
 
-    wattron(s_chat_window, COLOR_PAIR(COLOR_PAIR_CHAT_NOTIFICATION));
+    // Renders text
+    wattron(s_chat_window, COLOR_PAIR(color_pair));
     mvwprint_multiline(s_chat_window, row, col, max_row, max_column, text->text);
-    wattroff(s_chat_window, COLOR_PAIR(COLOR_PAIR_CHAT_NOTIFICATION));
+    wattroff(s_chat_window, COLOR_PAIR(color_pair));
 }

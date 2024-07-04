@@ -20,10 +20,14 @@ enum Colors {
     BAR_BG_COLOR = 8,
     BAR_ENABLED_COLOR,
     BAR_DISABLED_COLOR,
+
     CHAT_BG_COLOR,
     CHAT_USERNAME_COLOR,
-    CHAT_NOTIFICATION_COLOR,
-    CHAT_ALTERNATIVE_COLOR
+    CHAT_ALTERNATIVE_COLOR,
+
+    CHAT_TEXT_COLOR,
+    CHAT_SERVER_COLOR,
+    CHAT_WARNING_COLOR
 };
 
 static void initialize_color_pairs()
@@ -31,13 +35,15 @@ static void initialize_color_pairs()
     use_default_colors();
     // Sets colors values
     init_color(BAR_BG_COLOR, 329, 321, 500);
-    init_color(BAR_ENABLED_COLOR, 0, 1000, 0);
-    init_color(BAR_DISABLED_COLOR, 1000, 0, 0);
+    init_color(BAR_ENABLED_COLOR, 200, 1000, 200);
+    init_color(BAR_DISABLED_COLOR, 1000, 200, 200);
 
     init_color(CHAT_BG_COLOR, 100, 100, 150);
     init_color(CHAT_USERNAME_COLOR, 0, 1000, 600);
-    init_color(CHAT_NOTIFICATION_COLOR, 1000, 600, 0);
     init_color(CHAT_ALTERNATIVE_COLOR, 400, 400, 700);
+    init_color(CHAT_TEXT_COLOR, 1000, 1000, 1000);
+    init_color(CHAT_SERVER_COLOR, 1000, 600, 0);
+    init_color(CHAT_WARNING_COLOR, 1000, 200, 200);
 
     // Initializes color pairs, with corresponding backgrounds
     init_pair(COLOR_PAIR_BAR, COLOR_WHITE, BAR_BG_COLOR);
@@ -46,8 +52,10 @@ static void initialize_color_pairs()
 
     init_pair(COLOR_PAIR_CHAT, COLOR_WHITE, CHAT_BG_COLOR);
     init_pair(COLOR_PAIR_CHAT_USERNAME, CHAT_USERNAME_COLOR, CHAT_BG_COLOR);
-    init_pair(COLOR_PAIR_CHAT_NOTIFICATION, CHAT_NOTIFICATION_COLOR, CHAT_BG_COLOR);
     init_pair(COLOR_PAIR_CHAT_ALTERNATIVE, CHAT_ALTERNATIVE_COLOR, CHAT_BG_COLOR);
+    init_pair(COLOR_PAIR_CHAT_TEXT, CHAT_TEXT_COLOR, CHAT_BG_COLOR);
+    init_pair(COLOR_PAIR_CHAT_SERVER, CHAT_SERVER_COLOR, CHAT_BG_COLOR);
+    init_pair(COLOR_PAIR_CHAT_WARNING, CHAT_WARNING_COLOR, CHAT_BG_COLOR);
 }
 
 static void window_resize()
@@ -167,7 +175,8 @@ void ui_push_text_entry(enum TextEntryType type, const char* format, ...)
 
     // Create and populate the ChatEntry
     ChatEntry entry;
-    entry.type = CHAT_ENTRY_SERVER_NOTIFICATION;
+    entry.type = CHAT_ENTRY_TEXT;
+    entry.data.text.text_type = type;
     strncpy(entry.data.text.text, buffer, sizeof(entry.data.text.text));
     chat_entry_format_time(&entry, time(NULL));
     ui_add_chat_entry(entry);
