@@ -31,6 +31,7 @@ set(COMMON_SOURCES
 
     # String
     src/common/string/utils.c
+    src/common/string/string_list.c
 
     src/common/collections/linked_list.c
 )
