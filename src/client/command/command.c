@@ -1,7 +1,7 @@
 #include "command/command.h"
-#include "command/command_implementations.h"
 #include "ui/ui.h"
 
+// Help handler is different, requires variable argument list
 static void help_handler(uint32_t, va_list);
 
 Error* dispatch_command(const char* input, uint32_t cmd_count, ...)
@@ -10,7 +10,7 @@ Error* dispatch_command(const char* input, uint32_t cmd_count, ...)
     char* input_copy = strdup(input); // Make a copy of the input
     char* token = strtok(input_copy, " ");
     char* argv[10];
-    uint32_t argc = 0;
+    uint8_t argc = 0;
     while (token != NULL && argc < 10) {
         argv[argc++] = token;
         token = strtok(NULL, " ");
@@ -78,4 +78,38 @@ static void help_handler(uint32_t cmd_count, va_list args)
             command_help[cmd_type].name,
             command_help[cmd_type].description);
     }
+}
+
+static Error* unimplemented_handler(uint8_t argc, char** argv)
+{
+    ui_set_log_text("Unimplemented command \"%s\"", argv[0]);
+    return CREATE_ERR_OK;
+}
+extern Error* disconnect_handler(uint8_t, char**);
+extern Error* connect_handler(uint8_t, char**);
+extern Error* quit_handler(uint8_t, char**);
+
+// Lookup table that stores all the application commands
+static Command s_commands[] = {
+    { "/help", CMD_HELP, unimplemented_handler },
+    { "/h", CMD_HELP, unimplemented_handler },
+    { "/connect", CMD_CONNECT, connect_handler },
+    { "/c", CMD_CONNECT, connect_handler },
+    { "/disconnect", CMD_DISCONNECT, disconnect_handler },
+    { "/d", CMD_DISCONNECT, disconnect_handler },
+    { "/quit", CMD_QUIT, unimplemented_handler },
+    { "/q", CMD_QUIT, unimplemented_handler },
+    { "/users", CMD_USERS, unimplemented_handler },
+    { "/u", CMD_USERS, unimplemented_handler }
+};
+
+const Command* get_command_by_name(const char* command_name)
+{
+    uint32_t num_commands = sizeof(s_commands) / sizeof(Command);
+
+    for (uint32_t i = 0; i < num_commands; i++) {
+        if (!strcmp(s_commands[i].name, command_name))
+            return &s_commands[i];
+    }
+    return NULL;
 }

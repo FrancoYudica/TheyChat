@@ -1,16 +1,13 @@
-#include "command/command_processor.h"
-#include "command_types.h"
-#include "messages/message_types.h"
-#include "net/net_communication.h"
+#include "states_fsm.h"
 
-Error* process_users_command(Client* data)
+Error* users_handler(uint8_t, char**)
 {
     Message message;
-
+    Client* client = get_client();
     // Gets header of the sequence
     Error* err = wait_for_message_type(
-        &data->stream,
-        data->connection_context,
+        &client->stream,
+        client->connection_context,
         &message,
         MSGT_SEQUENCE_START);
 
@@ -23,8 +20,8 @@ Error* process_users_command(Client* data)
 
         // Receives message
         err = wait_for_message(
-            &data->stream,
-            data->connection_context,
+            &client->stream,
+            client->connection_context,
             &message);
 
         if (IS_NET_ERROR(err))
@@ -43,18 +40,6 @@ Error* process_users_command(Client* data)
         } else
             return CREATE_ERR(ERR_NET_RECEIVED_INVALID_TYPE, "Expected MSGT_HEAP_SEQUENCE or MSGT_SEQUENCE_END");
     }
-
-    return err;
-}
-
-Error* execute_command_processor(Client* data, uint8_t command_type, const char* command_arg)
-{
-    // Sends command msg to server, telling that a command arrived
-    Message message = create_command_msg(command_type, command_arg);
-    Error* err = send_message((const Message*)&message, data->connection_context);
-
-    if (IS_NET_ERROR(err))
-        return err;
 
     return err;
 }
