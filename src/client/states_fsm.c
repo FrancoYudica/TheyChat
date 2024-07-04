@@ -60,7 +60,8 @@ void state_handler_fsm(AppState initial_state)
             break;
 
         default:
-            printf("Unimplemented state handler type: %i\n", s_current_state);
+            // Unimplemented state handler
+            assert(false);
             break;
         }
 
@@ -77,10 +78,7 @@ void state_handler_fsm(AppState initial_state)
         }
 
         // In case the handler didn't set the next state
-        else if (s_current_state == APP_STATE_NULL) {
-            printf("Forgot to set next_state in state handler of type %i\n", executing_state);
-            exit(EXIT_FAILURE);
-        }
+        assert(s_current_state != APP_STATE_NULL);
     }
     pthread_mutex_destroy(&s_cond_mutex);
     pthread_cond_destroy(&s_next_state_cond);

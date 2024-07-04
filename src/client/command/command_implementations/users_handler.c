@@ -31,7 +31,7 @@ Error* users_handler(uint8_t, char**)
 
         // If it's sequence, reads and then free
         if (message_type == MSGT_HEAP_SEQUENCE) {
-            printf("NAME: %s\n", message.payload.heap_sequence.payload);
+            // printf("NAME: %s\n", message.payload.heap_sequence.payload);
             free(message.payload.heap_sequence.payload);
             break;
 

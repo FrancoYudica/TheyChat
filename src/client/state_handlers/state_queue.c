@@ -23,9 +23,9 @@ static void* wait_for_accept()
 
         // Client in queue
         else if (message.type == MSGT_CLIENT_ON_QUEUE) {
-            printf("%s\n", message.payload.bytes_128.bytes);
+            ui_set_log_text("%s", message.payload.bytes_128.bytes);
         } else {
-            ui_set_log_text("Received unexpected file type %i\n", message.type);
+            ui_set_log_text("Received unexpected file type %i", message.type);
         }
     }
 

@@ -30,6 +30,8 @@ Error* dispatch_command(const char* input, uint32_t cmd_count, ...)
     va_list args;
     va_start(args, cmd_count);
 
+    ui_set_log_text("Executing command: \"%s\"", command->name);
+
     if (command->type == CMD_HELP) {
         help_handler(cmd_count, args);
     } else {
