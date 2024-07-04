@@ -99,6 +99,7 @@ set(CLIENT_SOURCES
     src/client/state_handlers/state_login.c
     src/client/state_handlers/state_disconnect.c
     src/client/state_handlers/state_chat.c
+    src/client/state_handlers/state_quit.c
     src/client/ui/ui.c
     src/client/ui/chat_entries.c
     src/client/ui/input_handler.c

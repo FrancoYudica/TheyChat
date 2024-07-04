@@ -20,6 +20,7 @@ typedef struct
 } InputHandlerData;
 
 void input_handler_init();
+void input_handler_free();
 void input_handler_set_input_callback(Error* (*input_callback)(const char*));
 void input_handler_set_command_callback(Error* (*input_callback)(const char*));
 

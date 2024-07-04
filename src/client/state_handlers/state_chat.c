@@ -70,12 +70,6 @@ static Error* command_callback(const char* input)
 
 static Error* input_callback(const char* input)
 {
-
-    if (!strcmp(input, ".q")) {
-        ui_set_log_text("Disconnecting...");
-        state_handler_set_next(APP_STATE_DISCONNECT);
-    }
-
     static Message message;
     Client* data = get_client();
 

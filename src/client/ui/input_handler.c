@@ -8,14 +8,15 @@
 
 static InputHandlerData s_input_data;
 
+/// @brief Flag used to tell input thread when application finishes
+static bool s_running = false;
+
 static void* handle_input()
 {
     // Holds client input
     char input[MAX_CHAT_TEXT_BYTES];
 
-    while (true) {
-
-        usleep(1000); // Sleep for 20ms to prevent high CPU usage
+    while (s_running) {
 
         // Renders input window, and blocks current thread until input is received
         input[0] = '\0';
@@ -46,20 +47,27 @@ static void* handle_input()
             s_input_data.error = err;
             break;
         }
+        usleep(1000); // Sleep for 20ms to prevent high CPU usage
     }
-
-    /// @TODO propagate the error to the application
 
     return NULL;
 }
 
 void input_handler_init()
 {
+    s_running = true;
     s_input_data.input_callback = NULL;
     s_input_data.user_data = NULL;
     s_input_data.error = NULL;
     pthread_create(&s_input_data.input_thread, NULL, handle_input, NULL);
     pthread_mutex_init(&s_input_data.mutex, NULL);
+}
+
+void input_handler_free()
+{
+    s_running = false;
+    pthread_detach(s_input_data.input_thread);
+    pthread_mutex_destroy(&s_input_data.mutex);
 }
 
 void input_handler_set_input_callback(Error* (*input_callback)(const char*))

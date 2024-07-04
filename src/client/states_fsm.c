@@ -12,6 +12,7 @@ extern Error* handle_state_queue();
 extern Error* handle_state_login();
 extern Error* handle_state_chat();
 extern Error* handle_state_disconnect();
+extern Error* handle_state_quit();
 
 static AppState s_current_state = APP_STATE_NULL;
 static pthread_mutex_t s_cond_mutex;
@@ -27,7 +28,7 @@ void state_handler_fsm(AppState initial_state)
     // Function pointer of currently used state handler function
     Error* (*handler)(void);
 
-    while (true) {
+    while (s_current_state != APP_STATE_END) {
         // Gets next state handler
         switch (s_current_state) {
         case APP_STATE_OFFLINE:
@@ -54,6 +55,10 @@ void state_handler_fsm(AppState initial_state)
             handler = handle_state_disconnect;
             break;
 
+        case APP_STATE_QUIT:
+            handler = handle_state_quit;
+            break;
+
         default:
             printf("Unimplemented state handler type: %i\n", s_current_state);
             break;
@@ -77,6 +82,8 @@ void state_handler_fsm(AppState initial_state)
             exit(EXIT_FAILURE);
         }
     }
+    pthread_mutex_destroy(&s_cond_mutex);
+    pthread_cond_destroy(&s_next_state_cond);
 }
 
 void state_handler_set_next(AppState next_state)
@@ -92,4 +99,9 @@ void state_handler_set_next(AppState next_state)
 void state_handler_wait_next_state_cond()
 {
     pthread_cond_wait(&s_next_state_cond, &s_cond_mutex);
+}
+
+AppState state_handler_get_current()
+{
+    return s_current_state;
 }

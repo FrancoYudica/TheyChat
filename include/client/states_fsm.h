@@ -12,4 +12,7 @@ void state_handler_set_next(AppState next_state);
 /// @brief Blocks thread and waits for next state set condition
 void state_handler_wait_next_state_cond();
 
+/// @brief Returns current application state
+AppState state_handler_get_current();
+
 #endif

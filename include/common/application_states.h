@@ -26,7 +26,14 @@ typedef enum {
     APP_STATE_CHAT,
 
     /// @brief Clean disconnect of the client
-    APP_STATE_DISCONNECT
+    APP_STATE_DISCONNECT,
+
+    /// @brief Disconnects if necessary and quits application
+    APP_STATE_QUIT,
+
+    /// @brief Exits application
+    APP_STATE_END
+
 } AppState;
 
 const char* get_application_state_name(AppState);

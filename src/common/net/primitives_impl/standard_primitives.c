@@ -165,6 +165,8 @@ Error* net_close(ConnectionContext* context)
     if (close(context->socketfd) == -1)
         return CREATE_ERRNO(ERR_CLOSE_FD, "Error while closing ConnectionContext socket file descriptor");
 
+    free(context);
+
     return CREATE_ERR_OK;
 }
 void net_shutdown()

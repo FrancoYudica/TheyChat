@@ -183,6 +183,8 @@ void ui_refresh()
 }
 void ui_free()
 {
+    input_handler_free();
+
     ui_header_window_free();
     ui_chat_window_free();
     ui_log_window_free();

@@ -97,8 +97,8 @@ static Command s_commands[] = {
     { "/c", CMD_CONNECT, connect_handler },
     { "/disconnect", CMD_DISCONNECT, disconnect_handler },
     { "/d", CMD_DISCONNECT, disconnect_handler },
-    { "/quit", CMD_QUIT, unimplemented_handler },
-    { "/q", CMD_QUIT, unimplemented_handler },
+    { "/quit", CMD_QUIT, quit_handler },
+    { "/q", CMD_QUIT, quit_handler },
     { "/users", CMD_USERS, unimplemented_handler },
     { "/u", CMD_USERS, unimplemented_handler }
 };
