@@ -122,7 +122,7 @@ if (THEY_CHAT_COMPILE_TESTS)
     set(TEST_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/tests)
 
     # Add common tests
-    file(GLOB COMMON_TEST_SOURCES "src/tests/common/*.c")
+    file(GLOB COMMON_TEST_SOURCES "src/tests/common/*.c" "src/tests/common/file_transferring/*.c")
     foreach(TEST_SOURCE ${COMMON_TEST_SOURCES})
         get_filename_component(TEST_NAME ${TEST_SOURCE} NAME_WE)
         add_executable(${TEST_NAME} ${TEST_SOURCE})

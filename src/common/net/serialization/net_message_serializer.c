@@ -134,6 +134,12 @@ void ns_deserialize_message(const uint8_t* buffer, Message* message)
         ns_pop_long(&buffer_ptr, &file_header->size);
         break;
     }
+    case MSGT_FILE_CONTENT: {
+        FileContentPayload* file_content = &message->payload.file_content;
+        ns_pop_long(&buffer_ptr, (uint32_t*)&file_content->content_size);
+        ns_pop_byte_array(&buffer_ptr, (uint8_t*)file_content->binary_payload, sizeof(file_content->binary_payload));
+        break;
+    }
 
     case MSGT_CLIENT_CONNECTED:
     case MSGT_CLIENT_ON_QUEUE: {
