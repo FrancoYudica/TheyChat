@@ -5,6 +5,7 @@
 #include <assert.h>
 #include "states_fsm.h"
 #include "they_chat_error.h"
+#include "ui/ui.h"
 
 extern Error* handle_state_offline();
 extern Error* handle_state_connect();
@@ -72,7 +73,7 @@ void state_handler_fsm(AppState initial_state)
 
         // Manually sets disconnect state if there is any error
         if (IS_NET_ERROR(err)) {
-            print_error(err);
+            ui_push_text_entry(TEXT_ENTRY_TYPE_WARNING, "An error ocurred: \"%s\"", err->message);
             s_current_state = APP_STATE_DISCONNECT;
             free_error(err);
         }
