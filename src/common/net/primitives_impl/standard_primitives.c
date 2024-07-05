@@ -1,5 +1,6 @@
 
 #include "net/net_primitives.h"
+#include <arpa/inet.h>
 #include <memory.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -184,4 +185,9 @@ Error* net_get_ip(
         return CREATE_ERRNO(ERR_NET_FAILURE, "Error while converting IP to human-readable form");
 
     return CREATE_ERR_OK;
+}
+
+bool net_verify_certificate(ConnectionContext*)
+{
+    return false;
 }

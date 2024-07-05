@@ -1,5 +1,6 @@
 
 #include "net/net_primitives.h"
+#include <arpa/inet.h>
 #include <memory.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -60,12 +61,6 @@ static Error* ssl_connect(
     // Perform SSL handshake
     if (BIO_do_connect(ctx->bio) <= 0)
         return CREATE_ERRNO(ERR_NET_UNABLE_TO_CONNECT, "Unable to perform SSL handshake");
-
-    // Verify server certificate
-    if (SSL_get_verify_result(ctx->ssl) != X509_V_OK) {
-        // printf("Couldn't verify certificate...\n");
-        // TODO: Verify certificate
-    }
 
     // Get file descriptor for socketfd
     ctx->socketfd = BIO_get_fd(ctx->bio, NULL);
@@ -243,4 +238,10 @@ Error* net_get_ip(ConnectionContext* context, char* ip_buffer, size_t ip_buffer_
         return CREATE_ERRNO(ERR_NET_FAILURE, "Error while converting IP to human-readable form");
 
     return CREATE_ERR_OK;
+}
+
+bool net_verify_certificate(ConnectionContext* context)
+{
+    // Verify server certificate
+    return SSL_get_verify_result(context->ssl) != X509_V_OK;
 }

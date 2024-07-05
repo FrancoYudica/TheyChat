@@ -2,7 +2,7 @@
 #define __NETWORK_PRIMITIVES_H__
 
 #include <stdint.h>
-#include <arpa/inet.h>
+#include <stdbool.h>
 #include "they_chat_error.h"
 
 // Forward declaration of the ConnectionContext structure
@@ -112,5 +112,7 @@ Error* net_get_ip(
     ConnectionContext* context,
     char* ip_buffer,
     size_t ip_buffer_size);
+
+bool net_verify_certificate(ConnectionContext* context);
 
 #endif
