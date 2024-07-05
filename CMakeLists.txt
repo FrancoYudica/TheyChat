@@ -34,7 +34,12 @@ set(COMMON_SOURCES
     src/common/string/utils.c
     src/common/string/string_list.c
 
+    # Collections
     src/common/collections/linked_list.c
+
+    # File
+    src/common/file.c
+
 )
 
 # Changes encryption at compile time
@@ -86,6 +91,17 @@ add_executable(server src/server/server_main.c ${SERVER_SOURCES})
 target_include_directories(server PRIVATE "${PROJECT_SOURCE_DIR}/include/server")
 target_link_libraries(server PRIVATE chat_lib)
 
+# Sets output directory to build/server/
+set_target_properties(server PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/server/)
+
+# Copy the resources directory to the build directory
+add_custom_command(
+    TARGET server POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/src/server/resources $<TARGET_FILE_DIR:server>/resources
+)
+
+
 # Creates client executable -----------------------------------------------------
 # Specific sources for client
 set(CLIENT_SOURCES
@@ -114,6 +130,16 @@ set(CLIENT_SOURCES
 add_executable(client src/client/client.c ${CLIENT_SOURCES})
 target_include_directories(client PRIVATE "${PROJECT_SOURCE_DIR}/include/client")
 target_link_libraries(client PRIVATE chat_lib)
+
+# Sets output directory to build/client/
+set_target_properties(client PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/client/)
+
+# Copy the resources directory to the build directory
+add_custom_command(
+    TARGET client POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/src/client/resources $<TARGET_FILE_DIR:client>/resources
+)
 
 # Creates test executables ------------------------------------------------------
 if (THEY_CHAT_COMPILE_TESTS)
@@ -153,4 +179,12 @@ if (THEY_CHAT_COMPILE_TESTS)
         set_target_properties(${TEST_NAME} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${TEST_OUTPUT_DIRECTORY}/client)
         add_test(NAME ${TEST_NAME} COMMAND ${TEST_OUTPUT_DIRECTORY}/client/${TEST_NAME})
     endforeach()
+
+    # Copies common resources folder
+    add_custom_command(
+        TARGET server POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/src/tests/common/resources ${TEST_OUTPUT_DIRECTORY}/common/resources
+    )
+
 endif()

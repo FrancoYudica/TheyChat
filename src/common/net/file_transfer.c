@@ -2,6 +2,7 @@
 #include "net/file_transfer.h"
 #include "net/net_communication.h"
 #include "messages/message.h"
+#include "file.h"
 
 Error* send_file(
     const char* filepath,
@@ -22,7 +23,8 @@ Error* send_file(
     Message message;
 
     // Sends header
-    message = create_file_header_message("file", file_size);
+    const char* filename = filepath_get_filename(filepath);
+    message = create_file_header_message(filename, file_size);
     err = send_message(&message, net_connection);
 
     if (IS_NET_ERROR(err)) {
@@ -58,7 +60,7 @@ Error* send_file(
 }
 bool file_exists(const char* filepath)
 {
-    return access(filepath, F_OK);
+    return access(filepath, F_OK) == 0;
 }
 
 Error* receive_file(NetworkConnection* net_connection)

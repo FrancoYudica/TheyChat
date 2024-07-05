@@ -51,7 +51,7 @@ int main()
         printf("%s\n", err->message);
         return 1;
     }
-    const char* filepath = "pdf_file.pdf";
+    const char* filepath = "resources/file.txt";
 
     printf("Client connected! Sending file...\n");
     err = send_file(filepath, &client_connection);
