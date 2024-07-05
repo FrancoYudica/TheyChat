@@ -11,7 +11,7 @@ Error* handle_state_chat(ServerStateData* state_data, AppState* next_state)
     Message message;
     while (true) {
 
-        err = wait_for_message(&client->stream, client->connection_context, &message);
+        err = wait_for_message(&client->net_connection, &message);
 
         if (IS_NET_ERROR(err))
             return err;

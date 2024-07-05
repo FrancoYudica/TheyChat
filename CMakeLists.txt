@@ -24,6 +24,7 @@ set(COMMON_SOURCES
     
     # Networking
     src/common/net/net_communication.c
+    src/common/net/net_connection.c
     src/common/net/net_stream.c
     src/common/net/file_transfer.c
     src/common/net/serialization/net_serializer.c

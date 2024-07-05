@@ -1,6 +1,7 @@
 #ifndef __CONSTANTS_H__
 #define __CONSTANTS_H__
 /// Amount of actual content bytes sent
+#define MAX_MESSAGE_NET_SIZE 1024
 #define FILE_CONTENT_SIZE 512
 #define COMMAND_ARGUMENT_SIZE 512
 #define MAX_CHAT_TEXT_BYTES 512

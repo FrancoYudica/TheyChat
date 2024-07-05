@@ -5,10 +5,12 @@
 #include "net/net_communication.h"
 #include "net/serialization/net_message_serializer.h"
 
-Error* send_message(const Message* msg, ConnectionContext* connection_context)
+Error* send_message(
+    const Message* msg,
+    NetworkConnection* net_connection)
 {
     // Allocates memory for serialized message
-    uint8_t serialized_message[1024];
+    uint8_t serialized_message[MAX_MESSAGE_NET_SIZE];
     size_t serialized_buffer_size;
 
     // Serializes the message
@@ -22,7 +24,7 @@ Error* send_message(const Message* msg, ConnectionContext* connection_context)
         uint32_t bytes_sent;
 
         Error* err = net_send(
-            connection_context,
+            net_connection->context,
             serialized_message + total_bytes_sent,
             serialized_buffer_size - total_bytes_sent,
             &bytes_sent);
@@ -40,9 +42,10 @@ Error* send_message(const Message* msg, ConnectionContext* connection_context)
 /// @param network_stream Pointer to the NetworkStream to write the received bytes into.
 /// @param sockfd The file descriptor of the socket to receive bytes from.
 /// @return status
-static Error* receive(NetworkStream* network_stream, ConnectionContext* connection_context)
+static Error* receive(NetworkConnection* connection)
 {
     // Pointer to the free space
+    NetworkStream* network_stream = &connection->stream;
     uint8_t* empty_region_ptr = network_stream->stream + network_stream->written_bytes;
 
     // Amount of free space in bytes
@@ -60,7 +63,11 @@ static Error* receive(NetworkStream* network_stream, ConnectionContext* connecti
 
     // Blocks current thread until it receives data
     uint32_t bytes_read;
-    Error* err = net_receive(connection_context, empty_region_ptr, empty_region_size, &bytes_read);
+    Error* err = net_receive(
+        connection->context,
+        empty_region_ptr,
+        empty_region_size,
+        &bytes_read);
 
     if (IS_NET_ERROR(err))
         return err;
@@ -70,29 +77,34 @@ static Error* receive(NetworkStream* network_stream, ConnectionContext* connecti
     return CREATE_ERR_OK;
 }
 
-Error* wait_for_message(NetworkStream* network_stream, ConnectionContext* connection_context, Message* message)
+Error* wait_for_message(
+    NetworkConnection* connection,
+    Message* message)
 {
 
     // Tries to pop message
-    bool popped = stream_pop_message(network_stream, message);
+    bool popped = stream_pop_message(&connection->stream, message);
 
     // If no messages are popped
     // Receives data until a complete message arrives
     while (!popped) {
-        Error* err = receive(network_stream, connection_context);
+        Error* err = receive(connection);
         if (IS_NET_ERROR(err))
             return err;
 
-        popped = stream_pop_message(network_stream, message);
+        popped = stream_pop_message(&connection->stream, message);
     }
 
     return CREATE_ERR_OK;
 }
 
-Error* wait_for_message_type(NetworkStream* network_stream, ConnectionContext* connection_context, Message* message, uint8_t type)
+Error* wait_for_message_type(
+    NetworkConnection* connection,
+    Message* message,
+    uint8_t type)
 {
 
-    Error* err = wait_for_message(network_stream, connection_context, message);
+    Error* err = wait_for_message(connection, message);
     if (IS_NET_ERROR(err))
         return err;
 

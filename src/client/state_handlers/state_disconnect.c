@@ -2,9 +2,8 @@
 
 extern Error* handle_state_disconnect()
 {
-    Client* data = get_client();
-    net_close(data->connection_context);
-    data->connection_context = NULL;
+    Client* client = get_client();
+    free_network_connection(&client->net_connection);
     state_handler_set_next(APP_STATE_OFFLINE);
     return CREATE_ERR_OK;
 }

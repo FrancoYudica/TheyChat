@@ -6,7 +6,7 @@ static Error* s_receive_error = CREATE_ERR_OK;
 /// @brief Receives messages from the server
 void* handle_messages(void* arg)
 {
-    Client* data = get_client();
+    Client* client = get_client();
 
     Message message;
 
@@ -15,7 +15,7 @@ void* handle_messages(void* arg)
     while (receiving) {
 
         // Waits for server message
-        s_receive_error = wait_for_message(&data->stream, data->connection_context, &message);
+        s_receive_error = wait_for_message(&client->net_connection, &message);
 
         if (IS_NET_ERROR(s_receive_error)) {
             receiving = false;
@@ -68,17 +68,17 @@ static Error* command_callback(const char* input)
 static Error* input_callback(const char* input)
 {
     static Message message;
-    Client* data = get_client();
+    Client* client = get_client();
 
-    message = create_user_chat_msg(input, data->username);
-    Error* error = send_message((const Message*)&message, data->connection_context);
+    message = create_user_chat_msg(input, client->username);
+    Error* error = send_message((const Message*)&message, &client->net_connection);
     ui_set_log_text("Sent `%s` to server.", input);
     return error;
 }
 
 Error* handle_state_chat()
 {
-    Client* data = get_client();
+    Client* client = get_client();
 
     // Renders the entire UI
     ui_refresh();
@@ -88,7 +88,7 @@ Error* handle_state_chat()
     // Initializes messages thread for receiving server messages
     pthread_create(&s_receive_thread, NULL, handle_messages, NULL);
 
-    // Sets callback to NULL, so it can safely change the user data
+    // Sets callback to NULL, so it can safely change the user client
     input_handler_set_input_callback(NULL);
     input_handler_set_command_callback(NULL);
     input_handler_set_input_callback(input_callback);

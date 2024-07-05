@@ -1,6 +1,6 @@
 #ifndef __CLIENT_TYPE_H__
 #define __CLIENT_TYPE_H__
-#include "net/net_stream.h"
+#include "net/net_connection.h"
 #include "net/net_primitives.h"
 #include "application_states.h"
 
@@ -9,8 +9,7 @@ typedef struct
     uint32_t id;
     char ip[sizeof("255.255.255.255") + 1];
     char name[MAX_USERNAME_BYTES];
-    ConnectionContext* connection_context;
-    NetworkStream stream;
+    NetworkConnection net_connection;
     AppState current_state;
 } Client;
 

@@ -13,7 +13,7 @@ void send_broadcast(const Message* msg, Server* server)
     while ((client = client_list_interator_next(clients)) != NULL) {
 
         if (client->current_state == APP_STATE_CHAT)
-            send_message(msg, client->connection_context);
+            send_message(msg, &client->net_connection);
     }
 
     pthread_mutex_unlock(&server->broadcast_mutex);
@@ -31,7 +31,7 @@ void send_broadcast_exclude(const Message* msg, Server* server, Client* exclude_
     while ((client = client_list_interator_next(clients)) != NULL) {
 
         if (client != exclude_client && client->current_state == APP_STATE_CHAT)
-            send_message(msg, client->connection_context);
+            send_message(msg, &client->net_connection);
     }
 
     pthread_mutex_unlock(&server->broadcast_mutex);

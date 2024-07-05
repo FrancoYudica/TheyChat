@@ -4,7 +4,7 @@ static pthread_t s_receive_thread;
 
 static void* wait_for_accept()
 {
-    Client* data = get_client();
+    Client* client = get_client();
     Message message;
     Error* err;
     ui_set_log_text("You are on queue, please wait...");
@@ -12,7 +12,7 @@ static void* wait_for_accept()
     // Waits for connection
     bool waiting_in_queue = true;
     while (waiting_in_queue) {
-        err = wait_for_message(&data->stream, data->connection_context, &message);
+        err = wait_for_message(&client->net_connection, &message);
 
         if (IS_NET_ERROR(err))
             return NULL;
@@ -45,7 +45,7 @@ static Error* command_callback(const char* command)
 
 Error* handle_state_queue()
 {
-    Client* data = get_client();
+    Client* client = get_client();
     Message message;
     Error* err;
 
@@ -54,7 +54,7 @@ Error* handle_state_queue()
     // Renders the entire UI
     ui_refresh();
 
-    // Sets input callbacks and user data
+    // Sets input callbacks and user client
     input_handler_set_input_callback(NULL);
     input_handler_set_command_callback(NULL);
     input_handler_set_command_callback(command_callback);

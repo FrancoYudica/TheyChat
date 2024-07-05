@@ -7,10 +7,8 @@ Error* handle_state_quit()
 
     ui_set_log_text("Quitting application...");
 
-    if (client->connection_context != NULL) {
-        net_close(client->connection_context);
-        client->connection_context = NULL;
-    }
+    // Frees network connection (only if it's connected)
+    free_network_connection(&client->net_connection);
 
     state_handler_set_next(APP_STATE_END);
     return CREATE_ERR_OK;

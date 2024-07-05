@@ -14,7 +14,7 @@ Error* handle_state_connect()
     Error* err = net_client_create_socket(
         client->connection_details.port,
         client->connection_details.server_ip,
-        &client->connection_context);
+        &client->net_connection.context);
 
     // Unable to connect, goes back to offline state
     if (IS_NET_ERROR(err)) {
@@ -27,8 +27,7 @@ Error* handle_state_connect()
 
     // Waits for connected, or on queue message
     Error* status = wait_for_message(
-        &client->stream,
-        client->connection_context,
+        &client->net_connection,
         &message);
 
     if (IS_NET_ERROR(status))

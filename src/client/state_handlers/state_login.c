@@ -5,12 +5,12 @@ static Error* input_callback(const char* input)
     // Sends message telling that the username
     static Message message;
 
-    Client* data = get_client();
+    Client* client = get_client();
     message = create_user_login_msg(input);
-    send_message((const Message*)&message, data->connection_context);
+    send_message((const Message*)&message, &client->net_connection);
 
     // Waits confirmation of the login
-    Error* err = wait_for_message_type(&data->stream, data->connection_context, &message, MSGT_STATUS);
+    Error* err = wait_for_message_type(&client->net_connection, &message, MSGT_STATUS);
 
     if (IS_NET_ERROR(err))
         return err;
@@ -21,8 +21,8 @@ static Error* input_callback(const char* input)
     }
 
     else {
-        strcpy(data->username, input);
-        ui_set_log_text("Logged with username \"%s\"", data->username);
+        strcpy(client->username, input);
+        ui_set_log_text("Logged with username \"%s\"", client->username);
         state_handler_set_next(APP_STATE_CHAT);
     }
     return CREATE_ERR_OK;
@@ -40,7 +40,7 @@ static Error* command_callback(const char* command)
 
 Error* handle_state_login()
 {
-    Client* data = get_client();
+    Client* client = get_client();
     Message message;
     Error* err;
 
@@ -49,7 +49,7 @@ Error* handle_state_login()
     // Renders the entire UI
     ui_refresh();
 
-    // Sets input callbacks and user data
+    // Sets input callbacks and user client
     input_handler_set_input_callback(NULL);
     input_handler_set_command_callback(NULL);
     input_handler_set_input_callback(input_callback);
