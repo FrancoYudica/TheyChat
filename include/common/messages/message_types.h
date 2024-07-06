@@ -27,8 +27,8 @@ enum MessageType {
     MSGT_STATUS,
     MSGT_CONNECTED_CLIENTS,
 
-    // Command
-    MSGT_COMMAND,
+    // Command sent to server
+    MSGT_SERVER_CMD_REQUEST,
 
     // Sequence
     MSGT_SEQUENCE_START,
@@ -69,7 +69,7 @@ typedef struct
 {
     uint8_t command_type;
     char arg[COMMAND_ARGUMENT_SIZE];
-} CommandPayload;
+} ServerCmdRequestPayload;
 
 /// @brief Stores descriptive data of the file
 typedef struct

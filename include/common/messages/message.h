@@ -22,7 +22,7 @@ typedef struct
         UserChatPayload user_chat;
         UserLoginPayload user_login;
         Bytes128Payload bytes_128;
-        CommandPayload command;
+        ServerCmdRequestPayload command;
 
         FileHeaderPayload file_header;
         FileContentPayload file_content;

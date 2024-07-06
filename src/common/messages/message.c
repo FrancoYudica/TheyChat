@@ -62,7 +62,7 @@ void print_message(Message* message)
         break;
     }
 
-    case MSGT_COMMAND: {
+    case MSGT_SERVER_CMD_REQUEST: {
         printf(
             "command_type: %i, arg: %s}\n",
             message->payload.command.command_type,
@@ -134,9 +134,9 @@ Message create_client_on_queue()
 Message create_command_msg(uint8_t type, const char* arg)
 {
     Message message;
-    CommandPayload* command = &message.payload.command;
+    ServerCmdRequestPayload* command = &message.payload.command;
 
-    message.type = MSGT_COMMAND;
+    message.type = MSGT_SERVER_CMD_REQUEST;
     message.net_payload_length = sizeof(command->command_type) + sizeof(command->arg);
     command->command_type = type;
 

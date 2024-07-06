@@ -26,11 +26,11 @@ Error* handle_state_chat(ServerStateData* state_data, AppState* next_state)
         }
 
         // Process command
-        else if (message.type == MSGT_COMMAND)
+        else if (message.type == MSGT_SERVER_CMD_REQUEST)
             err = execute_command_processor(state_data, &message);
 
         else
-            printf("Only MSGT_USER_CHAT and MSGT_COMMAND should be received in chat handler. There is something wrong...\n");
+            printf("Only MSGT_USER_CHAT and MSGT_SERVER_CMD_REQUEST should be received in chat handler. There is something wrong...\n");
 
         if (IS_NET_ERROR(err))
             break;
