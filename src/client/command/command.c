@@ -94,6 +94,7 @@ static Error* unimplemented_handler(uint8_t argc, char** argv)
 extern Error* disconnect_handler(uint8_t, char**);
 extern Error* connect_handler(uint8_t, char**);
 extern Error* quit_handler(uint8_t, char**);
+extern Error* users_handler(uint8_t, char**);
 
 // Lookup table that stores all the application commands
 static Command s_commands[] = {
@@ -105,8 +106,8 @@ static Command s_commands[] = {
     { "/d", CMD_DISCONNECT, disconnect_handler },
     { "/quit", CMD_QUIT, quit_handler },
     { "/q", CMD_QUIT, quit_handler },
-    { "/users", CMD_USERS, unimplemented_handler },
-    { "/u", CMD_USERS, unimplemented_handler }
+    { "/users", CMD_USERS, users_handler },
+    { "/u", CMD_USERS, users_handler }
 };
 
 const Command* get_command_by_name(const char* command_name)

@@ -10,6 +10,7 @@
 #include "net/net_communication.h"
 #include "they_chat_error.h"
 #include "client.h"
+#include "ui/chat_entry_types.h"
 #include "ui/ui.h"
 #include "ui/input_handler.h"
 #include "command/command.h"

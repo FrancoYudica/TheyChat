@@ -111,6 +111,7 @@ set(CLIENT_SOURCES
     src/client/command/command_implementations/connect_handler.c
     src/client/command/command_implementations/disconnect_handler.c
     src/client/command/command_implementations/quit_handler.c
+    src/client/command/command_implementations/users_handler.c
     src/client/state_handlers/state_offline.c
     src/client/state_handlers/state_connect.c
     src/client/state_handlers/state_queue.c
