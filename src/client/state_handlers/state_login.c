@@ -7,10 +7,10 @@ static Error* input_callback(const char* input)
 
     Client* client = get_client();
     message = create_user_login_msg(input);
-    send_message((const Message*)&message, &client->net_connection);
+    send_message((const Message*)&message, &client->status_connection);
 
     // Waits confirmation of the login
-    Error* err = wait_for_message_type(&client->net_connection, &message, MSGT_STATUS);
+    Error* err = wait_for_message_type(&client->status_connection, &message, MSGT_STATUS);
 
     if (IS_NET_ERROR(err))
         return err;

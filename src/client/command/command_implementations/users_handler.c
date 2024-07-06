@@ -10,14 +10,14 @@ Error* users_handler(uint8_t, char**)
     Client* client = get_client();
 
     message = create_command_msg(CMD_USERS, NULL);
-    err = send_message(&message, &client->net_connection);
+    err = send_message(&message, &client->status_connection);
 
     if (IS_NET_ERROR(err))
         return err;
 
     // Gets header of the sequence
     err = wait_for_message_type(
-        &client->net_connection,
+        &client->status_connection,
         &message,
         MSGT_SEQUENCE_START);
 
@@ -30,7 +30,7 @@ Error* users_handler(uint8_t, char**)
 
         // Receives message
         err = wait_for_message(
-            &client->net_connection,
+            &client->status_connection,
             &message);
 
         if (IS_NET_ERROR(err))

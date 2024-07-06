@@ -14,7 +14,7 @@
 int main()
 {
     Client* client = get_client();
-    init_network_connection(&client->net_connection);
+    init_network_connection(&client->status_connection);
 
 #ifdef THEY_CHAT_SSL
     client->connection_details.tls_enabled = true;

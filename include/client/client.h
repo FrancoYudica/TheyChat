@@ -7,7 +7,13 @@ typedef struct
 {
     char username[128];
 
-    NetworkConnection net_connection;
+    /// @brief NetworkConnection used to exchange status messages
+    NetworkConnection status_connection;
+
+    /// @brief NetworkConnection used to communicate with the server
+    /// only for commands, such as file transferring, which happens
+    /// asynchronously of the status messages, such as user chat
+    NetworkConnection cmd_connection;
 
     struct
     {

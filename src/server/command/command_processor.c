@@ -9,7 +9,7 @@ Error* process_users_command(ServerStateData* data)
 
     // Sequence start
     message = create_seq_start_msg();
-    err = send_message((const Message*)&message, &data->client->net_connection);
+    err = send_message((const Message*)&message, &data->client->status_connection);
     if (IS_NET_ERROR(err))
         return err;
 
@@ -23,7 +23,7 @@ Error* process_users_command(ServerStateData* data)
     while ((client = client_list_interator_next(clients)) != NULL) {
         message = create_heap_seq_msg(client->name, strlen(client->name) + 1);
         printf("Name: %s\n", client->name);
-        err = send_message((const Message*)&message, &data->client->net_connection);
+        err = send_message((const Message*)&message, &data->client->status_connection);
 
         free(message.payload.heap_sequence.payload);
 
@@ -35,7 +35,7 @@ Error* process_users_command(ServerStateData* data)
 
     // Sequence end
     message = create_seq_end_msg();
-    err = send_message(&message, &data->client->net_connection);
+    err = send_message(&message, &data->client->status_connection);
     return err;
 }
 

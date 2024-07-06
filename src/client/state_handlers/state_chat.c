@@ -15,7 +15,7 @@ void* handle_messages(void* arg)
     while (receiving) {
 
         // Waits for server message
-        s_receive_error = wait_for_message(&client->net_connection, &message);
+        s_receive_error = wait_for_message(&client->status_connection, &message);
 
         if (IS_NET_ERROR(s_receive_error)) {
             receiving = false;
@@ -71,7 +71,7 @@ static Error* input_callback(const char* input)
     Client* client = get_client();
 
     message = create_user_chat_msg(input, client->username);
-    Error* error = send_message((const Message*)&message, &client->net_connection);
+    Error* error = send_message((const Message*)&message, &client->status_connection);
     ui_set_log_text("Sent `%s` to server.", input);
     return error;
 }

@@ -152,7 +152,7 @@ Error* server_accept_clients(Server* server)
 
         // Tells client that all threads are busy, and it's on queue
         if (thpool_all_threads_busy(server->client_thread_pool))
-            send_message((Message*)&client_on_queue_msg, &client->net_connection);
+            send_message((Message*)&client_on_queue_msg, &client->status_connection);
 
         // Creates handler data and queues a new task
         ClientHandlerData* handler_data = (ClientHandlerData*)malloc(sizeof(ClientHandlerData));

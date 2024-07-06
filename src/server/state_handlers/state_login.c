@@ -13,7 +13,7 @@ Error* handle_state_login(ServerStateData* handler_data, AppState* next_state)
 
         // Waits for login
         err = wait_for_message_type(
-            &client->net_connection,
+            &client->status_connection,
             &message,
             MSGT_USER_LOGIN);
 
@@ -30,14 +30,14 @@ Error* handle_state_login(ServerStateData* handler_data, AppState* next_state)
             char text_buffer[128];
             sprintf(text_buffer, "A user named \"%s\" already exists", username);
             message = create_status_msg(STATUS_MSG_FAILURE, text_buffer);
-            err = send_message(&message, &client->net_connection);
+            err = send_message(&message, &client->status_connection);
             if (IS_NET_ERROR(err))
                 return err;
         }
     }
 
     message = create_status_msg(STATUS_MSG_SUCCESS, "Login success");
-    err = send_message(&message, &client->net_connection);
+    err = send_message(&message, &client->status_connection);
 
     if (IS_NET_ERROR(err))
         return err;

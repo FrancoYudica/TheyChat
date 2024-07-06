@@ -12,8 +12,8 @@ void init_client_network(Client* client, ConnectionContext* context)
     memset(client->name, 0, sizeof(client->name));
 
     // Initializes network connection
-    init_network_connection(&client->net_connection);
-    client->net_connection.context = context;
+    init_network_connection(&client->status_connection);
+    client->status_connection.context = context;
 
     // Sets default name
     memcpy(client->name, default_name, sizeof(default_name));
