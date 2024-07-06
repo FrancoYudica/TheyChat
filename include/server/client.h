@@ -17,7 +17,10 @@ typedef struct
 } Client;
 
 /// @brief Sets client attributes
-void init_client_network(Client* client, ConnectionContext* context);
+void init_client_network(
+    Client* client,
+    ConnectionContext* status_context,
+    ConnectionContext* cmd_context);
 
 void debug_print_client(Client* client);
 

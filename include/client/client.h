@@ -17,7 +17,8 @@ typedef struct
 
     struct
     {
-        uint32_t port;
+        uint32_t status_port;
+        uint32_t cmd_port;
         char server_ip[MAX_IP_BYTES];
         bool tls_enabled;
     } connection_details;
