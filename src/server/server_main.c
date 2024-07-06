@@ -91,6 +91,7 @@ Server* server_create(uint16_t port, uint32_t max_client_count)
     pthread_mutex_init(&server->client_list_mutex, NULL);
 
     server->client_thread_pool = thpool_create(max_client_count);
+    server->cmd_thread_pool = thpool_create(max_client_count);
     return server;
 }
 
@@ -100,7 +101,9 @@ Error* server_free(Server* server)
     Error* err = net_close(server->context);
     printf("    - Context closed\n");
     thpool_destroy(server->client_thread_pool);
-    printf("    - Thpool destroyed\n");
+    printf("    - Client thpool destroyed\n");
+    thpool_destroy(server->cmd_thread_pool);
+    printf("    - Command thpool destroyed\n");
     client_list_destroy(server->client_list);
     printf("    - Client list destroyed\n");
     pthread_mutex_destroy(&server->client_list_mutex);

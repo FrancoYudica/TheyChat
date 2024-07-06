@@ -13,6 +13,8 @@ typedef struct
 
     thpool_t* client_thread_pool;
 
+    thpool_t* cmd_thread_pool;
+
     ConnectionContext* context;
 
     /// @brief Mutex used exclusively to block other

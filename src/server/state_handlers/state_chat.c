@@ -2,6 +2,9 @@
 #include "state_handler_utils.h"
 #include "broadcast_message.h"
 #include "command/command_processor.h"
+#include "command/command_handler_data.h"
+
+extern void command_request_handler(CommandHandlerData* data);
 
 Error* handle_state_chat(ServerStateData* state_data, AppState* next_state)
 {
@@ -23,6 +26,17 @@ Error* handle_state_chat(ServerStateData* state_data, AppState* next_state)
         if (message.type == MSGT_USER_CHAT) {
             strcpy(message.payload.user_chat.ip, client->ip);
             send_broadcast((const Message*)&message, state_data->server);
+        }
+
+        else if (message.type == MSGT_SERVER_CMD_REQUEST) {
+            CommandHandlerData* handler_data = malloc(sizeof(CommandHandlerData));
+            handler_data->client = client;
+            handler_data->server = state_data->server;
+            handler_data->cmd = message.payload.command;
+            thpool_submit(
+                state_data->server->cmd_thread_pool,
+                (thread_task_t)command_request_handler,
+                handler_data);
         }
 
         // Process command

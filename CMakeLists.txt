@@ -86,6 +86,7 @@ set(SERVER_SOURCES
     src/server/state_handlers/state_chat.c
     src/server/state_handlers/state_disconnect.c
     src/server/command/command_processor.c
+    src/server/command/command_request_handler.c
 )
 add_executable(server src/server/server_main.c ${SERVER_SOURCES})
 target_include_directories(server PRIVATE "${PROJECT_SOURCE_DIR}/include/server")
