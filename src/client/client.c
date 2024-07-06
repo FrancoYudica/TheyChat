@@ -10,6 +10,7 @@
 #include "client.h"
 #include "states_fsm.h"
 #include "ui/ui.h"
+#include "command/server_command_handler.h"
 
 int main()
 {

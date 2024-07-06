@@ -1,4 +1,6 @@
 #include "state_handler_utils.h"
+#include "command/server_command_handler.h"
+#include "states_fsm.h"
 
 static pthread_t s_receive_thread;
 static Error* s_receive_error = CREATE_ERR_OK;
@@ -76,8 +78,18 @@ static Error* input_callback(const char* input)
     return error;
 }
 
+static void state_chat_exit()
+{
+    server_cmd_handler_free();
+}
+
 Error* handle_state_chat()
 {
+    state_handler_set_exit_callback(state_chat_exit);
+
+    // Initializes server command handler
+    server_cmd_handler_init();
+
     Client* client = get_client();
 
     // Renders the entire UI

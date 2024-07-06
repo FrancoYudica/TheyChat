@@ -15,4 +15,6 @@ void state_handler_wait_next_state_cond();
 /// @brief Returns current application state
 AppState state_handler_get_current();
 
+void state_handler_set_exit_callback(void (*)(void));
+
 #endif

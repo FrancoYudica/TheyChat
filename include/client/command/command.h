@@ -1,6 +1,7 @@
 #ifndef __COMMAND_H__
 #define __COMMAND_H__
 #include <stdarg.h>
+#include <stdbool.h>
 #include "they_chat_error.h"
 #include "command_types.h"
 
@@ -10,6 +11,7 @@ typedef struct
 {
     char* name;
     enum CommandType type;
+    bool is_server_cmd;
     CommandHandler handler;
 } Command;
 

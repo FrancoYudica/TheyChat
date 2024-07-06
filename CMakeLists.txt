@@ -109,6 +109,7 @@ set(CLIENT_SOURCES
     src/client/client_data.c
     src/client/states_fsm.c
     src/client/command/command.c
+    src/client/command/server_command_handler.c
     src/client/command/command_implementations/connect_handler.c
     src/client/command/command_implementations/disconnect_handler.c
     src/client/command/command_implementations/quit_handler.c

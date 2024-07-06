@@ -98,16 +98,16 @@ extern Error* users_handler(uint8_t, char**);
 
 // Lookup table that stores all the application commands
 static Command s_commands[] = {
-    { "/help", CMD_HELP, unimplemented_handler },
-    { "/h", CMD_HELP, unimplemented_handler },
-    { "/connect", CMD_CONNECT, connect_handler },
-    { "/c", CMD_CONNECT, connect_handler },
-    { "/disconnect", CMD_DISCONNECT, disconnect_handler },
-    { "/d", CMD_DISCONNECT, disconnect_handler },
-    { "/quit", CMD_QUIT, quit_handler },
-    { "/q", CMD_QUIT, quit_handler },
-    { "/users", CMD_USERS, users_handler },
-    { "/u", CMD_USERS, users_handler }
+    { "/help", CMD_HELP, false, unimplemented_handler },
+    { "/h", CMD_HELP, false, unimplemented_handler },
+    { "/connect", CMD_CONNECT, false, connect_handler },
+    { "/c", CMD_CONNECT, false, connect_handler },
+    { "/disconnect", CMD_DISCONNECT, false, disconnect_handler },
+    { "/d", CMD_DISCONNECT, false, disconnect_handler },
+    { "/quit", CMD_QUIT, false, quit_handler },
+    { "/q", CMD_QUIT, false, quit_handler },
+    { "/users", CMD_USERS, true, users_handler },
+    { "/u", CMD_USERS, true, users_handler }
 };
 
 const Command* get_command_by_name(const char* command_name)
