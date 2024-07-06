@@ -18,7 +18,7 @@ Error* handle_state_connect()
 
     // Unable to connect, goes back to offline state
     if (IS_NET_ERROR(err)) {
-        ui_set_log_text("Unable to connect. Error: \"%s\"", err->message);
+        ui_set_log_text("Unable to establish status connection. Error: \"%s\"", err->message);
         state_handler_set_next(APP_STATE_OFFLINE);
         return CREATE_ERR_OK;
     }

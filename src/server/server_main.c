@@ -26,7 +26,7 @@ Error* server_accept_clients(Server* server);
 int main(int argc, char** argv)
 {
 
-    uint16_t port = 8000;
+    uint16_t port = DEFAULT_STATUS_PORT;
     uint8_t max_client_count = 10;
 
     // Loads arguments

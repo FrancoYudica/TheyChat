@@ -1,6 +1,8 @@
 #ifndef __CONSTANTS_H__
 #define __CONSTANTS_H__
 /// Amount of actual content bytes sent
+#define DEFAULT_STATUS_PORT 8000
+#define DEFAULT_COMMAND_PORT 8001
 #define MAX_MESSAGE_NET_SIZE 1024
 #define FILE_CONTENT_SIZE 512
 #define COMMAND_ARGUMENT_SIZE 512

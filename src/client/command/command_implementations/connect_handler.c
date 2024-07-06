@@ -7,12 +7,12 @@ Error* connect_handler(uint8_t argc, char** argv)
     // Localhost with default port
     if (argc == 1) {
         strcpy(data->connection_details.server_ip, "127.0.0.1");
-        data->connection_details.port = 8000;
+        data->connection_details.port = DEFAULT_STATUS_PORT;
     }
     // Default port
     else if (argc == 2) {
         strcpy(data->connection_details.server_ip, argv[1]);
-        data->connection_details.port = 8000;
+        data->connection_details.port = DEFAULT_STATUS_PORT;
     }
     // Specifies IP and port
     else {
