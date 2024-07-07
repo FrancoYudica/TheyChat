@@ -17,7 +17,7 @@ struct ConnectionContext {
     /// @brief Socket address structure
     struct sockaddr_in addr;
 
-    atomic_bool should_close;
+    atomic_bool closing;
 };
 
 void net_init()
@@ -26,8 +26,9 @@ void net_init()
 
 static void init_connection_context(ConnectionContext* context)
 {
+    memset(context, 0, sizeof(ConnectionContext));
     context->socketfd = 0;
-    atomic_store(&context->should_close, false);
+    atomic_store(&context->closing, false);
 }
 
 Error* net_server_create_socket(
@@ -38,7 +39,6 @@ Error* net_server_create_socket(
 {
     *context_ref = (ConnectionContext*)malloc(sizeof(ConnectionContext));
     ConnectionContext* context = *context_ref;
-    memset(context, 0, sizeof(ConnectionContext));
     init_connection_context(context);
 
     // Create TCP socket
@@ -74,7 +74,6 @@ Error* net_client_create_socket(
 {
     *context_ref = (ConnectionContext*)malloc(sizeof(ConnectionContext));
     ConnectionContext* context = *context_ref;
-    memset(context, 0, sizeof(ConnectionContext));
     init_connection_context(context);
 
     // Create TCP socket
@@ -182,7 +181,7 @@ Error* net_receive(
             continue;
 
         // Checks if connection context is closing
-        if (atomic_load(&context->should_close)) {
+        if (atomic_load(&context->closing)) {
             return CREATE_ERRNO(ERR_NET_CONNECTION_CLOSED, "Connection closed while trying to receive");
         }
 
@@ -209,13 +208,12 @@ Error* net_receive(
 
 Error* net_close(ConnectionContext* context)
 {
-
     // Shut down the socket to signal the receive thread to stop
     if (shutdown(context->socketfd, SHUT_RDWR) == -1) {
         return CREATE_ERRNO(ERR_NET_FAILURE, "shutdown() failure");
     }
 
-    atomic_store(&context->should_close, true);
+    atomic_store(&context->closing, true);
 
     // Waits 2ms, in case there is any thread receiving
     usleep(20000);
