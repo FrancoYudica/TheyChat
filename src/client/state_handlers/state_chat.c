@@ -22,13 +22,16 @@ void* handle_messages(void* arg)
         if (IS_NET_ERROR(s_receive_error)) {
 
             // Displays error it it's not a disconnection
-            if (s_receive_error->code != ERR_NET_CONNECTION_CLOSED)
+            if (s_receive_error->code == ERR_NET_CONNECTION_CLOSED) {
+                free_error(s_receive_error);
+                s_receive_error = CREATE_ERR_OK;
+            } else {
                 ui_push_text_entry(
                     TEXT_ENTRY_TYPE_WARNING,
-                    "Error happened in receive messages thread: \"%s\"",
+                    "%s",
                     s_receive_error->message);
-
-            return s_receive_error;
+                return NULL;
+            }
         }
 
         switch (message.type) {

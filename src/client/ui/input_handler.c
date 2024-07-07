@@ -25,6 +25,7 @@ static void* handle_input()
 {
     // Holds client input
     char input[MAX_CHAT_TEXT_BYTES];
+    set_thread_name(pthread_self(), "input handler");
 
     while (s_running) {
 
@@ -59,6 +60,7 @@ static void* handle_input()
         }
         usleep(50000); // Sleep for 5ms to prevent high CPU usage
     }
+    unregister_thread(pthread_self());
 
     return NULL;
 }
@@ -68,7 +70,6 @@ void input_handler_init()
     s_running = true;
     s_input_callback = NULL;
     pthread_create(&s_input_thread, NULL, handle_input, NULL);
-    set_thread_name(s_input_thread, "input handler");
     pthread_mutex_init(&s_mutex, NULL);
 }
 
