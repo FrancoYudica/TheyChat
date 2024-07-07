@@ -95,6 +95,7 @@ Error* net_server_create_socket(
     *context_ref = (ConnectionContext*)malloc(sizeof(ConnectionContext));
     ConnectionContext* context = *context_ref;
     init_connection_context(context);
+    context->ssl = NULL;
 
     // Creates SSL context with the latest version possible
     const SSL_METHOD* method = SSLv23_server_method();
@@ -246,7 +247,7 @@ Error* net_receive(
 Error* net_close(ConnectionContext* context)
 {
     // Shut down the socket to signal the receive thread to stop
-    if (SSL_shutdown(context->ssl) != 0) {
+    if (context->ssl != NULL && SSL_shutdown(context->ssl) != 0) {
         return CREATE_ERRNO(ERR_NET_FAILURE, "SSL_shutdown() failure");
     }
 
@@ -255,7 +256,9 @@ Error* net_close(ConnectionContext* context)
     // Waits 2ms, in case there is any thread receiving
     usleep(20000);
 
-    SSL_free(context->ssl);
+    if (context->ssl != NULL)
+        SSL_free(context->ssl);
+
     int32_t fd = context->socketfd;
     free(context);
 
