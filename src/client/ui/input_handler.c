@@ -47,7 +47,7 @@ static void* handle_input()
             s_input_data.error = err;
             break;
         }
-        usleep(1000); // Sleep for 20ms to prevent high CPU usage
+        usleep(50000); // Sleep for 5ms to prevent high CPU usage
     }
 
     return NULL;
