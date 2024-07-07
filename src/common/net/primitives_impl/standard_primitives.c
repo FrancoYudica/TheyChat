@@ -6,6 +6,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <pthread.h>
+#include <stdatomic.h>
 
 // Structure to hold connection context information
 struct ConnectionContext {
@@ -14,10 +16,18 @@ struct ConnectionContext {
 
     /// @brief Socket address structure
     struct sockaddr_in addr;
+
+    atomic_bool should_close;
 };
 
 void net_init()
 {
+}
+
+static void init_connection_context(ConnectionContext* context)
+{
+    context->socketfd = 0;
+    atomic_store(&context->should_close, false);
 }
 
 Error* net_server_create_socket(
@@ -29,6 +39,7 @@ Error* net_server_create_socket(
     *context_ref = (ConnectionContext*)malloc(sizeof(ConnectionContext));
     ConnectionContext* context = *context_ref;
     memset(context, 0, sizeof(ConnectionContext));
+    init_connection_context(context);
 
     // Create TCP socket
     int32_t sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -63,8 +74,8 @@ Error* net_client_create_socket(
 {
     *context_ref = (ConnectionContext*)malloc(sizeof(ConnectionContext));
     ConnectionContext* context = *context_ref;
-
     memset(context, 0, sizeof(ConnectionContext));
+    init_connection_context(context);
 
     // Create TCP socket
     int32_t sockfd = socket(AF_INET, SOCK_STREAM, 0);
@@ -148,25 +159,72 @@ Error* net_receive(
     uint32_t size,
     uint32_t* bytes_read)
 {
-    int32_t read = recv(context->socketfd, buffer, size, 0);
-    if (read == -1)
-        return CREATE_ERRNO(ERR_NET_FAILURE, "`recv` failure");
+    if (context == NULL || buffer == NULL)
+        return CREATE_ERRNO(ERR_NET_FAILURE, "Invalid context or buffer");
 
-    if (read == 0)
-        return CREATE_ERRNO(ERR_NET_PEER_DISCONNECTED, "Peer disconnected");
+    fd_set read_fds;
+    struct timeval timeout;
 
-    if (bytes_read != NULL)
-        *bytes_read = read;
+    while (true) {
+        FD_ZERO(&read_fds);
+        FD_SET(context->socketfd, &read_fds);
 
-    return CREATE_ERR_OK;
+        // Set timeout to 3 seconds
+        timeout.tv_sec = 3;
+        timeout.tv_usec = 0;
+
+        int32_t select_result = select(context->socketfd + 1, &read_fds, NULL, NULL, &timeout);
+        if (select_result == -1)
+            return CREATE_ERRNO(ERR_NET_FAILURE, "net_receive() `select()` failure");
+
+        // TIMEOUT
+        else if (select_result == 0)
+            continue;
+
+        // Checks if connection context is closing
+        if (atomic_load(&context->should_close)) {
+            return CREATE_ERRNO(ERR_NET_CONNECTION_CLOSED, "Connection closed while trying to receive");
+        }
+
+        if (FD_ISSET(context->socketfd, &read_fds)) {
+
+            int32_t read = recv(context->socketfd, buffer, size, 0);
+            if (read == -1)
+                return CREATE_ERRNO(ERR_NET_FAILURE, "net_receive() `recv()` failure");
+
+            if (read == 0) {
+                return CREATE_ERRNO(ERR_NET_PEER_DISCONNECTED, "Peer disconnected");
+            }
+
+            if (bytes_read != NULL) {
+                *bytes_read = read;
+            }
+
+            return CREATE_ERR_OK;
+        }
+    }
+
+    return CREATE_ERRNO(ERR_NET_FAILURE, "Unexpected error in select()");
 }
 
 Error* net_close(ConnectionContext* context)
 {
-    if (close(context->socketfd) == -1)
-        return CREATE_ERRNO(ERR_CLOSE_FD, "Error while closing ConnectionContext socket file descriptor");
 
+    // Shut down the socket to signal the receive thread to stop
+    if (shutdown(context->socketfd, SHUT_RDWR) == -1) {
+        return CREATE_ERRNO(ERR_NET_FAILURE, "shutdown() failure");
+    }
+
+    atomic_store(&context->should_close, true);
+
+    // Waits 2ms, in case there is any thread receiving
+    usleep(20000);
+
+    int32_t fd = context->socketfd;
     free(context);
+
+    if (close(fd) == -1)
+        return CREATE_ERRNO(ERR_CLOSE_FD, "Error while closing ConnectionContext socket file descriptor");
 
     return CREATE_ERR_OK;
 }

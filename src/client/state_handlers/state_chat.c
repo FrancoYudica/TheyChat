@@ -4,6 +4,7 @@
 
 static pthread_t s_receive_thread;
 static Error* s_receive_error = CREATE_ERR_OK;
+static bool s_receiving = false;
 
 /// @brief Receives messages from the server
 void* handle_messages(void* arg)
@@ -11,17 +12,23 @@ void* handle_messages(void* arg)
     Client* client = get_client();
 
     Message message;
+    s_receiving = true;
 
-    bool receiving = true;
-
-    while (receiving) {
+    while (s_receiving) {
 
         // Waits for server message
         s_receive_error = wait_for_message(&client->status_connection, &message);
 
         if (IS_NET_ERROR(s_receive_error)) {
-            receiving = false;
-            break;
+
+            // Displays error it it's not a disconnection
+            if (s_receive_error->code != ERR_NET_CONNECTION_CLOSED)
+                ui_push_text_entry(
+                    TEXT_ENTRY_TYPE_WARNING,
+                    "Error happened in receive messages thread: \"%s\"",
+                    s_receive_error->message);
+
+            return s_receive_error;
         }
 
         switch (message.type) {
@@ -48,11 +55,9 @@ void* handle_messages(void* arg)
         }
         default:
             ui_set_log_text("Received unexpected message type %s... Disconnecting", msg_get_type_name(message.type));
-            receiving = false;
             break;
         }
     }
-    state_handler_set_next(APP_STATE_DISCONNECT);
     return NULL;
 }
 
@@ -80,7 +85,7 @@ static Error* input_callback(const char* input)
 
 static void state_chat_exit()
 {
-    server_cmd_handler_free();
+    // server_cmd_handler_free();
 }
 
 Error* handle_state_chat()
@@ -88,7 +93,7 @@ Error* handle_state_chat()
     state_handler_set_exit_callback(state_chat_exit);
 
     // Initializes server command handler
-    server_cmd_handler_init();
+    // server_cmd_handler_init();
 
     Client* client = get_client();
 
@@ -109,6 +114,7 @@ Error* handle_state_chat()
     // Waits for exit condition
     state_handler_wait_next_state_cond();
     pthread_detach(s_receive_thread);
+    s_receiving = false;
 
     if (IS_NET_ERROR(s_receive_error))
         return s_receive_error;

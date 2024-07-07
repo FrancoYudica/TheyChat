@@ -99,6 +99,10 @@ Error* server_free(Server* server)
 {
     printf("Freeing server memory\n");
     Error* err = net_close(server->context);
+
+    if (IS_NET_ERROR(err))
+        print_error(err);
+
     printf("    - Context closed\n");
     thpool_destroy(server->client_thread_pool);
     printf("    - Client thpool destroyed\n");
@@ -159,7 +163,7 @@ Error* server_accept_clients(Server* server)
     while (true) {
 
         // Accepts client connections
-        ConnectionContext* client_status_context;
+        ConnectionContext* client_status_context = NULL;
         err = net_accept_connection(server->context, &client_status_context);
 
         if (IS_NET_ERROR(err))
@@ -167,7 +171,7 @@ Error* server_accept_clients(Server* server)
 
         printf("Accepted client status connection\n");
 
-        ConnectionContext* client_cmd_context;
+        ConnectionContext* client_cmd_context = NULL;
         err = net_accept_connection(server->context, &client_cmd_context);
 
         if (IS_NET_ERROR(err))

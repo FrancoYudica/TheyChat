@@ -16,8 +16,13 @@ Error* handle_state_chat(ServerStateData* state_data, AppState* next_state)
 
         err = wait_for_message(&client->status_connection, &message);
 
-        if (IS_NET_ERROR(err))
+        if (IS_NET_ERROR(err)) {
+
+            if (err->code == ERR_NET_CONNECTION_CLOSED)
+                break;
+
             return err;
+        }
 
         // Outputs client message
         print_message(&message);
