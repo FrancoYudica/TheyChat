@@ -3,6 +3,20 @@
 #include <malloc.h>
 #include <string.h>
 #include <stdlib.h>
+#include <pthread.h>
+
+static const char* s_error_names[] = {
+    [ERR_OK] = "ERR_OK",
+    [ERR_OPEN_FILE] = "ERR_OPEN_FILE",
+    [ERR_CLOSE_FD] = "ERR_CLOSE_FD",
+    [ERR_NET_SOCKET_CREATION_FAILED] = "ERR_NET_SOCKET_CREATION_FAILED",
+    [ERR_NET_UNABLE_TO_CONNECT] = "ERR_NET_UNABLE_TO_CONNECT",
+    [ERR_NET_FAILURE] = "ERR_NET_FAILURE",
+    [ERR_NET_PEER_DISCONNECTED] = "ERR_NET_PEER_DISCONNECTED",
+    [ERR_NET_CONNECTION_CLOSED] = "ERR_NET_CONNECTION_CLOSED",
+    [ERR_NET_RECEIVED_INVALID_TYPE] = "ERR_NET_RECEIVED_INVALID_TYPE",
+    [ERR_NET_STREAM_OVERFLOW] = "ERR_NET_STREAM_OVERFLOW"
+};
 
 Error* _create_error(
     ErrorCode code,
@@ -12,45 +26,49 @@ Error* _create_error(
     int line)
 {
     Error* error = (Error*)malloc(sizeof(Error));
-    if (error == NULL) {
+    if (error == NULL)
         return NULL;
-    }
+
     error->code = code;
-    error->message = message ? strdup(message) : NULL;
-    error->errno_msg = errno_msg ? strdup(errno_msg) : NULL;
-    error->file = file ? strdup(file) : NULL;
-    error->line = line;
+
+    if (errno_msg == NULL)
+        snprintf(
+            error->message,
+            sizeof(error->message),
+            "Thread (%li) error: [%d] [%s]:\"%s\" in [%s]:[%i]",
+            pthread_self(),
+            code,
+            s_error_names[code],
+            message,
+            file,
+            line);
+    else
+        snprintf(
+            error->message,
+            sizeof(error->message),
+            "Error: [%d] %s [%s]:\"%s\" in [%s]:[%i]",
+            code,
+            errno_msg,
+            s_error_names[code],
+            message,
+            file,
+            line);
+
     return error;
 }
 
 void free_error(Error* error)
 {
-    if (error) {
-        if (error->message)
-            free((void*)error->message);
-        if (error->errno_msg)
-            free((void*)error->errno_msg);
-        if (error->file)
-            free((void*)error->file);
+    if (error)
         free(error);
-    }
 }
 
 void print_error(const Error* err)
 {
     if (err == NULL)
-        printf("Null err\n");
+        printf("No error\n");
 
-    else if (err->code != ERR_OK) {
-        fprintf(
-            stderr,
-            "Error: %s\n Errno msg: %s\n Code: %d\nFile: %s\nLine: %d\n",
-            err->message,
-            err->errno_msg,
-            err->code,
-            err->file,
-            err->line);
-    }
+    printf("%s", err->message);
 }
 
 void _assert_net_error(Error* err)

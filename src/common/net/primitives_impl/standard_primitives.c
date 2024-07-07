@@ -159,7 +159,7 @@ Error* net_receive(
     uint32_t* bytes_read)
 {
     if (context == NULL || buffer == NULL)
-        return CREATE_ERRNO(ERR_NET_FAILURE, "Invalid context or buffer");
+        return CREATE_ERR(ERR_NET_FAILURE, "Invalid context or buffer");
 
     fd_set read_fds;
     struct timeval timeout;
@@ -182,7 +182,7 @@ Error* net_receive(
 
         // Checks if connection context is closing
         if (atomic_load(&context->closing)) {
-            return CREATE_ERRNO(ERR_NET_CONNECTION_CLOSED, "Connection closed while trying to receive");
+            return CREATE_ERR(ERR_NET_CONNECTION_CLOSED, "Connection closed while trying to receive");
         }
 
         if (FD_ISSET(context->socketfd, &read_fds)) {
@@ -238,7 +238,7 @@ Error* net_get_ip(
     // Convert the IP address from binary to text form
     const char* result = inet_ntop(AF_INET, &(context->addr.sin_addr), ip_buffer, ip_buffer_size);
     if (result == NULL)
-        return CREATE_ERRNO(ERR_NET_FAILURE, "Error while converting IP to human-readable form");
+        return CREATE_ERR(ERR_NET_FAILURE, "Error while converting IP to human-readable form");
 
     return CREATE_ERR_OK;
 }

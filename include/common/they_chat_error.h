@@ -25,10 +25,7 @@ typedef enum {
 typedef struct
 {
     ErrorCode code;
-    const char* message;
-    const char* errno_msg;
-    const char* file;
-    uint32_t line;
+    char message[1024];
 } Error;
 
 Error* _create_error(

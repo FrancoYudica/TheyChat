@@ -199,7 +199,7 @@ Error* net_receive(
     uint32_t* bytes_read)
 {
     if (context == NULL || buffer == NULL)
-        return CREATE_ERRNO(ERR_NET_FAILURE, "Invalid context or buffer");
+        return CREATE_ERR(ERR_NET_FAILURE, "Invalid context or buffer");
 
     fd_set read_fds;
     struct timeval timeout;
@@ -222,7 +222,7 @@ Error* net_receive(
 
         // Checks if connection context is closing
         if (atomic_load(&context->closing)) {
-            return CREATE_ERRNO(ERR_NET_CONNECTION_CLOSED, "Connection closed while trying to receive");
+            return CREATE_ERR(ERR_NET_CONNECTION_CLOSED, "Connection closed while trying to receive");
         }
 
         if (FD_ISSET(context->socketfd, &read_fds)) {
@@ -232,7 +232,7 @@ Error* net_receive(
                 return CREATE_ERRNO(ERR_NET_FAILURE, "`SSL_read` failure");
 
             if (read == 0)
-                return CREATE_ERRNO(ERR_NET_PEER_DISCONNECTED, "Peer disconnected");
+                return CREATE_ERR(ERR_NET_PEER_DISCONNECTED, "Peer disconnected");
 
             if (bytes_read != NULL)
                 *bytes_read = read;
@@ -241,15 +241,14 @@ Error* net_receive(
         }
     }
 
-    return CREATE_ERRNO(ERR_NET_FAILURE, "Unexpected error in select()");
+    return CREATE_ERR(ERR_NET_FAILURE, "Unexpected error in select()");
 }
 
 Error* net_close(ConnectionContext* context)
 {
     // Shut down the socket to signal the receive thread to stop
-    if (context->ssl != NULL && SSL_shutdown(context->ssl) != 0) {
+    if (context->ssl != NULL && SSL_shutdown(context->ssl) != 0)
         return CREATE_ERRNO(ERR_NET_FAILURE, "SSL_shutdown() failure");
-    }
 
     atomic_store(&context->closing, true);
 
@@ -290,7 +289,7 @@ Error* net_get_ip(ConnectionContext* context, char* ip_buffer, size_t ip_buffer_
     // Convert the IP address to a human-readable form
     const char* result = inet_ntop(AF_INET, &peer_addr.sin_addr, ip_buffer, ip_buffer_size);
     if (result == NULL)
-        return CREATE_ERRNO(ERR_NET_FAILURE, "Error while converting IP to human-readable form");
+        return CREATE_ERR(ERR_NET_FAILURE, "Error while converting IP to human-readable form");
 
     return CREATE_ERR_OK;
 }
