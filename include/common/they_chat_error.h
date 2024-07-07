@@ -39,6 +39,12 @@ void free_error(Error* error);
 
 void print_error(const Error* err);
 
+void set_thread_name(pthread_t tid, const char* name);
+
+const char* get_thread_name(pthread_t tid);
+
+void unregister_thread(pthread_t tid);
+
 void _assert_net_error(Error* err);
 
 #define ASSERT_NET_ERROR(X) _assert_net_error(X)

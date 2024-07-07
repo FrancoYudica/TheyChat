@@ -14,6 +14,9 @@
 
 int main()
 {
+
+    set_thread_name(pthread_self(), "main");
+
     Client* client = get_client();
 
     init_network_connection(&client->status_connection);

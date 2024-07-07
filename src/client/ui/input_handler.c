@@ -54,7 +54,7 @@ static void* handle_input()
         if (IS_NET_ERROR(s_err)) {
             ui_push_text_entry(
                 TEXT_ENTRY_TYPE_WARNING,
-                "Error ocurred in handle_input thread \"%s\"",
+                "%s",
                 s_err->message);
         }
         usleep(50000); // Sleep for 5ms to prevent high CPU usage
@@ -68,12 +68,14 @@ void input_handler_init()
     s_running = true;
     s_input_callback = NULL;
     pthread_create(&s_input_thread, NULL, handle_input, NULL);
+    set_thread_name(s_input_thread, "input handler");
     pthread_mutex_init(&s_mutex, NULL);
 }
 
 void input_handler_free()
 {
     s_running = false;
+    unregister_thread(s_input_thread);
     pthread_detach(s_input_thread);
     pthread_mutex_destroy(&s_mutex);
 }

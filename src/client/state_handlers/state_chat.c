@@ -85,7 +85,12 @@ static Error* input_callback(const char* input)
 
 static void state_chat_exit()
 {
-    // server_cmd_handler_free();
+    ui_push_text_entry(
+        TEXT_ENTRY_TYPE_LOG,
+        "%s",
+        "Exiting chat...");
+
+    server_cmd_handler_free();
 }
 
 Error* handle_state_chat()
@@ -93,7 +98,7 @@ Error* handle_state_chat()
     state_handler_set_exit_callback(state_chat_exit);
 
     // Initializes server command handler
-    // server_cmd_handler_init();
+    server_cmd_handler_init();
 
     Client* client = get_client();
 
@@ -104,6 +109,7 @@ Error* handle_state_chat()
 
     // Initializes messages thread for receiving server messages
     pthread_create(&s_receive_thread, NULL, handle_messages, NULL);
+    set_thread_name(s_receive_thread, "Chat receive");
 
     // Sets callback to NULL, so it can safely change the user client
     input_handler_set_input_callback(NULL);
@@ -114,6 +120,8 @@ Error* handle_state_chat()
     // Waits for exit condition
     state_handler_wait_next_state_cond();
     pthread_detach(s_receive_thread);
+    unregister_thread(s_receive_thread);
+
     s_receiving = false;
 
     if (IS_NET_ERROR(s_receive_error))

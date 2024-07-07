@@ -59,6 +59,8 @@ int main(int argc, char** argv)
             printf("Unrecognized parameter \"%s\"", parameter);
     }
 
+    set_thread_name(pthread_self(), "main");
+
     // Set up the signal handler for SIGINT (CTRL+C)
     signal(SIGINT, handle_sigint);
 

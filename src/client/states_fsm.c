@@ -112,6 +112,7 @@ AppState state_handler_get_current()
     return s_current_state;
 }
 
-void state_handler_set_exit_callback(void (*)(void))
+void state_handler_set_exit_callback(void (*callback)(void))
 {
+    s_state_exit_callback = callback;
 }
