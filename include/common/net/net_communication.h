@@ -18,6 +18,6 @@ Error* wait_for_message(NetworkConnection* connection, Message* message);
 
 /// @brief Waits for a message of a specific type to be received on the network stream.
 ///        Once the message is received, it writes the parsed message to the Message pointer.
-Error* wait_for_message_type(NetworkConnection* connection, Message* message, uint8_t type);
+Error* wait_for_message_type(NetworkConnection* connection, Message* message, enum MessageType type);
 
 #endif // __NET_COMMUNICATION_H__

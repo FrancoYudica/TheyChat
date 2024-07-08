@@ -23,7 +23,7 @@ void task_request_handler(TaskHandlerData* data)
     switch (task_request->task_type) {
 
     case TASK_USERS:
-        // server_task_users(data);
+        server_task_users(data);
         break;
 
     default:

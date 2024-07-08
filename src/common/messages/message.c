@@ -64,9 +64,16 @@ void print_message(Message* message)
 
     case MSGT_TASK_REQUEST: {
         printf(
-            "command_type: %i, arg: %s}\n",
+            "task_type: %i, arg: %s}\n",
             message->payload.task_request.task_type,
             message->payload.task_request.arg);
+        break;
+    }
+    case MSGT_TASK_STATUS: {
+        printf(
+            "task_type: %i, task_status: %i}\n",
+            message->payload.task_status.task_type,
+            message->payload.task_status.task_status);
         break;
     }
 

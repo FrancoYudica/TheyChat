@@ -101,7 +101,7 @@ Error* wait_for_message(
 Error* wait_for_message_type(
     NetworkConnection* connection,
     Message* message,
-    uint8_t type)
+    enum MessageType type)
 {
 
     Error* err = wait_for_message(connection, message);

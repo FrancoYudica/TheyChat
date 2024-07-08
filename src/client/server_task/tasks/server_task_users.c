@@ -2,7 +2,7 @@
 #include "ui/ui.h"
 #include "net/net_communication.h"
 
-Error* server_task_users(uint8_t cmd_type, char**)
+Error* server_task_users(TaskStatusPayload status)
 {
     Message message;
     Error* err;
@@ -35,7 +35,7 @@ Error* server_task_users(uint8_t cmd_type, char**)
         if (message_type == MSGT_HEAP_SEQUENCE) {
             string_list_add(entry->data.list.list, message.payload.heap_sequence.payload);
             free(message.payload.heap_sequence.payload);
-            break;
+            continue;
 
         } else if (message_type == MSGT_SEQUENCE_END) {
             break;

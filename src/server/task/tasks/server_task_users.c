@@ -21,9 +21,7 @@ Error* server_task_users(TaskHandlerData* data)
     // Iterates through all the clients and sends the client name
     while ((client = client_list_interator_next(clients)) != NULL) {
         message = create_heap_seq_msg(client->name, strlen(client->name) + 1);
-        printf("Name: %s\n", client->name);
         err = send_message((const Message*)&message, &data->client->task_connection);
-
         free(message.payload.heap_sequence.payload);
 
         if (IS_NET_ERROR(err))

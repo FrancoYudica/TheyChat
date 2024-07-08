@@ -24,6 +24,8 @@ void server_task_handler_free()
     s_running = false;
 }
 
+Error* server_task_users(TaskStatusPayload);
+
 static void* thread_handler(void*)
 {
     set_thread_name(pthread_self(), "Server task handler");
@@ -44,10 +46,17 @@ static void* thread_handler(void*)
                     s_error->message);
 
             free_error(s_error);
-        } else if (msg.payload.task_status.task_status == TASK_STATUS_EXECUTING) {
+            continue;
+        }
+
+        if (msg.payload.task_status.task_status == TASK_STATUS_EXECUTING) {
             ui_push_text_entry(
                 TEXT_ENTRY_TYPE_SERVER,
                 "Executing task");
+
+            if (msg.payload.task_status.task_type == TASK_USERS) {
+                server_task_users(msg.payload.task_status);
+            }
         }
     }
     unregister_thread(pthread_self());
