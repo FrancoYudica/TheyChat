@@ -4,7 +4,7 @@ extern Error* handle_state_disconnect()
 {
     Client* client = get_client();
     free_network_connection(&client->status_connection);
-    free_network_connection(&client->cmd_connection);
+    free_network_connection(&client->task_connection);
     state_handler_set_next(APP_STATE_OFFLINE);
     return CREATE_ERR_OK;
 }

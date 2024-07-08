@@ -5,7 +5,7 @@
 void init_client_network(
     Client* client,
     ConnectionContext* status_context,
-    ConnectionContext* cmd_context)
+    ConnectionContext* task_context)
 {
     static const char* default_name = "unnamed";
 
@@ -15,9 +15,9 @@ void init_client_network(
 
     // Initializes network connections
     init_network_connection(&client->status_connection);
-    init_network_connection(&client->cmd_connection);
+    init_network_connection(&client->task_connection);
     client->status_connection.context = status_context;
-    client->cmd_connection.context = cmd_context;
+    client->task_connection.context = task_context;
 
     // Sets default name
     memcpy(client->name, default_name, sizeof(default_name));

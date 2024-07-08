@@ -11,7 +11,7 @@ typedef struct
     char name[MAX_USERNAME_BYTES];
 
     NetworkConnection status_connection;
-    NetworkConnection cmd_connection;
+    NetworkConnection task_connection;
 
     AppState current_state;
 } Client;
@@ -20,7 +20,7 @@ typedef struct
 void init_client_network(
     Client* client,
     ConnectionContext* status_context,
-    ConnectionContext* cmd_context);
+    ConnectionContext* task_context);
 
 void debug_print_client(Client* client);
 

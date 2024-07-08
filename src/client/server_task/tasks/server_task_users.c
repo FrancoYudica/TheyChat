@@ -10,7 +10,7 @@ Error* server_task_users(uint8_t cmd_type, char**)
 
     // Gets header of the sequence
     err = wait_for_message_type(
-        &client->cmd_connection,
+        &client->task_connection,
         &message,
         MSGT_SEQUENCE_START);
 
@@ -23,7 +23,7 @@ Error* server_task_users(uint8_t cmd_type, char**)
 
         // Receives message
         err = wait_for_message(
-            &client->cmd_connection,
+            &client->task_connection,
             &message);
 
         if (IS_NET_ERROR(err))

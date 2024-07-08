@@ -13,7 +13,7 @@ typedef struct
 
     thpool_t* client_thread_pool;
 
-    thpool_t* cmd_thread_pool;
+    thpool_t* task_thread_pool;
 
     ConnectionContext* context;
 

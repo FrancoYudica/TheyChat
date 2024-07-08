@@ -32,19 +32,19 @@ Error* handle_state_chat(ServerStateData* state_data, AppState* next_state)
             send_broadcast((const Message*)&message, state_data->server);
         }
 
-        else if (message.type == MSGT_SERVER_CMD_REQUEST) {
+        else if (message.type == MSGT_TASK_REQUEST) {
             TaskHandlerData* handler_data = malloc(sizeof(TaskHandlerData));
             handler_data->client = client;
             handler_data->server = state_data->server;
             handler_data->task_request = message.payload.task_request;
             thpool_submit(
-                state_data->server->cmd_thread_pool,
+                state_data->server->task_thread_pool,
                 (thread_task_t)task_request_handler,
                 handler_data);
         }
 
         else
-            printf("Only MSGT_USER_CHAT and MSGT_SERVER_CMD_REQUEST should be received in chat handler. There is something wrong...\n");
+            printf("Only MSGT_USER_CHAT and MSGT_TASK_REQUEST should be received in chat handler. There is something wrong...\n");
 
         if (IS_NET_ERROR(err))
             break;

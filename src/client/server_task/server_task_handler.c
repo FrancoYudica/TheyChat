@@ -26,12 +26,12 @@ void server_task_handler_free()
 
 static void* thread_handler(void*)
 {
-    set_thread_name(pthread_self(), "Server command handler");
+    set_thread_name(pthread_self(), "Server task handler");
     Message msg;
     Client* client = get_client();
     while (s_running) {
         s_error = wait_for_message_type(
-            &client->cmd_connection,
+            &client->task_connection,
             &msg,
             MSGT_STATUS);
 

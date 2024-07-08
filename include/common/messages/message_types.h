@@ -30,7 +30,7 @@ enum MessageType {
     MSGT_CONNECTED_CLIENTS,
 
     // Command sent to server
-    MSGT_SERVER_CMD_REQUEST,
+    MSGT_TASK_REQUEST,
 
     // Sequence
     MSGT_SEQUENCE_START,

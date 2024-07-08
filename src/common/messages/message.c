@@ -62,7 +62,7 @@ void print_message(Message* message)
         break;
     }
 
-    case MSGT_SERVER_CMD_REQUEST: {
+    case MSGT_TASK_REQUEST: {
         printf(
             "command_type: %i, arg: %s}\n",
             message->payload.task_request.task_type,
@@ -136,7 +136,7 @@ Message create_task_request_msg(enum TaskType type, const char* arg)
     Message message;
     TaskRequestPayload* task = &message.payload.task_request;
 
-    message.type = MSGT_SERVER_CMD_REQUEST;
+    message.type = MSGT_TASK_REQUEST;
     message.net_payload_length = sizeof(task->task_type) + sizeof(task->arg);
     task->task_type = type;
 

@@ -29,24 +29,24 @@ Error* handle_state_connect()
             return CREATE_ERR_OK;
         }
     }
-    // Establishes command connection
+    // Establishes task connection
     {
         ui_set_log_text(
-            "Establishing command connection on ip (%s) and port (%d)...",
+            "Establishing task connection on ip (%s) and port (%d)...",
             client->connection_details.server_ip,
-            client->connection_details.cmd_port);
+            client->connection_details.task_port);
 
         // Establishes connection with serer
         err = net_client_create_socket(
-            client->connection_details.cmd_port,
+            client->connection_details.task_port,
             client->connection_details.server_ip,
-            &client->cmd_connection.context);
+            &client->task_connection.context);
 
         // Unable to connect, goes back to offline state
         if (IS_NET_ERROR(err)) {
             ui_push_text_entry(
                 TEXT_ENTRY_TYPE_WARNING,
-                "Unable to establish command connection. Error: \"%s\"",
+                "Unable to establish task connection. Error: \"%s\"",
                 err->message);
             state_handler_set_next(APP_STATE_OFFLINE);
             return CREATE_ERR_OK;

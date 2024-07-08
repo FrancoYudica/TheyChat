@@ -15,7 +15,7 @@ Error* handle_state_disconnect(ServerStateData* handler_data, AppState* _)
     }
 
     free_network_connection(&client->status_connection);
-    free_network_connection(&client->cmd_connection);
+    free_network_connection(&client->task_connection);
 
     // Removes client
     pthread_mutex_lock(&server->client_list_mutex);

@@ -66,7 +66,7 @@ void ns_serialize_message(const Message* message, uint8_t* buffer, size_t* buffe
         break;
     }
 
-    case MSGT_SERVER_CMD_REQUEST: {
+    case MSGT_TASK_REQUEST: {
         const TaskRequestPayload* task = &message->payload.task_request;
         ns_push_byte_array(&buffer_ptr, (const uint8_t*)&task->task_type, sizeof(task->task_type));
         ns_push_byte_array(&buffer_ptr, (const uint8_t*)task->arg, sizeof(task->arg));
@@ -159,7 +159,7 @@ void ns_deserialize_message(const uint8_t* buffer, Message* message)
         ns_pop_byte_array(&buffer_ptr, (uint8_t*)&connected_clients->client_count, sizeof(connected_clients->client_count));
         break;
     }
-    case MSGT_SERVER_CMD_REQUEST: {
+    case MSGT_TASK_REQUEST: {
         TaskRequestPayload* task = &message->payload.task_request;
         ns_pop_byte_array(&buffer_ptr, (uint8_t*)&task->task_type, sizeof(task->task_type));
         ns_pop_byte_array(&buffer_ptr, (uint8_t*)task->arg, sizeof(task->arg));

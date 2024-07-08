@@ -10,8 +10,8 @@ void task_request_handler(TaskHandlerData* data)
     Message msg;
     Error* err;
 
-    msg = create_status_msg(true, "Command received successfully");
-    err = send_message(&msg, &data->client->cmd_connection);
+    msg = create_status_msg(true, "Task received successfully");
+    err = send_message(&msg, &data->client->task_connection);
 
     if (IS_NET_ERROR(err)) {
         print_error(err);

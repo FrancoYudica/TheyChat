@@ -93,7 +93,7 @@ Server* server_create(uint16_t port, uint32_t max_client_count)
     pthread_mutex_init(&server->client_list_mutex, NULL);
 
     server->client_thread_pool = thpool_create(max_client_count);
-    server->cmd_thread_pool = thpool_create(max_client_count);
+    server->task_thread_pool = thpool_create(max_client_count);
     return server;
 }
 
@@ -108,8 +108,8 @@ Error* server_free(Server* server)
     printf("    - Context closed\n");
     thpool_destroy(server->client_thread_pool);
     printf("    - Client thpool destroyed\n");
-    thpool_destroy(server->cmd_thread_pool);
-    printf("    - Command thpool destroyed\n");
+    thpool_destroy(server->task_thread_pool);
+    printf("    - Task thpool destroyed\n");
     client_list_destroy(server->client_list);
     printf("    - Client list destroyed\n");
     pthread_mutex_destroy(&server->client_list_mutex);
@@ -173,13 +173,13 @@ Error* server_accept_clients(Server* server)
 
         printf("Accepted client status connection\n");
 
-        ConnectionContext* client_cmd_context = NULL;
-        err = net_accept_connection(server->context, &client_cmd_context);
+        ConnectionContext* client_task_context = NULL;
+        err = net_accept_connection(server->context, &client_task_context);
 
         if (IS_NET_ERROR(err))
             break;
 
-        printf("Accepted client command connection\n");
+        printf("Accepted client task connection\n");
 
         // Registers client
         pthread_mutex_lock(&server->client_list_mutex);
@@ -187,7 +187,7 @@ Error* server_accept_clients(Server* server)
         pthread_mutex_unlock(&server->client_list_mutex);
 
         // Initializes client network data
-        init_client_network(client, client_status_context, client_cmd_context);
+        init_client_network(client, client_status_context, client_task_context);
 
         // Tells client that all threads are busy, and it's on queue
         if (thpool_all_threads_busy(server->client_thread_pool))

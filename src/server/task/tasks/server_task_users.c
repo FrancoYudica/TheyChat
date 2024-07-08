@@ -8,7 +8,7 @@ Error* server_task_users(TaskHandlerData* data)
 
     // Sequence start
     message = create_seq_start_msg();
-    err = send_message((const Message*)&message, &data->client->cmd_connection);
+    err = send_message((const Message*)&message, &data->client->task_connection);
     if (IS_NET_ERROR(err))
         return err;
 
@@ -22,7 +22,7 @@ Error* server_task_users(TaskHandlerData* data)
     while ((client = client_list_interator_next(clients)) != NULL) {
         message = create_heap_seq_msg(client->name, strlen(client->name) + 1);
         printf("Name: %s\n", client->name);
-        err = send_message((const Message*)&message, &data->client->cmd_connection);
+        err = send_message((const Message*)&message, &data->client->task_connection);
 
         free(message.payload.heap_sequence.payload);
 
@@ -34,6 +34,6 @@ Error* server_task_users(TaskHandlerData* data)
 
     // Sequence end
     message = create_seq_end_msg();
-    err = send_message(&message, &data->client->cmd_connection);
+    err = send_message(&message, &data->client->task_connection);
     return err;
 }

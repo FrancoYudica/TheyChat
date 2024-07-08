@@ -11,14 +11,14 @@ typedef struct
     NetworkConnection status_connection;
 
     /// @brief NetworkConnection used to communicate with the server
-    /// only for commands, such as file transferring, which happens
+    /// only for tasks, such as file transferring, which happens
     /// asynchronously of the status messages, such as user chat
-    NetworkConnection cmd_connection;
+    NetworkConnection task_connection;
 
     struct
     {
         uint32_t status_port;
-        uint32_t cmd_port;
+        uint32_t task_port;
         char server_ip[MAX_IP_BYTES];
         bool tls_enabled;
     } connection_details;
