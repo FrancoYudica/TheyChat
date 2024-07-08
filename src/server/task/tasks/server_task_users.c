@@ -1,15 +1,14 @@
-#include "command_types.h"
-#include "command/command_processor.h"
+#include "task/task_handler_data.h"
 #include "net/net_communication.h"
 
-Error* process_users_command(ServerStateData* data)
+Error* server_task_users(TaskHandlerData* data)
 {
     Error* err;
     Message message;
 
     // Sequence start
     message = create_seq_start_msg();
-    err = send_message((const Message*)&message, &data->client->status_connection);
+    err = send_message((const Message*)&message, &data->client->cmd_connection);
     if (IS_NET_ERROR(err))
         return err;
 
@@ -23,7 +22,7 @@ Error* process_users_command(ServerStateData* data)
     while ((client = client_list_interator_next(clients)) != NULL) {
         message = create_heap_seq_msg(client->name, strlen(client->name) + 1);
         printf("Name: %s\n", client->name);
-        err = send_message((const Message*)&message, &data->client->status_connection);
+        err = send_message((const Message*)&message, &data->client->cmd_connection);
 
         free(message.payload.heap_sequence.payload);
 
@@ -35,24 +34,6 @@ Error* process_users_command(ServerStateData* data)
 
     // Sequence end
     message = create_seq_end_msg();
-    err = send_message(&message, &data->client->status_connection);
+    err = send_message(&message, &data->client->cmd_connection);
     return err;
-}
-
-Error* execute_command_processor(ServerStateData* data, Message* command_message)
-{
-    printf("RECEIVED COMMAND MESSAGE!\n");
-
-    switch (command_message->payload.command.command_type) {
-    case CMD_DISCONNECT:
-        return CREATE_ERR(ERR_NET_PEER_DISCONNECTED, "Peer disconnected");
-
-    case CMD_USERS:
-        return process_users_command(data);
-
-    default:
-        break;
-    }
-
-    return CREATE_ERR_OK;
 }

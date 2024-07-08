@@ -3,15 +3,22 @@
 #include <stdarg.h>
 #include <stdbool.h>
 #include "they_chat_error.h"
-#include "command_types.h"
 
 typedef Error* (*CommandHandler)(uint8_t argc, char** argv);
+
+enum CommandType {
+    CMD_NULL = 0,
+    CMD_HELP,
+    CMD_CONNECT,
+    CMD_DISCONNECT,
+    CMD_QUIT,
+    CMD_USERS
+};
 
 typedef struct
 {
     char* name;
     enum CommandType type;
-    bool is_server_cmd;
     CommandHandler handler;
 } Command;
 

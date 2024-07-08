@@ -22,7 +22,7 @@ typedef struct
         UserChatPayload user_chat;
         UserLoginPayload user_login;
         Bytes128Payload bytes_128;
-        ServerCmdRequestPayload command;
+        TaskRequestPayload task_request;
 
         FileHeaderPayload file_header;
         FileContentPayload file_content;
@@ -49,7 +49,7 @@ Message create_client_connected();
 
 Message create_client_on_queue();
 
-Message create_command_msg(uint8_t type, const char* arg);
+Message create_task_request_msg(enum TaskType type, const char* arg);
 
 Message create_file_header_message(const char* name, uint32_t size);
 

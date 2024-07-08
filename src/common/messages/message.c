@@ -65,8 +65,8 @@ void print_message(Message* message)
     case MSGT_SERVER_CMD_REQUEST: {
         printf(
             "command_type: %i, arg: %s}\n",
-            message->payload.command.command_type,
-            message->payload.command.arg);
+            message->payload.task_request.task_type,
+            message->payload.task_request.arg);
         break;
     }
 
@@ -131,19 +131,19 @@ Message create_client_on_queue()
     return message;
 }
 
-Message create_command_msg(uint8_t type, const char* arg)
+Message create_task_request_msg(enum TaskType type, const char* arg)
 {
     Message message;
-    ServerCmdRequestPayload* command = &message.payload.command;
+    TaskRequestPayload* task = &message.payload.task_request;
 
     message.type = MSGT_SERVER_CMD_REQUEST;
-    message.net_payload_length = sizeof(command->command_type) + sizeof(command->arg);
-    command->command_type = type;
+    message.net_payload_length = sizeof(task->task_type) + sizeof(task->arg);
+    task->task_type = type;
 
     if (arg != NULL)
-        strcpy(command->arg, arg);
+        strcpy(task->arg, arg);
     else
-        command->arg[0] = '\0';
+        task->arg[0] = '\0';
     return message;
 }
 

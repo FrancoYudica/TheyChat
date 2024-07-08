@@ -1,10 +1,9 @@
 #include <pthread.h>
 #include "state_handler_utils.h"
 #include "broadcast_message.h"
-#include "command/command_processor.h"
-#include "command/command_handler_data.h"
+#include "task/task_handler_data.h"
 
-extern void command_request_handler(CommandHandlerData* data);
+extern void task_request_handler(TaskHandlerData* data);
 
 Error* handle_state_chat(ServerStateData* state_data, AppState* next_state)
 {
@@ -34,19 +33,15 @@ Error* handle_state_chat(ServerStateData* state_data, AppState* next_state)
         }
 
         else if (message.type == MSGT_SERVER_CMD_REQUEST) {
-            CommandHandlerData* handler_data = malloc(sizeof(CommandHandlerData));
+            TaskHandlerData* handler_data = malloc(sizeof(TaskHandlerData));
             handler_data->client = client;
             handler_data->server = state_data->server;
-            handler_data->cmd = message.payload.command;
+            handler_data->task_request = message.payload.task_request;
             thpool_submit(
                 state_data->server->cmd_thread_pool,
-                (thread_task_t)command_request_handler,
+                (thread_task_t)task_request_handler,
                 handler_data);
         }
-
-        // Process command
-        else if (message.type == MSGT_SERVER_CMD_REQUEST)
-            err = execute_command_processor(state_data, &message);
 
         else
             printf("Only MSGT_USER_CHAT and MSGT_SERVER_CMD_REQUEST should be received in chat handler. There is something wrong...\n");

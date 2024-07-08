@@ -21,7 +21,10 @@ Error* handle_state_connect()
 
         // Unable to connect, goes back to offline state
         if (IS_NET_ERROR(err)) {
-            ui_set_log_text("Unable to establish status connection. Error: \"%s\"", err->message);
+            ui_push_text_entry(
+                TEXT_ENTRY_TYPE_WARNING,
+                "Unable to establish status connection. Error: \"%s\"",
+                err->message);
             state_handler_set_next(APP_STATE_OFFLINE);
             return CREATE_ERR_OK;
         }
@@ -41,7 +44,10 @@ Error* handle_state_connect()
 
         // Unable to connect, goes back to offline state
         if (IS_NET_ERROR(err)) {
-            ui_set_log_text("Unable to establish command connection. Error: \"%s\"", err->message);
+            ui_push_text_entry(
+                TEXT_ENTRY_TYPE_WARNING,
+                "Unable to establish command connection. Error: \"%s\"",
+                err->message);
             state_handler_set_next(APP_STATE_OFFLINE);
             return CREATE_ERR_OK;
         }

@@ -8,6 +8,8 @@
 
 #include "constants.h"
 
+#include "task_types.h"
+
 enum MessageType {
     // User
     MSGT_USER_CHAT,
@@ -65,12 +67,6 @@ typedef struct
     char bytes[128];
 } Bytes128Payload;
 
-typedef struct
-{
-    uint8_t command_type;
-    char arg[COMMAND_ARGUMENT_SIZE];
-} ServerCmdRequestPayload;
-
 /// @brief Stores descriptive data of the file
 typedef struct
 {
@@ -122,5 +118,12 @@ typedef struct {
     time_t time;
     char text[MAX_CHAT_TEXT_BYTES];
 } ServerNotificationPayload;
+
+// TASKS ----------------------------------------------------------
+typedef struct
+{
+    enum TaskType task_type;
+    char arg[COMMAND_ARGUMENT_SIZE];
+} TaskRequestPayload;
 
 #endif

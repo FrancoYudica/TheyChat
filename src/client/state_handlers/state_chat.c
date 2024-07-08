@@ -1,5 +1,5 @@
 #include "state_handler_utils.h"
-#include "command/server_command_handler.h"
+#include "server_task/server_task_handler.h"
 #include "states_fsm.h"
 
 static pthread_t s_receive_thread;
@@ -93,7 +93,7 @@ static void state_chat_exit()
         "%s",
         "Exiting chat...");
 
-    server_cmd_handler_free();
+    server_task_handler_free();
 }
 
 Error* handle_state_chat()
@@ -101,7 +101,7 @@ Error* handle_state_chat()
     state_handler_set_exit_callback(state_chat_exit);
 
     // Initializes server command handler
-    server_cmd_handler_init();
+    server_task_handler_init();
 
     Client* client = get_client();
 
