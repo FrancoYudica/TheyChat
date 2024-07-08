@@ -147,6 +147,18 @@ Message create_task_request_msg(enum TaskType type, const char* arg)
     return message;
 }
 
+Message create_task_status_msg(enum TaskType type, enum TaskStatus status)
+{
+    Message message;
+    TaskStatusPayload* task = &message.payload.task_status;
+
+    message.type = MSGT_TASK_STATUS;
+    message.net_payload_length = sizeof(task->task_type) + sizeof(task->task_status);
+    task->task_type = type;
+    task->task_status = status;
+    return message;
+}
+
 Message create_file_header_message(const char* name, uint32_t size)
 {
 

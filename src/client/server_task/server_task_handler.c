@@ -33,7 +33,7 @@ static void* thread_handler(void*)
         s_error = wait_for_message_type(
             &client->task_connection,
             &msg,
-            MSGT_STATUS);
+            MSGT_TASK_STATUS);
 
         if (IS_NET_ERROR(s_error)) {
 
@@ -44,12 +44,10 @@ static void* thread_handler(void*)
                     s_error->message);
 
             free_error(s_error);
-        }
-        {
+        } else if (msg.payload.task_status.task_status == TASK_STATUS_EXECUTING) {
             ui_push_text_entry(
                 TEXT_ENTRY_TYPE_SERVER,
-                "%s",
-                msg.payload.status.text);
+                "Executing task");
         }
     }
     unregister_thread(pthread_self());

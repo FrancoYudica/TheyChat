@@ -10,15 +10,15 @@ void task_request_handler(TaskHandlerData* data)
     Message msg;
     Error* err;
 
-    msg = create_status_msg(true, "Task received successfully");
+    TaskRequestPayload* task_request = &data->task_request;
+
+    msg = create_task_status_msg(task_request->task_type, TASK_STATUS_EXECUTING);
     err = send_message(&msg, &data->client->task_connection);
 
     if (IS_NET_ERROR(err)) {
         print_error(err);
         free_error(err);
     }
-
-    TaskRequestPayload* task_request = &data->task_request;
 
     switch (task_request->task_type) {
 

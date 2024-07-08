@@ -21,7 +21,7 @@ static pthread_mutex_t s_mutex;
 /// @brief Flag used to tell input thread when application finishes
 static bool s_running = false;
 
-static void* handle_input()
+static void* handle_input(void*)
 {
     // Holds client input
     char input[MAX_CHAT_TEXT_BYTES];

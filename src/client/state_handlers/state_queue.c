@@ -2,7 +2,7 @@
 
 static pthread_t s_receive_thread;
 
-static void* wait_for_accept()
+static void* wait_for_accept(void*)
 {
     Client* client = get_client();
     Message message;

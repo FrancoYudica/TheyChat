@@ -1,4 +1,5 @@
 #include <ctype.h>
+#include <stdbool.h>
 #include "ui/ui.h"
 #include "ui/chat_entries.h"
 #include "ui/ui_windows/chat_window.h"
@@ -158,5 +159,5 @@ void ui_input_window_render()
 
     // If it scrolls, renders the chat window
     if (want_to_scroll)
-        ui_refresh(ui);
+        ui_refresh();
 }

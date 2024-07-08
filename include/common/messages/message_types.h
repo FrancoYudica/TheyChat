@@ -31,6 +31,7 @@ enum MessageType {
 
     // Command sent to server
     MSGT_TASK_REQUEST,
+    MSGT_TASK_STATUS,
 
     // Sequence
     MSGT_SEQUENCE_START,
@@ -41,7 +42,7 @@ enum MessageType {
 };
 
 /// @return String name of the Message
-const char* msg_get_type_name(uint8_t type);
+const char* msg_get_type_name(enum MessageType type);
 
 /// @brief Empty messages that only have a type, and no data
 typedef struct {
@@ -125,5 +126,18 @@ typedef struct
     enum TaskType task_type;
     char arg[COMMAND_ARGUMENT_SIZE];
 } TaskRequestPayload;
+
+enum TaskStatus {
+    TASK_STATUS_NULL,
+    TASK_STATUS_QUEUED,
+    TASK_STATUS_EXECUTING,
+    TASK_STATUS_COMPLETED
+};
+
+typedef struct
+{
+    enum TaskType task_type;
+    enum TaskStatus task_status;
+} TaskStatusPayload;
 
 #endif

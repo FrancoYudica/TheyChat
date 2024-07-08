@@ -18,7 +18,7 @@ static const char* message_types[] = {
     [MSGT_HEAP_SEQUENCE] = "HEAP_SEQUENCE"
 };
 
-const char* msg_get_type_name(uint8_t type)
+const char* msg_get_type_name(enum MessageType type)
 {
     size_t array_size = sizeof(message_types) / sizeof(message_types[0]);
 
