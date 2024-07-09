@@ -89,7 +89,7 @@ static void* thread_handler(void*)
         if (IS_NET_ERROR(s_error)) {
             ui_push_text_entry(
                 TEXT_ENTRY_TYPE_WARNING,
-                "%s",
+                "Error during task execution - %s",
                 s_error->message);
         } else {
             ui_set_log_text(

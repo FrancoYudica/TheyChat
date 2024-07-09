@@ -32,29 +32,25 @@ Error* send_file(
         return err;
     }
 
-    printf("Sending file \"%s\" of size %ld\n", filepath, file_size);
-
     uint8_t buffer[FILE_CONTENT_SIZE];
 
     // Amount of bytes read from the file
     size_t bytes_read;
-    do {
-        // Reads the file
-        bytes_read = fread(buffer, 1, sizeof(buffer), file);
+
+    while ((bytes_read = fread(buffer, 1, sizeof(buffer), file)) > 0) {
 
         message = create_file_content_message((const uint8_t*)buffer, bytes_read);
         err = send_message(&message, net_connection);
 
         if (IS_NET_ERROR(err))
             break;
-
-    } while (bytes_read > 0);
+    }
 
     fclose(file);
 
-    // Not necessary, since receive keeps track of received bytes
-    // message = create_file_end_message();
-    // err = send_message(&message, net_connection);
+    // Sends end of file confirmation message
+    message = create_file_end_message();
+    err = send_message(&message, net_connection);
 
     return err;
 }
@@ -69,31 +65,45 @@ Error* receive_file(NetworkConnection* net_connection)
     if (IS_NET_ERROR(err))
         return err;
 
-    FileHeaderPayload* header = &message.payload.file_header;
-
-    printf("Receiving file \"%s\" of size %d\n", header->name, header->size);
+    // Copies header, since message memory will be overwritten
+    FileHeaderPayload header = message.payload.file_header;
 
     // Create file locally
-    FILE* file = fopen(header->name, "wb");
+    FILE* file = fopen(header.name, "wb");
     if (file == NULL)
         return CREATE_ERRNO(ERR_OPEN_FILE, "Error while opening receive file");
 
     // Receives all the bytes
     size_t total_bytes_received = 0;
-    while (total_bytes_received < header->size) {
+    while (total_bytes_received < header.size) {
         err = wait_for_message_type(net_connection, &message, MSGT_FILE_CONTENT);
 
         if (IS_NET_ERROR(err))
             break;
 
+        // Ensures that all bytes are written
         FileContentPayload* content = &message.payload.file_content;
-        total_bytes_received += content->content_size;
+        uint32_t written = 0;
+        while (written < content->content_size) {
 
-        // Writes received content into file
-        fwrite(content->binary_payload, 1, content->content_size, file);
+            // Writes received content into file
+            written += fwrite(
+                content->binary_payload + written,
+                1,
+                content->content_size - written,
+                file);
+        }
+
+        total_bytes_received += written;
     }
 
     fclose(file);
+
+    // Waits for end of file synchronization
+    err = wait_for_message_type(
+        net_connection,
+        &message,
+        MSGT_FILE_END);
 
     return err;
 }
