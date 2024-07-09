@@ -55,7 +55,10 @@ Error* send_file(
     return err;
 }
 
-Error* receive_file(NetworkConnection* net_connection)
+Error* receive_file(
+    NetworkConnection* net_connection,
+    const char* folder,
+    const char* override_name)
 {
 
     // Waits for header
@@ -68,8 +71,23 @@ Error* receive_file(NetworkConnection* net_connection)
     // Copies header, since message memory will be overwritten
     FileHeaderPayload header = message.payload.file_header;
 
+    // Picks standard name if no override name is specified
+    const char* filename = override_name == NULL ? header.name : override_name;
+    char filepath[512];
+
+    if (folder == NULL)
+        strcpy(filepath, filename);
+
+    else
+        sprintf(
+            filepath,
+            "%s%c%s",
+            folder,
+            PATH_SEPARATOR,
+            filename);
+
     // Create file locally
-    FILE* file = fopen(header.name, "wb");
+    FILE* file = fopen(filepath, "wb");
     if (file == NULL)
         return CREATE_ERRNO(ERR_OPEN_FILE, "Error while opening receive file");
 
