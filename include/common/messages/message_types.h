@@ -121,10 +121,25 @@ typedef struct {
 } ServerNotificationPayload;
 
 // TASKS ----------------------------------------------------------
+typedef struct {
+    bool show_ip;
+    bool show_id;
+} TaskUsersDada;
+
+typedef struct
+{
+    char filename[MAX_FILENAME_SIZE];
+} TaskFileUploadData;
+
+typedef union {
+    TaskUsersDada users;
+    TaskFileUploadData file_upload;
+} TaskData;
+
 typedef struct
 {
     enum TaskType task_type;
-    char arg[COMMAND_ARGUMENT_SIZE];
+    TaskData data;
 } TaskRequestPayload;
 
 enum TaskStatus {

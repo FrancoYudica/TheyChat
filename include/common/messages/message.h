@@ -51,7 +51,7 @@ Message create_client_connected();
 
 Message create_client_on_queue();
 
-Message create_task_request_msg(enum TaskType type, const char* arg);
+Message create_task_request_msg(enum TaskType type);
 
 Message create_task_status_msg(enum TaskType type, enum TaskStatus status);
 

@@ -1,6 +1,7 @@
+#include <time.h>
+#include <assert.h>
 #include "messages/message.h"
 #include "messages/message_types.h"
-#include <time.h>
 
 void print_message(Message* message)
 {
@@ -64,9 +65,8 @@ void print_message(Message* message)
 
     case MSGT_TASK_REQUEST: {
         printf(
-            "task_type: %i, arg: %s}\n",
-            message->payload.task_request.task_type,
-            message->payload.task_request.arg);
+            "task_type: %i}\n",
+            message->payload.task_request.task_type);
         break;
     }
     case MSGT_TASK_STATUS: {
@@ -138,19 +138,28 @@ Message create_client_on_queue()
     return message;
 }
 
-Message create_task_request_msg(enum TaskType type, const char* arg)
+Message create_task_request_msg(enum TaskType type)
 {
     Message message;
     TaskRequestPayload* task = &message.payload.task_request;
 
     message.type = MSGT_TASK_REQUEST;
-    message.net_payload_length = sizeof(task->task_type) + sizeof(task->arg);
-    task->task_type = type;
 
-    if (arg != NULL)
-        strcpy(task->arg, arg);
-    else
-        task->arg[0] = '\0';
+    message.net_payload_length = 0;
+    message.net_payload_length += sizeof(task->task_type);
+
+    switch (type) {
+    case TASK_USERS:
+        message.net_payload_length += sizeof(TaskUsersDada);
+        break;
+
+    default:
+        assert(false);
+        break;
+    }
+
+    task->task_type = type;
+    memset(&task->data, 0, sizeof(task->data));
     return message;
 }
 
