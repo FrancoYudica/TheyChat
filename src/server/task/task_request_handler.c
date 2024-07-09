@@ -3,7 +3,8 @@
 #include "net/net_communication.h"
 #include "server_state_data.h"
 
-extern Error* server_task_users(TaskHandlerData* data);
+extern Error* server_task_users(TaskHandlerData*);
+extern Error* server_task_upload_file(TaskHandlerData*);
 
 void task_request_handler(TaskHandlerData* data)
 {
@@ -23,11 +24,21 @@ void task_request_handler(TaskHandlerData* data)
     switch (task_request->task_type) {
 
     case TASK_USERS:
-        server_task_users(data);
+        err = server_task_users(data);
+        break;
+
+    case TASK_CLIENT_UPLOAD_FILE:
+        err = server_task_upload_file(data);
         break;
 
     default:
+        printf("Unimplemented task %d\n", task_request->task_type);
         break;
+    }
+
+    if (IS_NET_ERROR(err)) {
+        print_error(err);
+        free_error(err);
     }
 
     free(data);

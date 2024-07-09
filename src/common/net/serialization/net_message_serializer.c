@@ -88,6 +88,9 @@ void ns_serialize_message(const Message* message, uint8_t* buffer, size_t* buffe
             ns_push_byte_array(&buffer_ptr, (const uint8_t*)&task->data.users.show_id, sizeof(task->data.users.show_id));
             break;
 
+        case TASK_CLIENT_UPLOAD_FILE:
+            ns_push_byte_array(&buffer_ptr, (const uint8_t*)task->data.file_upload.filename, sizeof(task->data.file_upload.filename));
+            break;
         default:
             printf("Unimplemented serialization for task message type %i\n", task->task_type);
             exit(EXIT_FAILURE);
@@ -203,7 +206,9 @@ void ns_deserialize_message(const uint8_t* buffer, Message* message)
             ns_pop_byte_array(&buffer_ptr, (uint8_t*)&task->data.users.show_ip, sizeof(task->data.users.show_ip));
             ns_pop_byte_array(&buffer_ptr, (uint8_t*)&task->data.users.show_id, sizeof(task->data.users.show_id));
             break;
-
+        case TASK_CLIENT_UPLOAD_FILE:
+            ns_pop_byte_array(&buffer_ptr, (uint8_t*)task->data.file_upload.filename, sizeof(task->data.file_upload.filename));
+            break;
         default:
             printf("Unimplemented serialization for task message type %i\n", task->task_type);
             exit(EXIT_FAILURE);

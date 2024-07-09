@@ -12,7 +12,9 @@ enum CommandType {
     CMD_CONNECT,
     CMD_DISCONNECT,
     CMD_QUIT,
-    CMD_USERS
+    CMD_USERS,
+    CMD_UPLOAD,
+    CMD_DOWNLOAD
 };
 
 typedef struct

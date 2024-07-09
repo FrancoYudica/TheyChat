@@ -1,7 +1,7 @@
 #include "task/task_handler_data.h"
 #include "net/net_communication.h"
 
-Error* server_task_users(TaskHandlerData* data)
+Error* server_task_upload_file(TaskHandlerData* data)
 {
     Error* err;
     Message message;

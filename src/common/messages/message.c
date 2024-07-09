@@ -153,6 +153,10 @@ Message create_task_request_msg(enum TaskType type)
         message.net_payload_length += sizeof(TaskUsersDada);
         break;
 
+    case TASK_CLIENT_UPLOAD_FILE:
+        message.net_payload_length += sizeof(TaskFileUploadData);
+        break;
+
     default:
         assert(false);
         break;

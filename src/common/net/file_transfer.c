@@ -58,10 +58,6 @@ Error* send_file(
 
     return err;
 }
-bool file_exists(const char* filepath)
-{
-    return access(filepath, F_OK) == 0;
-}
 
 Error* receive_file(NetworkConnection* net_connection)
 {
