@@ -13,7 +13,7 @@ void init_net_stream(NetworkStream* ns)
 
 bool stream_pop_message(NetworkStream* ns, Message* message)
 {
-    static uint32_t base_message_size = 5;
+    static uint32_t base_message_size = 8;
 
     // Stream doesn't have the header
     if (ns->written_bytes < base_message_size)
@@ -47,7 +47,7 @@ bool stream_pop_message(NetworkStream* ns, Message* message)
 static uint32_t ns_access_message_length(const uint8_t* buffer)
 {
     uint32_t net_length;
-    memcpy(&net_length, buffer + sizeof(uint8_t), sizeof(uint32_t));
+    memcpy(&net_length, buffer + sizeof(uint32_t), sizeof(uint32_t));
 
     uint32_t host_length = ntohl(net_length);
     return host_length;

@@ -14,6 +14,9 @@ Error* handle_state_disconnect(ServerStateData* handler_data, AppState* _)
         send_broadcast_exclude((const Message*)&msg, server, client);
     }
 
+    free_network_connection(&client->status_connection);
+    free_network_connection(&client->task_connection);
+
     // Removes client
     pthread_mutex_lock(&server->client_list_mutex);
     client_list_remove(server->client_list, client->id);

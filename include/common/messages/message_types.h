@@ -8,6 +8,8 @@
 
 #include "constants.h"
 
+#include "task_types.h"
+
 enum MessageType {
     // User
     MSGT_USER_CHAT,
@@ -27,8 +29,9 @@ enum MessageType {
     MSGT_STATUS,
     MSGT_CONNECTED_CLIENTS,
 
-    // Command
-    MSGT_COMMAND,
+    // Command sent to server
+    MSGT_TASK_REQUEST,
+    MSGT_TASK_STATUS,
 
     // Sequence
     MSGT_SEQUENCE_START,
@@ -39,7 +42,7 @@ enum MessageType {
 };
 
 /// @return String name of the Message
-const char* msg_get_type_name(uint8_t type);
+const char* msg_get_type_name(enum MessageType type);
 
 /// @brief Empty messages that only have a type, and no data
 typedef struct {
@@ -64,12 +67,6 @@ typedef struct
 {
     char bytes[128];
 } Bytes128Payload;
-
-typedef struct
-{
-    uint8_t command_type;
-    char arg[COMMAND_ARGUMENT_SIZE];
-} CommandPayload;
 
 /// @brief Stores descriptive data of the file
 typedef struct
@@ -122,5 +119,45 @@ typedef struct {
     time_t time;
     char text[MAX_CHAT_TEXT_BYTES];
 } ServerNotificationPayload;
+
+// TASKS ----------------------------------------------------------
+typedef struct {
+    bool show_ip;
+    bool show_id;
+} TaskUsersDada;
+
+typedef struct
+{
+    char filename[MAX_FILENAME_SIZE];
+} TaskFileUploadData;
+
+typedef union {
+    TaskUsersDada users;
+    TaskFileUploadData file_upload;
+} TaskData;
+
+typedef struct
+{
+    enum TaskType task_type;
+    TaskData data;
+} TaggedTask;
+
+typedef struct
+{
+    TaggedTask tagged_task;
+} TaskRequestPayload;
+
+enum TaskStatus {
+    TASK_STATUS_NULL,
+    TASK_STATUS_QUEUED,
+    TASK_STATUS_EXECUTING,
+    TASK_STATUS_COMPLETED
+};
+
+typedef struct
+{
+    enum TaskStatus task_status;
+    TaggedTask tagged_task;
+} TaskStatusPayload;
 
 #endif

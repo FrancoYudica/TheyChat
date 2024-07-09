@@ -12,13 +12,14 @@ static const char* message_types[] = {
     [MSGT_CLIENT_ON_QUEUE] = "CLIENT_ON_QUEUE",
     [MSGT_STATUS] = "STATUS",
     [MSGT_CONNECTED_CLIENTS] = "CONNECTED_CLIENTS",
-    [MSGT_COMMAND] = "COMMAND",
+    [MSGT_TASK_REQUEST] = "TASK_REQUEST",
+    [MSGT_TASK_STATUS] = "TASK_STATUS",
     [MSGT_SEQUENCE_START] = "SEQUENCE_START",
     [MSGT_SEQUENCE_END] = "SEQUENCE_END",
     [MSGT_HEAP_SEQUENCE] = "HEAP_SEQUENCE"
 };
 
-const char* msg_get_type_name(uint8_t type)
+const char* msg_get_type_name(enum MessageType type)
 {
     size_t array_size = sizeof(message_types) / sizeof(message_types[0]);
 

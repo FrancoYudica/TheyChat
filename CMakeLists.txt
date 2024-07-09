@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.10)
 project(ChatApp VERSION 1.0)
 
 # Specify the C standard
-set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED True)
 
 # Define an option to compile with or without SSL
@@ -85,7 +85,9 @@ set(SERVER_SOURCES
     src/server/state_handlers/state_login.c
     src/server/state_handlers/state_chat.c
     src/server/state_handlers/state_disconnect.c
-    src/server/command/command_processor.c
+    src/server/task/task_request_handler.c
+    src/server/task/tasks/server_task_users.c
+    src/server/task/tasks/server_task_upload_file.c
 )
 add_executable(server src/server/server_main.c ${SERVER_SOURCES})
 target_include_directories(server PRIVATE "${PROJECT_SOURCE_DIR}/include/server")
@@ -108,10 +110,16 @@ set(CLIENT_SOURCES
     src/client/client_data.c
     src/client/states_fsm.c
     src/client/command/command.c
-    src/client/command/command_implementations/connect_handler.c
-    src/client/command/command_implementations/disconnect_handler.c
-    src/client/command/command_implementations/quit_handler.c
-    src/client/command/command_implementations/users_handler.c
+    src/client/command/commands/connect_handler.c
+    src/client/command/commands/disconnect_handler.c
+    src/client/command/commands/quit_handler.c
+    src/client/command/commands/users_handler.c
+    src/client/command/commands/upload_handler.c
+
+    src/client/server_task/server_task_handler.c
+    src/client/server_task/tasks/server_task_users.c
+    src/client/server_task/tasks/server_task_upload_file.c
+    
     src/client/state_handlers/state_offline.c
     src/client/state_handlers/state_connect.c
     src/client/state_handlers/state_queue.c

@@ -6,7 +6,7 @@ Error* handle_state_connect(ServerStateData* handler_data, AppState* next_state)
     Message message = create_client_connected();
     Error* err = send_message(
         (const Message*)&message,
-        &handler_data->client->net_connection);
+        &handler_data->client->status_connection);
 
     if (IS_NET_ERROR(err))
         return err;

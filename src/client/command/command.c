@@ -64,7 +64,8 @@ static void help_handler(uint32_t cmd_count, va_list args)
         [CMD_CONNECT] = { "\"/c\" or \"/connect\"", "Establishes connection with server. \"/connect {server_ip} {port}\"" },
         [CMD_DISCONNECT] = { "\"/d\" or \"/disconnect\"", "Disconnects from server, and transitions to offline state" },
         [CMD_QUIT] = { "\"/q\" or \"/quit\"", "Quits the application" },
-        [CMD_USERS] = { "\"/users\"", "Lists all connected users" }
+        [CMD_USERS] = { "\"/users\"", "Lists all connected users" },
+        [CMD_UPLOAD] = { "\"/upload\"", "Uploads a downloadable file into the server. \"/upload {filepath}\"" }
     };
 
     ChatEntry* entry = chat_entry_create_list("Listing commands:");
@@ -95,6 +96,7 @@ extern Error* disconnect_handler(uint8_t, char**);
 extern Error* connect_handler(uint8_t, char**);
 extern Error* quit_handler(uint8_t, char**);
 extern Error* users_handler(uint8_t, char**);
+extern Error* upload_handler(uint8_t, char**);
 
 // Lookup table that stores all the application commands
 static Command s_commands[] = {
@@ -106,8 +108,10 @@ static Command s_commands[] = {
     { "/d", CMD_DISCONNECT, disconnect_handler },
     { "/quit", CMD_QUIT, quit_handler },
     { "/q", CMD_QUIT, quit_handler },
+
+    // Commands that execute tasks
     { "/users", CMD_USERS, users_handler },
-    { "/u", CMD_USERS, users_handler }
+    { "/upload", CMD_UPLOAD, upload_handler },
 };
 
 const Command* get_command_by_name(const char* command_name)

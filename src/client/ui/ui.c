@@ -58,7 +58,7 @@ static void initialize_color_pairs()
     init_pair(COLOR_PAIR_CHAT_WARNING, CHAT_WARNING_COLOR, CHAT_BG_COLOR);
 }
 
-static void window_resize()
+static void window_resize(int)
 {
     pthread_mutex_lock(&ui.render_mutex);
     struct winsize w;

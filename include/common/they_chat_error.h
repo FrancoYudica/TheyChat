@@ -15,6 +15,7 @@ typedef enum {
     ERR_NET_UNABLE_TO_CONNECT,
     ERR_NET_FAILURE,
     ERR_NET_PEER_DISCONNECTED,
+    ERR_NET_CONNECTION_CLOSED,
     ERR_NET_RECEIVED_INVALID_TYPE,
     ERR_NET_STREAM_OVERFLOW
 } ErrorCode;
@@ -24,10 +25,7 @@ typedef enum {
 typedef struct
 {
     ErrorCode code;
-    const char* message;
-    const char* errno_msg;
-    const char* file;
-    uint32_t line;
+    char message[1024];
 } Error;
 
 Error* _create_error(
@@ -40,6 +38,12 @@ Error* _create_error(
 void free_error(Error* error);
 
 void print_error(const Error* err);
+
+void set_thread_name(pthread_t tid, const char* name);
+
+const char* get_thread_name(pthread_t tid);
+
+void unregister_thread(pthread_t tid);
 
 void _assert_net_error(Error* err);
 

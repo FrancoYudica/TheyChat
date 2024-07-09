@@ -1,8 +1,10 @@
-#include "server.h"
 #include <stdlib.h>
+#include <unistd.h>
 #include <stddef.h>
 #include <unistd.h>
 #include <thread_pool.h>
+#include <signal.h>
+#include "server.h"
 #include "messages/message.h"
 #include "messages/message_types.h"
 #include "net/net_communication.h"
@@ -23,10 +25,19 @@ Error* server_init_network(Server* server);
 /// for each new connection.
 Error* server_accept_clients(Server* server);
 
+static Server* server;
+
+void handle_sigint(int sig)
+{
+    Error* err = server_free(server);
+    print_error(err);
+    exit(0);
+}
+
 int main(int argc, char** argv)
 {
 
-    uint16_t port = 8000;
+    uint16_t port = DEFAULT_STATUS_PORT;
     uint8_t max_client_count = 10;
 
     // Loads arguments
@@ -48,8 +59,13 @@ int main(int argc, char** argv)
             printf("Unrecognized parameter \"%s\"", parameter);
     }
 
+    set_thread_name(pthread_self(), "main");
+
+    // Set up the signal handler for SIGINT (CTRL+C)
+    signal(SIGINT, handle_sigint);
+
     // Creates server with the input parameters
-    Server* server = server_create(port, max_client_count);
+    server = server_create(port, max_client_count);
 
     Error* err = server_init_network(server);
     ASSERT_NET_ERROR(err);
@@ -77,17 +93,30 @@ Server* server_create(uint16_t port, uint32_t max_client_count)
     pthread_mutex_init(&server->client_list_mutex, NULL);
 
     server->client_thread_pool = thpool_create(max_client_count);
+    server->task_thread_pool = thpool_create(max_client_count);
     return server;
 }
 
 Error* server_free(Server* server)
 {
+    printf("Freeing server memory\n");
     Error* err = net_close(server->context);
+
+    if (IS_NET_ERROR(err))
+        print_error(err);
+
+    printf("    - Context closed\n");
     thpool_destroy(server->client_thread_pool);
+    printf("    - Client thpool destroyed\n");
+    thpool_destroy(server->task_thread_pool);
+    printf("    - Task thpool destroyed\n");
     client_list_destroy(server->client_list);
+    printf("    - Client list destroyed\n");
     pthread_mutex_destroy(&server->client_list_mutex);
     pthread_mutex_destroy(&server->broadcast_mutex);
+    printf("    - Mutexes destroyed\n");
     net_shutdown();
+    printf("    - Network shutdown\n");
     return err;
 }
 
@@ -136,11 +165,21 @@ Error* server_accept_clients(Server* server)
     while (true) {
 
         // Accepts client connections
-        ConnectionContext* client_context;
-        err = net_accept_connection(server->context, &client_context);
+        ConnectionContext* client_status_context = NULL;
+        err = net_accept_connection(server->context, &client_status_context);
 
         if (IS_NET_ERROR(err))
             break;
+
+        printf("Accepted client status connection\n");
+
+        ConnectionContext* client_task_context = NULL;
+        err = net_accept_connection(server->context, &client_task_context);
+
+        if (IS_NET_ERROR(err))
+            break;
+
+        printf("Accepted client task connection\n");
 
         // Registers client
         pthread_mutex_lock(&server->client_list_mutex);
@@ -148,11 +187,11 @@ Error* server_accept_clients(Server* server)
         pthread_mutex_unlock(&server->client_list_mutex);
 
         // Initializes client network data
-        init_client_network(client, client_context);
+        init_client_network(client, client_status_context, client_task_context);
 
         // Tells client that all threads are busy, and it's on queue
         if (thpool_all_threads_busy(server->client_thread_pool))
-            send_message((Message*)&client_on_queue_msg, &client->net_connection);
+            send_message((Message*)&client_on_queue_msg, &client->status_connection);
 
         // Creates handler data and queues a new task
         ClientHandlerData* handler_data = (ClientHandlerData*)malloc(sizeof(ClientHandlerData));

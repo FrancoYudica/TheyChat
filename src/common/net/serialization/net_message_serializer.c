@@ -1,3 +1,4 @@
+#include <assert.h>
 #include "messages/message_types.h"
 #include "net/serialization/net_message_serializer.h"
 #include "net/serialization/net_serializer.h"
@@ -7,7 +8,7 @@ void ns_serialize_message(const Message* message, uint8_t* buffer, size_t* buffe
     uint8_t* buffer_ptr = buffer;
 
     // Serializes message type
-    ns_push_byte_array(&buffer_ptr, &message->type, sizeof(message->type));
+    ns_push_long(&buffer_ptr, &message->type);
     ns_push_long(&buffer_ptr, &message->net_payload_length);
 
     // Serializes properties for the corresponding message type
@@ -66,13 +67,6 @@ void ns_serialize_message(const Message* message, uint8_t* buffer, size_t* buffe
         break;
     }
 
-    case MSGT_COMMAND: {
-        const CommandPayload* command = &message->payload.command;
-        ns_push_byte_array(&buffer_ptr, (const uint8_t*)&command->command_type, sizeof(command->command_type));
-        ns_push_byte_array(&buffer_ptr, (const uint8_t*)command->arg, sizeof(command->arg));
-        break;
-    }
-
     case MSGT_HEAP_SEQUENCE: {
         const HeapSequencePayload* heap_seq = &message->payload.heap_sequence;
         ns_push_byte_array(&buffer_ptr, (const uint8_t*)heap_seq->payload, message->net_payload_length);
@@ -85,6 +79,50 @@ void ns_serialize_message(const Message* message, uint8_t* buffer, size_t* buffe
         ns_push_byte_array(&buffer_ptr, (const uint8_t*)server_notification->text, sizeof(server_notification->text));
         break;
     }
+    case MSGT_TASK_REQUEST:
+    case MSGT_TASK_STATUS: {
+
+        // Pushes specific data and get tagged task
+        const TaggedTask* tagged_task;
+
+        switch (message->type) {
+        case MSGT_TASK_REQUEST:
+            tagged_task = &message->payload.task_request.tagged_task;
+            break;
+
+        case MSGT_TASK_STATUS: {
+            const TaskStatusPayload* task = &message->payload.task_status;
+            ns_push_long(&buffer_ptr, (const uint32_t*)&task->task_status);
+            tagged_task = &message->payload.task_status.tagged_task;
+            break;
+        }
+
+        default:
+            assert(false);
+            break;
+        }
+
+        // Pushes tagged task data
+        ns_push_long(&buffer_ptr, (const uint32_t*)&tagged_task->task_type);
+
+        switch (tagged_task->task_type) {
+        case TASK_USERS:
+            ns_push_byte_array(&buffer_ptr, (const uint8_t*)&tagged_task->data.users.show_ip, sizeof(tagged_task->data.users.show_ip));
+            ns_push_byte_array(&buffer_ptr, (const uint8_t*)&tagged_task->data.users.show_id, sizeof(tagged_task->data.users.show_id));
+            break;
+
+        case TASK_CLIENT_UPLOAD_FILE:
+            ns_push_byte_array(&buffer_ptr, (const uint8_t*)tagged_task->data.file_upload.filename, sizeof(tagged_task->data.file_upload.filename));
+            break;
+        default:
+            printf("Unimplemented serialization for task message type %i\n", tagged_task->task_type);
+            exit(EXIT_FAILURE);
+            break;
+        }
+
+        break;
+    }
+
     default:
         printf("Unimplemented serialization for message type %i\n", message->type);
         exit(EXIT_FAILURE);
@@ -99,10 +137,8 @@ void ns_deserialize_message(const uint8_t* buffer, Message* message)
 {
     uint8_t* buffer_ptr = (uint8_t*)buffer;
 
-    // Pops type
-    ns_pop_byte_array(&buffer_ptr, &message->type, sizeof(message->type));
-
-    // Pops payload length
+    // Pops type and length
+    ns_pop_long(&buffer_ptr, &message->type);
     ns_pop_long(&buffer_ptr, &message->net_payload_length);
 
     // Serializes properties for the corresponding message type
@@ -159,12 +195,6 @@ void ns_deserialize_message(const uint8_t* buffer, Message* message)
         ns_pop_byte_array(&buffer_ptr, (uint8_t*)&connected_clients->client_count, sizeof(connected_clients->client_count));
         break;
     }
-    case MSGT_COMMAND: {
-        CommandPayload* command = &message->payload.command;
-        ns_pop_byte_array(&buffer_ptr, (uint8_t*)&command->command_type, sizeof(command->command_type));
-        ns_pop_byte_array(&buffer_ptr, (uint8_t*)command->arg, sizeof(command->arg));
-        break;
-    }
 
     case MSGT_HEAP_SEQUENCE: {
         HeapSequencePayload* heap_seq = &message->payload.heap_sequence;
@@ -182,6 +212,51 @@ void ns_deserialize_message(const uint8_t* buffer, Message* message)
         ns_pop_byte_array(&buffer_ptr, (uint8_t*)server_notification->text, sizeof(server_notification->text));
         break;
     }
+
+    case MSGT_TASK_REQUEST:
+    case MSGT_TASK_STATUS: {
+
+        // Pushes specific data and get tagged task
+        TaggedTask* tagged_task;
+
+        switch (message->type) {
+        case MSGT_TASK_REQUEST:
+            tagged_task = &message->payload.task_request.tagged_task;
+            break;
+
+        case MSGT_TASK_STATUS: {
+            TaskStatusPayload* task = &message->payload.task_status;
+            ns_pop_long(&buffer_ptr, (uint32_t*)&task->task_status);
+            tagged_task = &message->payload.task_status.tagged_task;
+            break;
+        }
+
+        default:
+            assert(false);
+            break;
+        }
+
+        // Pushes tagged task data
+        ns_pop_long(&buffer_ptr, (uint32_t*)&tagged_task->task_type);
+
+        switch (tagged_task->task_type) {
+        case TASK_USERS:
+            ns_pop_byte_array(&buffer_ptr, (uint8_t*)&tagged_task->data.users.show_ip, sizeof(tagged_task->data.users.show_ip));
+            ns_pop_byte_array(&buffer_ptr, (uint8_t*)&tagged_task->data.users.show_id, sizeof(tagged_task->data.users.show_id));
+            break;
+
+        case TASK_CLIENT_UPLOAD_FILE:
+            ns_pop_byte_array(&buffer_ptr, (uint8_t*)tagged_task->data.file_upload.filename, sizeof(tagged_task->data.file_upload.filename));
+            break;
+        default:
+            printf("Unimplemented serialization for task message type %i\n", tagged_task->task_type);
+            exit(EXIT_FAILURE);
+            break;
+        }
+
+        break;
+    }
+
     default:
         printf("Unimplemented deserialization for message type %i\n", message->type);
         exit(EXIT_FAILURE);

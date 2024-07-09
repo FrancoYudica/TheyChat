@@ -8,12 +8,15 @@
 #include <unistd.h>
 #include <openssl/ssl.h>
 #include <openssl/err.h>
+#include <stdatomic.h>
 
 struct ConnectionContext {
     SSL_CTX* ctx;
     SSL* ssl;
     int32_t socketfd;
     BIO* bio;
+
+    atomic_bool closing;
 };
 
 static void report_and_exit(const char* msg)
@@ -69,6 +72,13 @@ static Error* ssl_connect(
     return CREATE_ERR_OK;
 }
 
+static void init_connection_context(ConnectionContext* context)
+{
+    memset(context, 0, sizeof(ConnectionContext));
+    context->socketfd = 0;
+    atomic_store(&context->closing, false);
+}
+
 void net_init()
 {
     SSL_load_error_strings();
@@ -84,7 +94,9 @@ Error* net_server_create_socket(
 {
     *context_ref = (ConnectionContext*)malloc(sizeof(ConnectionContext));
     ConnectionContext* context = *context_ref;
-    memset(context, 0, sizeof(ConnectionContext));
+    init_connection_context(context);
+    context->ssl = NULL;
+
     // Creates SSL context with the latest version possible
     const SSL_METHOD* method = SSLv23_server_method();
     context->ctx = SSL_CTX_new(method);
@@ -118,7 +130,7 @@ Error* net_client_create_socket(
 {
     *context_ref = (ConnectionContext*)malloc(sizeof(ConnectionContext));
     ConnectionContext* context = *context_ref;
-    memset(context, 0, sizeof(ConnectionContext));
+    init_connection_context(context);
 
     const SSL_METHOD* method = SSLv23_client_method();
     context->ctx = SSL_CTX_new(method);
@@ -141,7 +153,6 @@ Error* net_accept_connection(
     ConnectionContext* server_context,
     ConnectionContext** client_context_ref)
 {
-
     ConnectionContext* client_context = malloc(sizeof(ConnectionContext));
     *client_context_ref = client_context;
 
@@ -187,28 +198,71 @@ Error* net_receive(
     uint32_t size,
     uint32_t* bytes_read)
 {
-    int read = SSL_read(context->ssl, buffer, size);
-    if (read == -1)
-        return CREATE_ERRNO(ERR_NET_FAILURE, "`SSL_read` failure");
+    if (context == NULL || buffer == NULL)
+        return CREATE_ERR(ERR_NET_FAILURE, "Invalid context or buffer");
 
-    if (read == 0)
-        return CREATE_ERRNO(ERR_NET_PEER_DISCONNECTED, "Peer disconnected");
+    fd_set read_fds;
+    struct timeval timeout;
 
-    if (bytes_read != NULL)
-        *bytes_read = read;
+    while (true) {
+        FD_ZERO(&read_fds);
+        FD_SET(context->socketfd, &read_fds);
 
-    return CREATE_ERR_OK;
+        // Set timeout to 3 seconds
+        timeout.tv_sec = 3;
+        timeout.tv_usec = 0;
+
+        int32_t select_result = select(context->socketfd + 1, &read_fds, NULL, NULL, &timeout);
+        if (select_result == -1)
+            return CREATE_ERRNO(ERR_NET_FAILURE, "net_receive() `select()` failure");
+
+        // TIMEOUT
+        else if (select_result == 0)
+            continue;
+
+        // Checks if connection context is closing
+        if (atomic_load(&context->closing)) {
+            return CREATE_ERR(ERR_NET_CONNECTION_CLOSED, "Connection closed while trying to receive");
+        }
+
+        if (FD_ISSET(context->socketfd, &read_fds)) {
+
+            int read = SSL_read(context->ssl, buffer, size);
+            if (read == -1)
+                return CREATE_ERRNO(ERR_NET_FAILURE, "`SSL_read` failure");
+
+            if (read == 0)
+                return CREATE_ERR(ERR_NET_PEER_DISCONNECTED, "Peer disconnected");
+
+            if (bytes_read != NULL)
+                *bytes_read = read;
+
+            return CREATE_ERR_OK;
+        }
+    }
+
+    return CREATE_ERR(ERR_NET_FAILURE, "Unexpected error in select()");
 }
 
 Error* net_close(ConnectionContext* context)
 {
-    SSL_shutdown(context->ssl);
-    SSL_free(context->ssl);
-    int32_t socketfd = context->socketfd;
+    // Shut down the socket to signal the receive thread to stop
+    if (context->ssl != NULL && SSL_shutdown(context->ssl) != 0)
+        return CREATE_ERRNO(ERR_NET_FAILURE, "SSL_shutdown() failure");
+
+    atomic_store(&context->closing, true);
+
+    // Waits 2ms, in case there is any thread receiving
+    usleep(20000);
+
+    if (context->ssl != NULL)
+        SSL_free(context->ssl);
+
+    int32_t fd = context->socketfd;
     free(context);
 
-    if (close(socketfd) == -1)
-        return CREATE_ERRNO(ERR_CLOSE_FD, "Error while closing ConnectionContext socketfd file descriptor");
+    if (close(fd) == -1)
+        return CREATE_ERRNO(ERR_CLOSE_FD, "Error while closing ConnectionContext socket file descriptor");
 
     return CREATE_ERR_OK;
 }
@@ -235,7 +289,7 @@ Error* net_get_ip(ConnectionContext* context, char* ip_buffer, size_t ip_buffer_
     // Convert the IP address to a human-readable form
     const char* result = inet_ntop(AF_INET, &peer_addr.sin_addr, ip_buffer, ip_buffer_size);
     if (result == NULL)
-        return CREATE_ERRNO(ERR_NET_FAILURE, "Error while converting IP to human-readable form");
+        return CREATE_ERR(ERR_NET_FAILURE, "Error while converting IP to human-readable form");
 
     return CREATE_ERR_OK;
 }

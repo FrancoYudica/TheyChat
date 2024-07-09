@@ -4,34 +4,66 @@
 Error* handle_state_connect()
 {
     Client* client = get_client();
+    Error* err;
 
-    ui_set_log_text(
-        "Connecting to server ip (%s) and port (%d)...",
-        client->connection_details.server_ip,
-        client->connection_details.port);
+    // Establishes status connection
+    {
+        ui_set_log_text(
+            "Establishing status connection on ip (%s) and port (%d)...",
+            client->connection_details.server_ip,
+            client->connection_details.status_port);
 
-    // Establishes connection with serer
-    Error* err = net_client_create_socket(
-        client->connection_details.port,
-        client->connection_details.server_ip,
-        &client->net_connection.context);
+        // Establishes connection with serer
+        err = net_client_create_socket(
+            client->connection_details.status_port,
+            client->connection_details.server_ip,
+            &client->status_connection.context);
 
-    // Unable to connect, goes back to offline state
-    if (IS_NET_ERROR(err)) {
-        ui_set_log_text("Unable to connect. Error: \"%s\"", err->message);
-        state_handler_set_next(APP_STATE_OFFLINE);
-        return CREATE_ERR_OK;
+        // Unable to connect, goes back to offline state
+        if (IS_NET_ERROR(err)) {
+            ui_push_text_entry(
+                TEXT_ENTRY_TYPE_WARNING,
+                "Unable to establish status connection. Error: \"%s\"",
+                err->message);
+            state_handler_set_next(APP_STATE_OFFLINE);
+            return CREATE_ERR_OK;
+        }
     }
+    // Establishes task connection
+    {
+        ui_set_log_text(
+            "Establishing task connection on ip (%s) and port (%d)...",
+            client->connection_details.server_ip,
+            client->connection_details.task_port);
+
+        // Establishes connection with serer
+        err = net_client_create_socket(
+            client->connection_details.task_port,
+            client->connection_details.server_ip,
+            &client->task_connection.context);
+
+        // Unable to connect, goes back to offline state
+        if (IS_NET_ERROR(err)) {
+            ui_push_text_entry(
+                TEXT_ENTRY_TYPE_WARNING,
+                "Unable to establish task connection. Error: \"%s\"",
+                err->message);
+            state_handler_set_next(APP_STATE_OFFLINE);
+            return CREATE_ERR_OK;
+        }
+    }
+
+    ui_set_log_text("Connections established successfully");
 
     Message message;
 
     // Waits for connected, or on queue message
-    Error* status = wait_for_message(
-        &client->net_connection,
+    err = wait_for_message(
+        &client->status_connection,
         &message);
 
-    if (IS_NET_ERROR(status))
-        return status;
+    if (IS_NET_ERROR(err))
+        return err;
 
     if (message.type == MSGT_CLIENT_ON_QUEUE) {
         ui_set_connected_count(1);
@@ -56,5 +88,5 @@ Error* handle_state_connect()
         state_handler_set_next(APP_STATE_OFFLINE);
     }
 
-    return status;
+    return err;
 }

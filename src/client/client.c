@@ -10,12 +10,22 @@
 #include "client.h"
 #include "states_fsm.h"
 #include "ui/ui.h"
+#include "server_task/server_task_handler.h"
 
 int main()
 {
-    Client* client = get_client();
-    init_network_connection(&client->net_connection);
 
+    set_thread_name(pthread_self(), "main");
+
+    Client* client = get_client();
+
+    init_network_connection(&client->status_connection);
+    init_network_connection(&client->task_connection);
+
+    // Initializes connection details
+    strcpy(client->connection_details.server_ip, "127.0.0.1");
+    client->connection_details.status_port = DEFAULT_STATUS_PORT;
+    client->connection_details.task_port = DEFAULT_COMMAND_PORT;
 #ifdef THEY_CHAT_SSL
     client->connection_details.tls_enabled = true;
 #else

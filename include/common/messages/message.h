@@ -11,7 +11,7 @@
 /// @brief Message basic data layout
 typedef struct
 {
-    uint8_t type;
+    enum MessageType type;
 
     /// @brief Length in bytes of the message payload.
     /// stores the total size of all the fields of the message
@@ -22,7 +22,9 @@ typedef struct
         UserChatPayload user_chat;
         UserLoginPayload user_login;
         Bytes128Payload bytes_128;
-        CommandPayload command;
+
+        TaskRequestPayload task_request;
+        TaskStatusPayload task_status;
 
         FileHeaderPayload file_header;
         FileContentPayload file_content;
@@ -49,7 +51,9 @@ Message create_client_connected();
 
 Message create_client_on_queue();
 
-Message create_command_msg(uint8_t type, const char* arg);
+Message create_task_request_msg(enum TaskType type);
+
+Message create_task_status_msg(enum TaskType type, enum TaskStatus status);
 
 Message create_file_header_message(const char* name, uint32_t size);
 

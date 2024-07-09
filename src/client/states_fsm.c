@@ -18,6 +18,7 @@ extern Error* handle_state_quit();
 static AppState s_current_state = APP_STATE_NULL;
 static pthread_mutex_t s_cond_mutex;
 static pthread_cond_t s_next_state_cond;
+static void (*s_state_exit_callback)(void);
 
 void state_handler_fsm(AppState initial_state)
 {
@@ -78,6 +79,12 @@ void state_handler_fsm(AppState initial_state)
             free_error(err);
         }
 
+        // Calls state exit
+        if (s_state_exit_callback != NULL) {
+            s_state_exit_callback();
+            s_state_exit_callback = NULL;
+        }
+
         // In case the handler didn't set the next state
         assert(s_current_state != APP_STATE_NULL);
     }
@@ -103,4 +110,9 @@ void state_handler_wait_next_state_cond()
 AppState state_handler_get_current()
 {
     return s_current_state;
+}
+
+void state_handler_set_exit_callback(void (*callback)(void))
+{
+    s_state_exit_callback = callback;
 }

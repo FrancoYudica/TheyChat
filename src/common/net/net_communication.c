@@ -101,7 +101,7 @@ Error* wait_for_message(
 Error* wait_for_message_type(
     NetworkConnection* connection,
     Message* message,
-    uint8_t type)
+    enum MessageType type)
 {
 
     Error* err = wait_for_message(connection, message);
@@ -112,7 +112,8 @@ Error* wait_for_message_type(
 
         char err_log[128];
         sprintf(
-            "Received unexpected message type. Expected type %i but received %i",
+            err_log,
+            "Received unexpected message type. Expected type %s but received %s",
             msg_get_type_name(type),
             msg_get_type_name(message->type));
 

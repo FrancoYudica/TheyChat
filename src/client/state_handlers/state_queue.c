@@ -2,7 +2,7 @@
 
 static pthread_t s_receive_thread;
 
-static void* wait_for_accept()
+static void* wait_for_accept(void*)
 {
     Client* client = get_client();
     Message message;
@@ -12,7 +12,7 @@ static void* wait_for_accept()
     // Waits for connection
     bool waiting_in_queue = true;
     while (waiting_in_queue) {
-        err = wait_for_message(&client->net_connection, &message);
+        err = wait_for_message(&client->status_connection, &message);
 
         if (IS_NET_ERROR(err))
             return NULL;
