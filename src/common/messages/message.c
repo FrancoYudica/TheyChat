@@ -66,13 +66,13 @@ void print_message(Message* message)
     case MSGT_TASK_REQUEST: {
         printf(
             "task_type: %i}\n",
-            message->payload.task_request.task_type);
+            message->payload.task_request.tagged_task.task_type);
         break;
     }
     case MSGT_TASK_STATUS: {
         printf(
             "task_type: %i, task_status: %i}\n",
-            message->payload.task_status.task_type,
+            message->payload.task_status.tagged_task.task_type,
             message->payload.task_status.task_status);
         break;
     }
@@ -138,32 +138,41 @@ Message create_client_on_queue()
     return message;
 }
 
-Message create_task_request_msg(enum TaskType type)
+/// @brief Initializes memory and adds to net_payload_length, considering the TaskType
+static void initialize_tagged_task(
+    Message* message,
+    TaggedTask* tagged_task,
+    enum TaskType type)
 {
-    Message message;
-    TaskRequestPayload* task = &message.payload.task_request;
 
-    message.type = MSGT_TASK_REQUEST;
-
-    message.net_payload_length = 0;
-    message.net_payload_length += sizeof(task->task_type);
-
+    message->net_payload_length += sizeof(tagged_task->task_type);
+    tagged_task->task_type = type;
     switch (type) {
     case TASK_USERS:
-        message.net_payload_length += sizeof(TaskUsersDada);
+        message->net_payload_length += sizeof(TaskUsersDada);
         break;
 
     case TASK_CLIENT_UPLOAD_FILE:
-        message.net_payload_length += sizeof(TaskFileUploadData);
+        message->net_payload_length += sizeof(TaskFileUploadData);
         break;
 
     default:
         assert(false);
         break;
     }
+    memset(&tagged_task->data, 0, sizeof(tagged_task->data));
+}
 
-    task->task_type = type;
-    memset(&task->data, 0, sizeof(task->data));
+Message create_task_request_msg(enum TaskType type)
+{
+    Message message;
+    message.type = MSGT_TASK_REQUEST;
+    message.net_payload_length = 0;
+    initialize_tagged_task(
+        &message,
+        &message.payload.task_request.tagged_task,
+        type);
+
     return message;
 }
 
@@ -173,9 +182,12 @@ Message create_task_status_msg(enum TaskType type, enum TaskStatus status)
     TaskStatusPayload* task = &message.payload.task_status;
 
     message.type = MSGT_TASK_STATUS;
-    message.net_payload_length = sizeof(task->task_type) + sizeof(task->task_status);
-    task->task_type = type;
+    message.net_payload_length = sizeof(task->task_status);
     task->task_status = status;
+    initialize_tagged_task(
+        &message,
+        &message.payload.task_status.tagged_task,
+        type);
     return message;
 }
 

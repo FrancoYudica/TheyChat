@@ -10,7 +10,7 @@ Error* users_handler(uint8_t argc, char** argv)
 
     message = create_task_request_msg(TASK_USERS);
     TaskRequestPayload* request = &message.payload.task_request;
-    TaskUsersDada* users_data = &request->data.users;
+    TaskUsersDada* users_data = &request->tagged_task.data.users;
 
     for (int i = 0; i < argc; i++) {
         if (!strcmp(argv[i], "ip"))

@@ -140,6 +140,11 @@ typedef struct
 {
     enum TaskType task_type;
     TaskData data;
+} TaggedTask;
+
+typedef struct
+{
+    TaggedTask tagged_task;
 } TaskRequestPayload;
 
 enum TaskStatus {
@@ -151,8 +156,8 @@ enum TaskStatus {
 
 typedef struct
 {
-    enum TaskType task_type;
     enum TaskStatus task_status;
+    TaggedTask tagged_task;
 } TaskStatusPayload;
 
 #endif

@@ -18,7 +18,7 @@ Error* server_task_users(TaskHandlerData* data)
     pthread_mutex_lock(&data->server->broadcast_mutex);
     client_list_interator_rewind(clients);
 
-    TaskUsersDada* users_data = &data->task_request.data.users;
+    TaskUsersDada* users_data = &data->task_request.tagged_task.data.users;
 
     char buffer[512];
     uint32_t space = 10;

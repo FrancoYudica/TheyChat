@@ -59,16 +59,16 @@ static void* thread_handler(void*)
             ui_push_text_entry(
                 TEXT_ENTRY_TYPE_WARNING,
                 "Received task of type \"%d\" and it's not executing...",
-                task_status->task_type);
+                task_status->tagged_task.task_type);
             continue;
         }
 
         // Tells that task will be executed
         ui_set_log_text(
             "Executing task: %d",
-            task_status->task_type);
+            task_status->tagged_task.task_type);
 
-        switch (task_status->task_type) {
+        switch (task_status->tagged_task.task_type) {
         case TASK_USERS:
             s_error = server_task_users(msg.payload.task_status);
             break;
@@ -81,7 +81,7 @@ static void* thread_handler(void*)
             ui_push_text_entry(
                 TEXT_ENTRY_TYPE_WARNING,
                 "Trying to execute unimplemented task type \"%d\"...",
-                task_status->task_type);
+                task_status->tagged_task.task_type);
             break;
         }
 
@@ -94,7 +94,7 @@ static void* thread_handler(void*)
         } else {
             ui_set_log_text(
                 "Task \"%d\" executed successfully",
-                task_status->task_type);
+                task_status->tagged_task.task_type);
         }
     }
     unregister_thread(pthread_self());
