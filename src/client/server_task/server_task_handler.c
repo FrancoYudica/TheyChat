@@ -25,6 +25,7 @@ void server_task_handler_free()
 }
 
 extern Error* server_task_users(TaskStatusPayload);
+extern Error* server_task_files(TaskStatusPayload);
 extern Error* server_task_upload_file(TaskStatusPayload);
 extern Error* server_task_download_file(TaskStatusPayload);
 
@@ -73,7 +74,9 @@ static void* thread_handler(void*)
         case TASK_USERS:
             s_error = server_task_users(msg.payload.task_status);
             break;
-
+        case TASK_FILES:
+            s_error = server_task_files(msg.payload.task_status);
+            break;
         case TASK_CLIENT_UPLOAD_FILE:
             s_error = server_task_upload_file(msg.payload.task_status);
             break;

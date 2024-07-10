@@ -24,6 +24,8 @@ Error* server_task_upload_file(TaskHandlerData* data)
     Server* server = data->server;
     Client* client = data->client;
 
+    pthread_mutex_lock(&server->shared_file_list_mutex);
+
     // Adds shared file to the list
     SharedFile* file = shared_file_list_add(server->shared_file_list);
     strcpy(file->filename, file_upload->filename);
@@ -31,6 +33,8 @@ Error* server_task_upload_file(TaskHandlerData* data)
     file->size = file_size;
     file->client_id = client->id;
     strcpy(file->client_name, client->name);
+
+    pthread_mutex_unlock(&server->shared_file_list_mutex);
 
     // Tells all clients that the file was successfully sent
     message = create_server_notification(

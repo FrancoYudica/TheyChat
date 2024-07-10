@@ -92,6 +92,7 @@ Server* server_create(uint16_t port, uint32_t max_client_count)
     server->shared_file_list = shared_file_list_create();
 
     pthread_mutex_init(&server->client_list_mutex, NULL);
+    pthread_mutex_init(&server->shared_file_list_mutex, NULL);
 
     server->client_thread_pool = thpool_create(max_client_count);
     server->task_thread_pool = thpool_create(max_client_count);
@@ -116,6 +117,7 @@ Error* server_free(Server* server)
     shared_file_list_destroy(server->shared_file_list);
     printf("    - Shared file list destroyed\n");
     pthread_mutex_destroy(&server->client_list_mutex);
+    pthread_mutex_destroy(&server->shared_file_list_mutex);
     pthread_mutex_destroy(&server->broadcast_mutex);
     printf("    - Mutexes destroyed\n");
     net_shutdown();

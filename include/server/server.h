@@ -24,6 +24,10 @@ typedef struct
     pthread_mutex_t client_list_mutex;
 
     /// @brief Mutex used exclusively to block other
+    /// thread when modifying shared file list
+    pthread_mutex_t shared_file_list_mutex;
+
+    /// @brief Mutex used exclusively to block other
     /// threads when sending messages in broadcast
     pthread_mutex_t broadcast_mutex;
 } Server;

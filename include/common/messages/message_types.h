@@ -141,10 +141,15 @@ typedef struct {
     char filename[MAX_FILENAME_SIZE];
 } TaskFileDownloadData;
 
+typedef struct
+{
+} TaskFilesData;
+
 typedef union {
     TaskUsersDada users;
     TaskFileUploadData file_upload;
     TaskFileDownloadData file_download;
+    TaskFilesData files;
 } TaskData;
 
 typedef struct

@@ -9,7 +9,7 @@ Error* server_task_users(TaskHandlerData* data)
 
     ClientList* clients = data->server->client_list;
 
-    pthread_mutex_lock(&data->server->broadcast_mutex);
+    pthread_mutex_lock(&data->server->client_list_mutex);
     client_list_interator_rewind(clients);
 
     TaskUsersDada* users_data = &data->task_request.tagged_task.data.users;
@@ -40,7 +40,7 @@ Error* server_task_users(TaskHandlerData* data)
         string_list_add(str_list, buffer);
     }
 
-    pthread_mutex_unlock(&data->server->broadcast_mutex);
+    pthread_mutex_unlock(&data->server->client_list_mutex);
 
     // Sends string list to client
     err = send_string_list(&data->client->task_connection, str_list);

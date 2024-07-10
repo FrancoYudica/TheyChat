@@ -119,6 +119,9 @@ void ns_serialize_message(const Message* message, uint8_t* buffer, size_t* buffe
         case TASK_CLIENT_DOWNLOAD_FILE:
             ns_push_byte_array(&buffer_ptr, (const uint8_t*)tagged_task->data.file_download.filename, sizeof(tagged_task->data.file_download.filename));
             break;
+
+        case TASK_FILES:
+            break;
         default:
             printf("Unimplemented serialization for task message type %i\n", tagged_task->task_type);
             exit(EXIT_FAILURE);
@@ -257,6 +260,9 @@ void ns_deserialize_message(const uint8_t* buffer, Message* message)
 
         case TASK_CLIENT_DOWNLOAD_FILE:
             ns_pop_byte_array(&buffer_ptr, (uint8_t*)tagged_task->data.file_download.filename, sizeof(tagged_task->data.file_download.filename));
+            break;
+
+        case TASK_FILES:
             break;
         default:
             printf("Unimplemented serialization for task message type %i\n", tagged_task->task_type);

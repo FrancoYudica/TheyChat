@@ -93,6 +93,7 @@ set(SERVER_SOURCES
 
     src/server/task/task_request_handler.c
     src/server/task/tasks/server_task_users.c
+    src/server/task/tasks/server_task_files.c
     src/server/task/tasks/server_task_upload_file.c
     src/server/task/tasks/server_task_download_file.c
 )
@@ -123,9 +124,11 @@ set(CLIENT_SOURCES
     src/client/command/commands/users_handler.c
     src/client/command/commands/upload_handler.c
     src/client/command/commands/download_handler.c
+    src/client/command/commands/files_handler.c
 
     src/client/server_task/server_task_handler.c
     src/client/server_task/tasks/server_task_users.c
+    src/client/server_task/tasks/server_task_files.c
     src/client/server_task/tasks/server_task_upload_file.c
     src/client/server_task/tasks/server_task_download_file.c
     
@@ -136,6 +139,7 @@ set(CLIENT_SOURCES
     src/client/state_handlers/state_disconnect.c
     src/client/state_handlers/state_chat.c
     src/client/state_handlers/state_quit.c
+    
     src/client/ui/ui.c
     src/client/ui/chat_entry_types.c
     src/client/ui/chat_entries.c

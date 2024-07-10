@@ -151,12 +151,14 @@ static void initialize_tagged_task(
     case TASK_USERS:
         message->net_payload_length += sizeof(TaskUsersDada);
         break;
-
     case TASK_CLIENT_UPLOAD_FILE:
         message->net_payload_length += sizeof(TaskFileUploadData);
         break;
     case TASK_CLIENT_DOWNLOAD_FILE:
         message->net_payload_length += sizeof(TaskFileDownloadData);
+        break;
+    case TASK_FILES:
+        message->net_payload_length += sizeof(TaskFilesData);
         break;
     default:
         assert(false);

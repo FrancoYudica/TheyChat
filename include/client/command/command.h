@@ -14,7 +14,8 @@ enum CommandType {
     CMD_QUIT,
     CMD_USERS,
     CMD_UPLOAD,
-    CMD_DOWNLOAD
+    CMD_DOWNLOAD,
+    CMD_FILES
 };
 
 typedef struct

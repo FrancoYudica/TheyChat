@@ -4,6 +4,7 @@
 #include "server_state_data.h"
 
 extern Error* server_task_users(TaskHandlerData*);
+extern Error* server_task_files(TaskHandlerData*);
 extern Error* server_task_upload_file(TaskHandlerData*);
 extern Error* server_task_download_file(TaskHandlerData*);
 
@@ -30,6 +31,10 @@ void task_request_handler(TaskHandlerData* data)
 
     case TASK_USERS:
         err = server_task_users(data);
+        break;
+
+    case TASK_FILES:
+        err = server_task_files(data);
         break;
 
     case TASK_CLIENT_UPLOAD_FILE:
