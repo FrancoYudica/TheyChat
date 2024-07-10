@@ -54,7 +54,7 @@ int main()
     const char* filepath = "resources/file.txt";
 
     printf("Client connected! Sending file...\n");
-    err = send_file(filepath, &client_connection);
+    err = send_file(filepath, &client_connection, NULL);
     if (IS_NET_ERROR(err)) {
         printf("%s\n", err->message);
         return 1;

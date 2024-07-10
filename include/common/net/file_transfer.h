@@ -4,7 +4,10 @@
 #include "they_chat_error.h"
 #include "net/net_connection.h"
 
-Error* send_file(const char* filepath, NetworkConnection* net_connection);
+Error* send_file(
+    const char* filepath,
+    NetworkConnection* net_connection,
+    const char* override_name);
 Error* receive_file(
     NetworkConnection* net_connection,
     const char* folder,

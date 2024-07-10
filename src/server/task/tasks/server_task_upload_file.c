@@ -7,22 +7,29 @@ Error* server_task_upload_file(TaskHandlerData* data)
 {
     Error* err;
     Message message;
+    Server* server = data->server;
+    Client* client = data->client;
     TaggedTask* tagged_task = &data->task_request.tagged_task;
     TaskFileUploadData* file_upload = &tagged_task->data.file_upload;
+
+    // The filename is it's id
+    pthread_mutex_lock(&server->shared_file_list_mutex);
+    uint32_t next_file_id = shared_file_list_get_next_id(server->shared_file_list);
+    pthread_mutex_unlock(&server->shared_file_list_mutex);
+
+    char filename[10];
+    sprintf(filename, "%i", next_file_id);
 
     // Receives file and places under resources folder
     uint64_t file_size = 0;
     err = receive_file(
         &data->client->task_connection,
         "resources",
-        NULL,
+        filename,
         &file_size);
 
     if (IS_NET_ERROR(err))
         return err;
-
-    Server* server = data->server;
-    Client* client = data->client;
 
     pthread_mutex_lock(&server->shared_file_list_mutex);
 

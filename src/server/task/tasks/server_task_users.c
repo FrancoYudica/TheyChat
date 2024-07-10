@@ -28,13 +28,14 @@ Error* server_task_users(TaskHandlerData* data)
 
             sprintf(
                 buffer + strlen(buffer),
-                " %s",
+                "%-*s",
+                (int)(MAX_IP_BYTES + 2),
                 client->ip);
 
         if (users_data->show_id)
             sprintf(
                 buffer + strlen(buffer),
-                " %d",
+                "%d",
                 client->id);
 
         string_list_add(str_list, buffer);

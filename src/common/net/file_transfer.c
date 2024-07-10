@@ -6,7 +6,8 @@
 
 Error* send_file(
     const char* filepath,
-    NetworkConnection* net_connection)
+    NetworkConnection* net_connection,
+    const char* override_name)
 {
     // Opens file
     FILE* file = fopen(filepath, "rb");
@@ -23,7 +24,7 @@ Error* send_file(
     Message message;
 
     // Sends header
-    const char* filename = filepath_get_filename(filepath);
+    const char* filename = override_name == NULL ? filepath_get_filename(filepath) : override_name;
     message = create_file_header_message(filename, file_size);
     err = send_message(&message, net_connection);
 

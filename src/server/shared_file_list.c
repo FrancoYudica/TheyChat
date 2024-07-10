@@ -1,4 +1,5 @@
 #include <malloc.h>
+#include <string.h>
 #include "shared_file_list.h"
 #include "collections/linked_list.h"
 
@@ -49,12 +50,31 @@ bool shared_file_list_remove(SharedFileList* list, uint32_t id)
     return found;
 }
 
-bool shared_file_list_find_by_id(SharedFileList* list, uint32_t id)
+uint32_t shared_file_list_get_next_id(SharedFileList* list)
+{
+    return list->next_file_id;
+}
+
+SharedFile* shared_file_list_find_by_id(SharedFileList* list, uint32_t id)
 {
     SharedFile* file = NULL;
     SharedFileListIterator* it = shared_file_list_iterator_create(list);
     while (file = shared_file_list_iterator_next(it)) {
         if (file->id == id)
+            break;
+    }
+
+    shared_file_list_iterator_destroy(it);
+
+    return file; // Will be NULL if not found
+}
+
+SharedFile* shared_file_list_find_by_name(SharedFileList* list, const char* name)
+{
+    SharedFile* file = NULL;
+    SharedFileListIterator* it = shared_file_list_iterator_create(list);
+    while (file = shared_file_list_iterator_next(it)) {
+        if (!strcmp(file->filename, name))
             break;
     }
 

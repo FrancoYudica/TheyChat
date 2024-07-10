@@ -32,6 +32,6 @@ Error* server_task_upload_file(TaskStatusPayload status)
         return CREATE_ERR_OK;
     }
 
-    err = send_file(filepath, &client->task_connection);
+    err = send_file(filepath, &client->task_connection, NULL);
     return err;
 }
