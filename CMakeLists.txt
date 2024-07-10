@@ -40,6 +40,9 @@ set(COMMON_SOURCES
     # File
     src/common/file.c
 
+    # Utils
+    src/common/utils/string_list_transferring.c
+
 )
 
 # Changes encryption at compile time

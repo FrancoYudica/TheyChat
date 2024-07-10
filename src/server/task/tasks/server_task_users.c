@@ -1,18 +1,12 @@
 #include "task/task_handler_data.h"
 #include "net/net_communication.h"
+#include "string/string_list.h"
+#include "utils/string_list_transferring.h"
 
 Error* server_task_users(TaskHandlerData* data)
 {
     Error* err;
-    Message message;
 
-    // Sequence start
-    message = create_seq_start_msg();
-    err = send_message((const Message*)&message, &data->client->task_connection);
-    if (IS_NET_ERROR(err))
-        return err;
-
-    Client* client;
     ClientList* clients = data->server->client_list;
 
     pthread_mutex_lock(&data->server->broadcast_mutex);
@@ -22,9 +16,11 @@ Error* server_task_users(TaskHandlerData* data)
 
     char buffer[512];
     uint32_t space = 10;
+    StringList* str_list = string_list_create();
 
-    // Iterates through all the clients and sends the client name
-    while ((client = client_list_interator_next(clients)) != NULL) {
+    // Iterates through all clients and fills string list
+    Client* client;
+    while ((client = client_list_interator_next(clients))) {
 
         // Formats string
         sprintf(buffer, "%-*s", space, client->name);
@@ -41,21 +37,13 @@ Error* server_task_users(TaskHandlerData* data)
                 " %d",
                 client->id);
 
-        // Creates message and sends
-        message = create_heap_seq_msg(buffer, strlen(buffer) + 1);
-        err = send_message((const Message*)&message, &data->client->task_connection);
-
-        // Frees heap memory
-        free(message.payload.heap_sequence.payload);
-
-        if (IS_NET_ERROR(err))
-            return err;
+        string_list_add(str_list, buffer);
     }
 
     pthread_mutex_unlock(&data->server->broadcast_mutex);
 
-    // Sequence end
-    message = create_seq_end_msg();
-    err = send_message(&message, &data->client->task_connection);
+    // Sends string list to client
+    err = send_string_list(&data->client->task_connection, str_list);
+    string_list_destroy(str_list);
     return err;
 }
