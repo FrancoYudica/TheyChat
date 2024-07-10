@@ -107,7 +107,7 @@ typedef struct
     bool status;
 
     // Contains text explaining the status
-    char text[64];
+    char text[MAX_CHAT_TEXT_BYTES];
 } StatusPayload;
 
 typedef struct
@@ -136,9 +136,15 @@ typedef struct
     char user_filepath[MAX_FILEPATH_SIZE];
 } TaskFileUploadData;
 
+typedef struct {
+    /// @brief Holds the name of the file
+    char filename[MAX_FILENAME_SIZE];
+} TaskFileDownloadData;
+
 typedef union {
     TaskUsersDada users;
     TaskFileUploadData file_upload;
+    TaskFileDownloadData file_download;
 } TaskData;
 
 typedef struct

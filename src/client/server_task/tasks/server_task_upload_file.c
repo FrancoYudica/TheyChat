@@ -10,6 +10,7 @@ Error* server_task_upload_file(TaskStatusPayload status)
     Error* err = CREATE_ERR_OK;
     Client* client = get_client();
     TaggedTask* tagged_task = &status.tagged_task;
+    TaskFileUploadData* upload_data = &tagged_task->data.file_upload;
 
     const char* filepath = tagged_task->data.file_upload.user_filepath;
 

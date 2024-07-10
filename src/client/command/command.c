@@ -65,7 +65,8 @@ static void help_handler(uint32_t cmd_count, va_list args)
         [CMD_DISCONNECT] = { "\"/d\" or \"/disconnect\"", "Disconnects from server, and transitions to offline state" },
         [CMD_QUIT] = { "\"/q\" or \"/quit\"", "Quits the application" },
         [CMD_USERS] = { "\"/users\"", "Lists all connected users" },
-        [CMD_UPLOAD] = { "\"/upload\"", "Uploads a downloadable file into the server. \"/upload {filepath}\"" }
+        [CMD_UPLOAD] = { "\"/upload\"", "Uploads a downloadable file into the server. \"/upload {filepath}\"" },
+        [CMD_DOWNLOAD] = { "\"/download\"", "Downloads a file located in the server. \"/download {filename}\"" }
     };
 
     ChatEntry* entry = chat_entry_create_list("Listing commands:");
@@ -97,6 +98,7 @@ extern Error* connect_handler(uint8_t, char**);
 extern Error* quit_handler(uint8_t, char**);
 extern Error* users_handler(uint8_t, char**);
 extern Error* upload_handler(uint8_t, char**);
+extern Error* download_handler(uint8_t, char**);
 
 // Lookup table that stores all the application commands
 static Command s_commands[] = {
@@ -112,6 +114,7 @@ static Command s_commands[] = {
     // Commands that execute tasks
     { "/users", CMD_USERS, users_handler },
     { "/upload", CMD_UPLOAD, upload_handler },
+    { "/download", CMD_DOWNLOAD, download_handler }
 };
 
 const Command* get_command_by_name(const char* command_name)

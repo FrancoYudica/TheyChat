@@ -26,6 +26,7 @@ void server_task_handler_free()
 
 extern Error* server_task_users(TaskStatusPayload);
 extern Error* server_task_upload_file(TaskStatusPayload);
+extern Error* server_task_download_file(TaskStatusPayload);
 
 static void* thread_handler(void*)
 {
@@ -75,6 +76,10 @@ static void* thread_handler(void*)
 
         case TASK_CLIENT_UPLOAD_FILE:
             s_error = server_task_upload_file(msg.payload.task_status);
+            break;
+
+        case TASK_CLIENT_DOWNLOAD_FILE:
+            s_error = server_task_download_file(msg.payload.task_status);
             break;
 
         default:

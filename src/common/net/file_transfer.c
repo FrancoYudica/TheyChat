@@ -73,18 +73,13 @@ Error* receive_file(
 
     // Picks standard name if no override name is specified
     const char* filename = override_name == NULL ? header.name : override_name;
-    char filepath[512];
+    char filepath[MAX_FILEPATH_SIZE];
 
     if (folder == NULL)
         strcpy(filepath, filename);
 
     else
-        sprintf(
-            filepath,
-            "%s%c%s",
-            folder,
-            PATH_SEPARATOR,
-            filename);
+        filepath_concat(filepath, folder, filename);
 
     // Create file locally
     FILE* file = fopen(filepath, "wb");

@@ -155,7 +155,9 @@ static void initialize_tagged_task(
     case TASK_CLIENT_UPLOAD_FILE:
         message->net_payload_length += sizeof(TaskFileUploadData);
         break;
-
+    case TASK_CLIENT_DOWNLOAD_FILE:
+        message->net_payload_length += sizeof(TaskFileDownloadData);
+        break;
     default:
         assert(false);
         break;
@@ -253,7 +255,7 @@ Message create_heap_seq_msg(const uint8_t* payload, uint32_t payload_size)
     memcpy(heap_sequence->payload, payload, payload_size);
     return message;
 }
-Message create_status_msg(bool status, const char* text)
+Message create_status_msg(bool status, const char* format, ...)
 {
     Message message;
     StatusPayload* status_payload = &message.payload.status;
@@ -264,8 +266,21 @@ Message create_status_msg(bool status, const char* text)
 
     memset(status_payload->text, '\0', sizeof(status_payload->text));
 
-    if (text != NULL)
-        strcpy(status_payload->text, text);
+    if (format != NULL) {
+        char buffer[1024];
+        va_list args;
+
+        // Start the varargs processing
+        va_start(args, format);
+
+        // Format the string into the buffer
+        vsnprintf(buffer, sizeof(buffer), format, args);
+
+        // End the varargs processing
+        va_end(args);
+
+        strncpy(status_payload->text, buffer, sizeof(status_payload->text));
+    }
     return message;
 }
 
@@ -279,7 +294,7 @@ Message create_connected_clients_msg(uint8_t count)
     return message;
 }
 
-Message create_server_notification(const char* text)
+Message create_server_notification(const char* format, ...)
 {
     Message message;
     ServerNotificationPayload* server_notification = &message.payload.server_notification;
@@ -287,6 +302,22 @@ Message create_server_notification(const char* text)
     message.type = MSGT_SERVER_NOTIFICATION;
     message.net_payload_length = sizeof(server_notification->text) + sizeof(server_notification->time);
     server_notification->time = time(NULL);
-    strcpy(server_notification->text, text);
+
+    if (format != NULL) {
+        char buffer[1024];
+        va_list args;
+
+        // Start the varargs processing
+        va_start(args, format);
+
+        // Format the string into the buffer
+        vsnprintf(buffer, sizeof(buffer), format, args);
+
+        // End the varargs processing
+        va_end(args);
+
+        strncpy(server_notification->text, buffer, sizeof(server_notification->text));
+    }
+
     return message;
 }

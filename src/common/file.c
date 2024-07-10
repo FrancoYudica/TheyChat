@@ -22,3 +22,16 @@ bool file_can_write(const char* filepath)
 {
     return access(filepath, W_OK) == 0;
 }
+
+void filepath_concat(
+    const char* dest,
+    const char* folder,
+    const char* file)
+{
+    sprintf(
+        dest,
+        "%s%c%s",
+        folder,
+        PATH_SEPARATOR,
+        file);
+}
