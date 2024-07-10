@@ -139,6 +139,10 @@ typedef struct
 typedef struct {
     /// @brief Holds the name of the file
     char filename[MAX_FILENAME_SIZE];
+
+    /// @brief True if the download command specifies
+    // the id instead of the filename
+    bool by_id;
 } TaskFileDownloadData;
 
 typedef struct

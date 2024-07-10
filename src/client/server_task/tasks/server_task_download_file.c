@@ -44,7 +44,7 @@ Error* server_task_download_file(TaskStatusPayload status)
     if (!IS_NET_ERROR(err)) {
         ui_push_text_entry(
             TEXT_ENTRY_TYPE_SERVER,
-            "File \"%s\" downloaded successfully! Located in \"resources%c%s\"",
+            "File downloaded! Located in \"resources\" folder",
             download_data->filename,
             PATH_SEPARATOR,
             download_data->filename);

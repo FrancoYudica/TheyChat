@@ -67,7 +67,7 @@ static void help_handler(uint32_t cmd_count, va_list args)
         [CMD_USERS] = { "\"/users\"", "Lists all connected users" },
         [CMD_FILES] = { "\"/files\"", "Shows a list of server downloadable files" },
         [CMD_UPLOAD] = { "\"/upload\"", "Uploads a downloadable file into the server. \"/upload {filepath}\"" },
-        [CMD_DOWNLOAD] = { "\"/download\"", "Downloads a file located in the server. \"/download {filename}\"" }
+        [CMD_DOWNLOAD] = { "\"/download\"", "Downloads a file. \"/download {filename}\" or \"/download id {file_id}\"" }
     };
 
     ChatEntry* entry = chat_entry_create_list("Listing commands:");

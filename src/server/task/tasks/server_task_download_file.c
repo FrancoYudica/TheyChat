@@ -11,15 +11,20 @@ Error* server_task_download_file(TaskHandlerData* data)
     TaggedTask* tagged_task = &data->task_request.tagged_task;
     TaskFileDownloadData* download_data = &tagged_task->data.file_download;
 
-    const char* filename = download_data->filename;
-    SharedFile* file = shared_file_list_find_by_name(server->shared_file_list, filename);
+    SharedFile* file;
+    if (!download_data->by_id) {
+        file = shared_file_list_find_by_name(server->shared_file_list, download_data->filename);
+    } else {
+        uint32_t file_id = atoi(download_data->filename);
+        file = shared_file_list_find_by_id(server->shared_file_list, file_id);
+    }
 
     // When file isn't in memory
     if (file == NULL) {
         message = create_status_msg(
             false,
             "Unable to download file. File named \"%s\" doesn't exist in memory",
-            filename);
+            file->filename);
         return send_message(&message, &data->client->task_connection);
     }
 
@@ -32,7 +37,7 @@ Error* server_task_download_file(TaskHandlerData* data)
         message = create_status_msg(
             false,
             "Unable to download file. File named \"%s\" doesn't exist in disk",
-            filename);
+            file->filename);
         return send_message(&message, &data->client->task_connection);
     }
 

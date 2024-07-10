@@ -23,7 +23,7 @@ Error* server_task_files(TaskHandlerData* data)
         // Format the string with fixed-width fields
         sprintf(
             buffer,
-            "ID: %-*i Name: %-*s Size: %-*li Sent by: %-*s",
+            "ID: %-*i Name: %-*s Size: %-*li Uploaded by: %-*s",
             10, file->id,
             20, file->filename,
             10, file->size,

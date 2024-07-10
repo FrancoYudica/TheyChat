@@ -9,20 +9,43 @@ Error* download_handler(uint8_t argc, char** argv)
     Error* err;
     Client* client = get_client();
 
+    const char* filename;
+    bool by_id = false;
+
     // Ensures that the name is provided
-    if (argc != 2) {
+    if (argc == 1) {
         ui_push_text_entry(
             TEXT_ENTRY_TYPE_WARNING,
             "Command \"/download\" requires {filename} argument as \"/download file.txt\"");
         return CREATE_ERR_OK;
     }
 
-    const char* filename = argv[1];
+    if (argc == 2)
+        filename = argv[1];
+    else if (argc == 3) {
+        filename = argv[2];
+
+        if (strcmp(argv[1], "id")) {
+            ui_push_text_entry(
+                TEXT_ENTRY_TYPE_WARNING,
+                "Invalid argument \"%s\"",
+                argv[1]);
+            return CREATE_ERR_OK;
+        }
+
+        by_id = true;
+    } else {
+        ui_push_text_entry(
+            TEXT_ENTRY_TYPE_WARNING,
+            "Invalid \"/download\" command format");
+        return CREATE_ERR_OK;
+    }
 
     // Sends request to server
     message = create_task_request_msg(TASK_CLIENT_DOWNLOAD_FILE);
     TaskRequestPayload* request = &message.payload.task_request;
     TaskFileDownloadData* download_data = &request->tagged_task.data.file_download;
+    download_data->by_id = by_id;
 
     // Sets filename
     strcpy(download_data->filename, filename);
