@@ -15,6 +15,8 @@ void task_request_handler(TaskHandlerData* data)
 
     // Tells client that the task is executing
     msg = create_task_status_msg(tagged_task->task_type, TASK_STATUS_EXECUTING);
+    // Copies task request task
+    msg.payload.task_status.tagged_task = *tagged_task;
     err = send_message(&msg, &data->client->task_connection);
 
     if (IS_NET_ERROR(err)) {

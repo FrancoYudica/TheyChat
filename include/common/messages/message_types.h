@@ -128,7 +128,12 @@ typedef struct {
 
 typedef struct
 {
+    /// @brief Holds the name of the file
     char filename[MAX_FILENAME_SIZE];
+
+    /// @brief Holds the filepath of the file. This is
+    /// useful when the message is received by the client
+    char user_filepath[MAX_FILEPATH_SIZE];
 } TaskFileUploadData;
 
 typedef union {

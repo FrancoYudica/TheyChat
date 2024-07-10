@@ -32,7 +32,7 @@ Error* upload_handler(uint8_t argc, char** argv)
     if (!file_can_read(filepath)) {
         ui_push_text_entry(
             TEXT_ENTRY_TYPE_WARNING,
-            "Client doesn't have pesmisions to read the provided file: \"%s\"",
+            "Client doesn't have permissions to read the provided file: \"%s\"",
             filepath);
         return CREATE_ERR_OK;
     }
@@ -42,8 +42,15 @@ Error* upload_handler(uint8_t argc, char** argv)
     TaskRequestPayload* request = &message.payload.task_request;
     TaskFileUploadData* upload_data = &request->tagged_task.data.file_upload;
 
+    // Sets filename
     const char* filename = filepath_get_filename(filepath);
     strcpy(upload_data->filename, filename);
+
+    // Sets filepath
+    strcpy(upload_data->user_filepath, filepath);
+
+    // Sends message to server status connection, that will queue the task
+    // in the task thread pool
     err = send_message(&message, &client->status_connection);
     return err;
 }

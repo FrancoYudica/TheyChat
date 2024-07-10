@@ -7,7 +7,9 @@ Error* server_task_upload_file(TaskHandlerData* data)
     Error* err;
     Message message;
     TaggedTask* tagged_task = &data->task_request.tagged_task;
-    printf("Receiving file: %s\n", tagged_task->data.file_upload.filename);
+    printf("Receiving file: %s, filepath: %s\n",
+        tagged_task->data.file_upload.filename,
+        tagged_task->data.file_upload.user_filepath);
     err = receive_file(&data->client->task_connection, "resources", NULL);
 
     if (IS_NET_ERROR(err)) {
