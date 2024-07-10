@@ -11,7 +11,12 @@ Error* server_task_upload_file(TaskHandlerData* data)
     TaskFileUploadData* file_upload = &tagged_task->data.file_upload;
 
     // Receives file and places under resources folder
-    err = receive_file(&data->client->task_connection, "resources", NULL);
+    uint64_t file_size = 0;
+    err = receive_file(
+        &data->client->task_connection,
+        "resources",
+        NULL,
+        &file_size);
 
     if (IS_NET_ERROR(err))
         return err;
@@ -23,15 +28,17 @@ Error* server_task_upload_file(TaskHandlerData* data)
     SharedFile* file = shared_file_list_add(server->shared_file_list);
     strcpy(file->filename, file_upload->filename);
     file->shared_time = time(NULL);
+    file->size = file_size;
     file->client_id = client->id;
     strcpy(file->client_name, client->name);
 
     // Tells all clients that the file was successfully sent
     message = create_server_notification(
-        "%s uploaded a file: \"%s\", id: %d",
+        "%s uploaded a file: \"%s\", id: %d of %d bytes",
         data->client->name,
         file->filename,
-        file->id);
+        file->id,
+        file->size);
 
     send_broadcast(&message, data->server);
 

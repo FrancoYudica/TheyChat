@@ -37,6 +37,7 @@ Error* server_task_download_file(TaskStatusPayload status)
     err = receive_file(
         &client->task_connection,
         "resources",
+        NULL,
         NULL);
 
     // If there isn't any error, tells client

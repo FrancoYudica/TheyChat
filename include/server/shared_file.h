@@ -10,7 +10,7 @@ typedef struct
     /// @brief Unique file ID
     uint32_t id;
     char filename[MAX_FILENAME_SIZE];
-
+    uint64_t size;
     /// @brief Time when the file was shared
     time_t shared_time;
 

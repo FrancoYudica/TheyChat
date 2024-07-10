@@ -58,7 +58,8 @@ Error* send_file(
 Error* receive_file(
     NetworkConnection* net_connection,
     const char* folder,
-    const char* override_name)
+    const char* override_name,
+    uint64_t* size)
 {
 
     // Waits for header
@@ -71,10 +72,12 @@ Error* receive_file(
     // Copies header, since message memory will be overwritten
     FileHeaderPayload header = message.payload.file_header;
 
+    if (size != NULL)
+        *size = header.size;
+
     // Picks standard name if no override name is specified
     const char* filename = override_name == NULL ? header.name : override_name;
     char filepath[MAX_FILEPATH_SIZE];
-
     if (folder == NULL)
         strcpy(filepath, filename);
 

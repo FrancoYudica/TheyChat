@@ -65,7 +65,7 @@ int main(int argc, char** argv)
 
     check_error(err);
 
-    err = receive_file(&net_connection, NULL, NULL);
+    err = receive_file(&net_connection, NULL, NULL, NULL);
 
     check_error(err);
 
