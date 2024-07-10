@@ -1,6 +1,7 @@
 #ifndef __SERVER_H__
 #define __SERVER_H__
 #include "client_list.h"
+#include "shared_file_list.h"
 #include "pthread.h"
 #include "net/net_primitives.h"
 #include <thread_pool.h>
@@ -8,6 +9,7 @@
 typedef struct
 {
     ClientList* client_list;
+    SharedFileList* shared_file_list;
     uint16_t port;
     uint32_t max_client_count;
 

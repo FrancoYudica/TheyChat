@@ -13,17 +13,27 @@ Error* server_task_upload_file(TaskHandlerData* data)
     // Receives file and places under resources folder
     err = receive_file(&data->client->task_connection, "resources", NULL);
 
-    if (IS_NET_ERROR(err)) {
-        printf("Error during file receive\n");
-    } else {
+    if (IS_NET_ERROR(err))
+        return err;
 
-        // Tells all clients that the file was successfully sent
-        message = create_server_notification(
-            "Client named %s uploaded a file: \"%s\"",
-            data->client->name,
-            file_upload->filename);
-        send_broadcast(&message, data->server);
-    }
+    Server* server = data->server;
+    Client* client = data->client;
+
+    // Adds shared file to the list
+    SharedFile* file = shared_file_list_add(server->shared_file_list);
+    strcpy(file->filename, file_upload->filename);
+    file->shared_time = time(NULL);
+    file->client_id = client->id;
+    strcpy(file->client_name, client->name);
+
+    // Tells all clients that the file was successfully sent
+    message = create_server_notification(
+        "%s uploaded a file: \"%s\", id: %d",
+        data->client->name,
+        file->filename,
+        file->id);
+
+    send_broadcast(&message, data->server);
 
     return err;
 }

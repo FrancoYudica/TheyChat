@@ -81,10 +81,13 @@ set(SERVER_SOURCES
     src/server/client_handler.c
     src/server/server_state_data.c
     src/server/broadcast_message.c
+    src/server/shared_file_list.c
+    
     src/server/state_handlers/state_connect.c
     src/server/state_handlers/state_login.c
     src/server/state_handlers/state_chat.c
     src/server/state_handlers/state_disconnect.c
+
     src/server/task/task_request_handler.c
     src/server/task/tasks/server_task_users.c
     src/server/task/tasks/server_task_upload_file.c
