@@ -45,8 +45,10 @@ int main(int argc, char** argv)
     char server_ip[16];
     if (argc > 1)
         strcpy(server_ip, argv[1]);
-    else
-        strcpy(server_ip, "127.0.0.1");
+    else {
+        printf("Should specify IP\n");
+        return 0;
+    }
 
     init_network_connection(&net_connection);
 

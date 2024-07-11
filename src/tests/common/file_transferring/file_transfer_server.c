@@ -31,8 +31,12 @@ Error* server_init_network()
     return err;
 }
 
-int main()
+int main(int argc, char** argv)
 {
+    if (argc == 1) {
+        printf("Should give at least one argument to check that it's not ran by an automatic test\n");
+        return 0;
+    }
     if (IS_NET_ERROR(server_init_network()))
         return 1;
 

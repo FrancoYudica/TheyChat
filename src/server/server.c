@@ -114,6 +114,32 @@ Error* server_run()
     }
     return err;
 }
+
+static void remove_all_shared_files()
+{
+    Error* err = CREATE_ERR_OK;
+    Server* server = get_server();
+
+    SharedFile* file = NULL;
+    SharedFileListIterator* it = shared_file_list_iterator_create(server->shared_file_list);
+
+    // Removes all the files that belong to the client
+    while ((file = shared_file_list_iterator_next(it))) {
+
+        // Tries to remove
+        err = server_remove_shared_file(file->id);
+
+        // Displays error
+        if (IS_NET_ERROR(err)) {
+            print_error(err);
+            free_error(err);
+            err = CREATE_ERR_OK;
+        }
+    }
+
+    shared_file_list_iterator_destroy(it);
+}
+
 Error* server_free()
 {
 
@@ -122,18 +148,26 @@ Error* server_free()
 
     s_running = false;
 
-    printf("Freeing server memory\n");
-    Error* err = net_close(s_server.context);
+    printf("\nFreeing server memory\n");
 
+    Error* err = net_close(s_server.context);
     printf("    - Context closed\n");
+
     thpool_destroy(s_server.client_thread_pool);
     printf("    - Client thpool destroyed\n");
+
     thpool_destroy(s_server.task_thread_pool);
     printf("    - Task thpool destroyed\n");
+
     client_list_destroy(s_server.client_list);
     printf("    - Client list destroyed\n");
+
+    remove_all_shared_files();
+    printf("    - All shared files removed from disk\n");
+
     shared_file_list_destroy(s_server.shared_file_list);
     printf("    - Shared file list destroyed\n");
+
     pthread_mutex_destroy(&s_server.client_list_mutex);
     pthread_mutex_destroy(&s_server.shared_file_list_mutex);
     pthread_mutex_destroy(&s_server.broadcast_mutex);
