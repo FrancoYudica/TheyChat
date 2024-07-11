@@ -28,6 +28,7 @@ extern Error* server_task_users(TaskStatusPayload);
 extern Error* server_task_files(TaskStatusPayload);
 extern Error* server_task_upload_file(TaskStatusPayload);
 extern Error* server_task_download_file(TaskStatusPayload);
+extern Error* server_task_remove_file(TaskStatusPayload);
 
 static void* thread_handler(void*)
 {
@@ -36,7 +37,6 @@ static void* thread_handler(void*)
     Client* client = get_client();
     while (s_running) {
 
-        // Waits for server task
         s_error = wait_for_message_type(
             &client->task_connection,
             &msg,
@@ -83,6 +83,10 @@ static void* thread_handler(void*)
 
         case TASK_CLIENT_DOWNLOAD_FILE:
             s_error = server_task_download_file(msg.payload.task_status);
+            break;
+
+        case TASK_REMOVE_FILE:
+            s_error = server_task_remove_file(msg.payload.task_status);
             break;
 
         default:

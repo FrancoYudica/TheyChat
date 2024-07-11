@@ -7,6 +7,7 @@ extern Error* server_task_users(TaskHandlerData*);
 extern Error* server_task_files(TaskHandlerData*);
 extern Error* server_task_upload_file(TaskHandlerData*);
 extern Error* server_task_download_file(TaskHandlerData*);
+extern Error* server_task_remove_file(TaskHandlerData*);
 
 void task_request_handler(TaskHandlerData* data)
 {
@@ -43,6 +44,10 @@ void task_request_handler(TaskHandlerData* data)
 
     case TASK_CLIENT_DOWNLOAD_FILE:
         err = server_task_download_file(data);
+        break;
+
+    case TASK_REMOVE_FILE:
+        err = server_task_remove_file(data);
         break;
 
     default:

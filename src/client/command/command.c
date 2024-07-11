@@ -67,7 +67,8 @@ static void help_handler(uint32_t cmd_count, va_list args)
         [CMD_USERS] = { "\"/users\"", "Lists all connected users" },
         [CMD_FILES] = { "\"/files\"", "Shows a list of server downloadable files" },
         [CMD_UPLOAD] = { "\"/upload\"", "Uploads a downloadable file into the server. \"/upload {filepath}\"" },
-        [CMD_DOWNLOAD] = { "\"/download\"", "Downloads a file. \"/download {filename}\" or \"/download id {file_id}\"" }
+        [CMD_DOWNLOAD] = { "\"/download\"", "Downloads a file. \"/download {filename}\" or \"/download id {file_id}\"" },
+        [CMD_REMOVE] = { "\"/remove\"", "User can remove their uploaded files by running: \"/remove {file_id}\"" }
     };
 
     ChatEntry* entry = chat_entry_create_list("Listing commands:");
@@ -101,6 +102,7 @@ extern Error* users_handler(uint8_t, char**);
 extern Error* upload_handler(uint8_t, char**);
 extern Error* download_handler(uint8_t, char**);
 extern Error* files_handler(uint8_t, char**);
+extern Error* remove_handler(uint8_t, char**);
 
 // Lookup table that stores all the application commands
 static Command s_commands[] = {
@@ -117,7 +119,8 @@ static Command s_commands[] = {
     { "/users", CMD_USERS, users_handler },
     { "/files", CMD_FILES, files_handler },
     { "/upload", CMD_UPLOAD, upload_handler },
-    { "/download", CMD_DOWNLOAD, download_handler }
+    { "/download", CMD_DOWNLOAD, download_handler },
+    { "/remove", CMD_REMOVE, remove_handler }
 };
 
 const Command* get_command_by_name(const char* command_name)

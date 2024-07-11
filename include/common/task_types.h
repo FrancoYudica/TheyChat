@@ -6,7 +6,8 @@ enum TaskType {
     TASK_USERS,
     TASK_CLIENT_UPLOAD_FILE,
     TASK_CLIENT_DOWNLOAD_FILE,
-    TASK_FILES
+    TASK_FILES,
+    TASK_REMOVE_FILE
 };
 
 #endif

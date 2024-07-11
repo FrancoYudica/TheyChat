@@ -123,6 +123,12 @@ void ns_serialize_message(const Message* message, uint8_t* buffer, size_t* buffe
 
         case TASK_FILES:
             break;
+
+        case TASK_REMOVE_FILE:
+            ns_push_byte_array(&buffer_ptr, (const uint8_t*)&tagged_task->data.remove.remove_all, sizeof(tagged_task->data.remove.remove_all));
+            ns_push_long(&buffer_ptr, (const uint32_t*)&tagged_task->data.remove.file_id);
+            break;
+
         default:
             printf("Unimplemented serialization for task message type %i\n", tagged_task->task_type);
             exit(EXIT_FAILURE);
@@ -265,6 +271,10 @@ void ns_deserialize_message(const uint8_t* buffer, Message* message)
             break;
 
         case TASK_FILES:
+            break;
+        case TASK_REMOVE_FILE:
+            ns_pop_byte_array(&buffer_ptr, (uint8_t*)&tagged_task->data.remove.remove_all, sizeof(tagged_task->data.remove.remove_all));
+            ns_pop_long(&buffer_ptr, (uint32_t*)&tagged_task->data.remove.file_id);
             break;
         default:
             printf("Unimplemented serialization for task message type %i\n", tagged_task->task_type);

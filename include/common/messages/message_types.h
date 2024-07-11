@@ -149,11 +149,21 @@ typedef struct
 {
 } TaskFilesData;
 
+typedef struct
+{
+    /// @brief Otherwise, the specific file id is set
+    uint32_t file_id;
+
+    /// @brief True when client wants to remove all their files
+    bool remove_all;
+} TaskRemoveFileData;
+
 typedef union {
     TaskUsersDada users;
     TaskFileUploadData file_upload;
     TaskFileDownloadData file_download;
     TaskFilesData files;
+    TaskRemoveFileData remove;
 } TaskData;
 
 typedef struct

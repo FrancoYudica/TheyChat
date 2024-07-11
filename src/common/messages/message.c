@@ -149,16 +149,19 @@ static void initialize_tagged_task(
     tagged_task->task_type = type;
     switch (type) {
     case TASK_USERS:
-        message->net_payload_length += sizeof(TaskUsersDada);
+        message->net_payload_length += sizeof(tagged_task->data.users.show_ip) + sizeof(tagged_task->data.users.show_id);
         break;
     case TASK_CLIENT_UPLOAD_FILE:
-        message->net_payload_length += sizeof(TaskFileUploadData);
+        message->net_payload_length += sizeof(tagged_task->data.file_upload.filename) + sizeof(tagged_task->data.file_upload.user_filepath);
         break;
     case TASK_CLIENT_DOWNLOAD_FILE:
-        message->net_payload_length += sizeof(TaskFileDownloadData);
+        message->net_payload_length += sizeof(tagged_task->data.file_download.filename) + sizeof(tagged_task->data.file_download.by_id);
         break;
     case TASK_FILES:
         message->net_payload_length += sizeof(TaskFilesData);
+        break;
+    case TASK_REMOVE_FILE:
+        message->net_payload_length += sizeof(tagged_task->data.remove.remove_all) + sizeof(tagged_task->data.remove.file_id);
         break;
     default:
         assert(false);

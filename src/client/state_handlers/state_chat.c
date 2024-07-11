@@ -68,14 +68,15 @@ static Error* command_callback(const char* input)
 {
     return dispatch_command(
         input,
-        7,
+        8,
         CMD_HELP,
         CMD_DISCONNECT,
         CMD_QUIT,
         CMD_USERS,
         CMD_UPLOAD,
         CMD_DOWNLOAD,
-        CMD_FILES);
+        CMD_FILES,
+        CMD_REMOVE);
 }
 
 static Error* input_callback(const char* input)
