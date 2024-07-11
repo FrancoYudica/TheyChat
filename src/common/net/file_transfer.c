@@ -59,7 +59,7 @@ Error* send_file(
 Error* receive_file(
     NetworkConnection* net_connection,
     const char* folder,
-    const char* override_name,
+    char* filename,
     uint64_t* size)
 {
 
@@ -77,7 +77,9 @@ Error* receive_file(
         *size = header.size;
 
     // Picks standard name if no override name is specified
-    const char* filename = override_name == NULL ? header.name : override_name;
+    if (strlen(filename) == 0)
+        strcpy(filename, header.name);
+
     char filepath[MAX_FILEPATH_SIZE];
     if (folder == NULL)
         strcpy(filepath, filename);

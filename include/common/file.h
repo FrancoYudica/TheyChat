@@ -15,6 +15,6 @@ bool file_can_read(const char* filepath);
 bool file_can_write(const char* filepath);
 
 /// @brief Given the folder and a path, concatenates as "folder/file"
-void filepath_concat(const char* dest, const char* folder, const char* file);
+void filepath_concat(char* dest, const char* folder, const char* file);
 
 #endif

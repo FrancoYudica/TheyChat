@@ -30,7 +30,9 @@ SharedFile* shared_file_list_add(SharedFileList* list)
     file->id = list->next_file_id++;
     return file;
 }
-bool shared_file_list_remove(SharedFileList* list, uint32_t id)
+bool shared_file_list_remove(
+    SharedFileList* list,
+    uint32_t id)
 {
     SharedFile* file = NULL;
     bool found = false;
@@ -55,7 +57,9 @@ uint32_t shared_file_list_get_next_id(SharedFileList* list)
     return list->next_file_id;
 }
 
-SharedFile* shared_file_list_find_by_id(SharedFileList* list, uint32_t id)
+SharedFile* shared_file_list_find_by_id(
+    SharedFileList* list,
+    uint32_t id)
 {
     SharedFile* file = NULL;
     SharedFileListIterator* it = shared_file_list_iterator_create(list);
@@ -69,7 +73,9 @@ SharedFile* shared_file_list_find_by_id(SharedFileList* list, uint32_t id)
     return file; // Will be NULL if not found
 }
 
-SharedFile* shared_file_list_find_by_name(SharedFileList* list, const char* name)
+SharedFile* shared_file_list_find_by_name(
+    SharedFileList* list,
+    const char* name)
 {
     SharedFile* file = NULL;
     SharedFileListIterator* it = shared_file_list_iterator_create(list);
@@ -81,6 +87,23 @@ SharedFile* shared_file_list_find_by_name(SharedFileList* list, const char* name
     shared_file_list_iterator_destroy(it);
 
     return file; // Will be NULL if not found
+}
+
+uint32_t shared_file_list_count_name(
+    SharedFileList* list,
+    const char* name)
+{
+    uint32_t count = 0;
+    SharedFile* file = NULL;
+    SharedFileListIterator* it = shared_file_list_iterator_create(list);
+    while (file = shared_file_list_iterator_next(it)) {
+        if (!strcmp(file->filename, name))
+            count++;
+    }
+
+    shared_file_list_iterator_destroy(it);
+
+    return count;
 }
 
 SharedFileListIterator* shared_file_list_iterator_create(SharedFileList* list)

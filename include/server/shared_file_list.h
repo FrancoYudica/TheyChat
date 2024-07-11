@@ -15,6 +15,7 @@ SharedFile* shared_file_list_add(SharedFileList* list);
 bool shared_file_list_remove(SharedFileList* list, uint32_t id);
 SharedFile* shared_file_list_find_by_id(SharedFileList* list, uint32_t id);
 SharedFile* shared_file_list_find_by_name(SharedFileList* list, const char*);
+uint32_t shared_file_list_count_name(SharedFileList* list, const char*);
 
 uint32_t shared_file_list_get_next_id(SharedFileList*);
 

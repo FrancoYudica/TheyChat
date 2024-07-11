@@ -24,7 +24,7 @@ bool file_can_write(const char* filepath)
 }
 
 void filepath_concat(
-    const char* dest,
+    char* dest,
     const char* folder,
     const char* file)
 {

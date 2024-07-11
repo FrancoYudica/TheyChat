@@ -34,20 +34,22 @@ Error* server_task_download_file(TaskStatusPayload status)
 
     // Downloads file
     ui_set_log_text("Downloading file...");
+    char received_filename[MAX_FILENAME_SIZE];
+    uint64_t downloaded_bytes = 0;
     err = receive_file(
         &client->task_connection,
         "resources",
-        NULL,
-        NULL);
+        received_filename,
+        &downloaded_bytes);
 
     // If there isn't any error, tells client
     if (!IS_NET_ERROR(err)) {
         ui_push_text_entry(
             TEXT_ENTRY_TYPE_SERVER,
-            "File downloaded! Located in \"resources\" folder",
-            download_data->filename,
+            "Downloaded %d bytes! File located in \"resources%c%s\"",
+            downloaded_bytes,
             PATH_SEPARATOR,
-            download_data->filename);
+            received_filename);
     }
     return err;
 }
