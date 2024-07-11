@@ -7,7 +7,8 @@ Error* server_task_download_file(TaskHandlerData* data)
 {
     Error* err;
     Message message;
-    Server* server = data->server;
+    Server* server = get_server();
+    Client* client = data->client;
     TaggedTask* tagged_task = &data->task_request.tagged_task;
     TaskFileDownloadData* download_data = &tagged_task->data.file_download;
 
@@ -28,7 +29,7 @@ Error* server_task_download_file(TaskHandlerData* data)
                 false,
                 "There are multiple files named \"%s\". Use \"/download id {file_id}\" instead. Note that the id are displayed using \"/files\" command",
                 download_data->filename);
-            return send_message(&message, &data->client->task_connection);
+            return send_message(&message, &client->task_connection);
         }
         // When there is just one file with that name
         else if (filename_count == 1)
@@ -41,7 +42,7 @@ Error* server_task_download_file(TaskHandlerData* data)
             false,
             "Unable to download file. File named \"%s\" doesn't exist in memory",
             download_data->filename);
-        return send_message(&message, &data->client->task_connection);
+        return send_message(&message, &client->task_connection);
     }
 
     // If the file doesn't exists, tells the client
@@ -50,18 +51,18 @@ Error* server_task_download_file(TaskHandlerData* data)
             false,
             "Unable to download file. File named \"%s\" doesn't exist in disk",
             file->filename);
-        return send_message(&message, &data->client->task_connection);
+        return send_message(&message, &client->task_connection);
     }
 
     // Sends confirmation
     message = create_status_msg(true, NULL);
-    err = send_message(&message, &data->client->task_connection);
+    err = send_message(&message, &client->task_connection);
 
     if (IS_NET_ERROR(err))
         return err;
 
     return send_file(
         file->filepath,
-        &data->client->task_connection,
+        &client->task_connection,
         file->filename);
 }

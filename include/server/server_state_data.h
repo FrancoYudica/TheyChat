@@ -9,10 +9,9 @@
 /// for state handler, in order to handle client
 typedef struct
 {
-    Server* server;
     Client* client;
 } ServerStateData;
 
-ServerStateData create_server_data(Server* server, Client* client);
+ServerStateData create_server_data(Client* client);
 
 #endif

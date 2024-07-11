@@ -39,7 +39,7 @@ Error* server_task_remove_file(TaskHandlerData* data)
 {
     Error* err;
     Message message;
-    Server* server = data->server;
+    Server* server = get_server();
     Client* client = data->client;
     TaskRemoveFileData* remove_file_data = &data->task_request.tagged_task.data.remove;
 
@@ -60,7 +60,7 @@ Error* server_task_remove_file(TaskHandlerData* data)
                 removed_count,
                 client->name);
         }
-        return send_message(&message, &data->client->task_connection);
+        return send_message(&message, &client->task_connection);
 
     }
     // Removes the file specified by ID
@@ -75,7 +75,7 @@ Error* server_task_remove_file(TaskHandlerData* data)
                 false,
                 "There isn't any file of id: \"%d\"",
                 remove_file_data->file_id);
-            return send_message(&message, &data->client->task_connection);
+            return send_message(&message, &client->task_connection);
         }
 
         // Client doesn't have permissions to remove this file
@@ -84,7 +84,7 @@ Error* server_task_remove_file(TaskHandlerData* data)
                 false,
                 "You don't have permissions to remove file of id: \"%d\" since it's not yours",
                 file->id);
-            return send_message(&message, &data->client->task_connection);
+            return send_message(&message, &client->task_connection);
         }
 
         char filename[MAX_FILENAME_SIZE];
@@ -114,7 +114,7 @@ Error* server_task_remove_file(TaskHandlerData* data)
                 filename);
         }
         // Sends status to client
-        return send_message(&message, &data->client->task_connection);
+        return send_message(&message, &client->task_connection);
     }
 
     return CREATE_ERR_OK;

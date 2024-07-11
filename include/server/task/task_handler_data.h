@@ -6,7 +6,6 @@
 typedef struct
 {
     Client* client;
-    Server* server;
     TaskRequestPayload task_request;
 } TaskHandlerData;
 

@@ -109,7 +109,6 @@ Error* server_run()
 
         // Creates handler data and queues a new task
         ClientHandlerData* handler_data = (ClientHandlerData*)malloc(sizeof(ClientHandlerData));
-        handler_data->server = get_server();
         handler_data->client = client;
         thpool_submit(s_server.client_thread_pool, (thread_task_t)handle_client_task, handler_data);
     }

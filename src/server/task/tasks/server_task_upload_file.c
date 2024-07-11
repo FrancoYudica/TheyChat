@@ -8,7 +8,7 @@ Error* server_task_upload_file(TaskHandlerData* data)
 {
     Error* err;
     Message message;
-    Server* server = data->server;
+    Server* server = get_server();
     Client* client = data->client;
     TaggedTask* tagged_task = &data->task_request.tagged_task;
     TaskFileUploadData* file_upload = &tagged_task->data.file_upload;
@@ -56,7 +56,7 @@ Error* server_task_upload_file(TaskHandlerData* data)
         file->id,
         file->size);
 
-    send_broadcast(&message, data->server);
+    send_broadcast(&message, server);
 
     return err;
 }

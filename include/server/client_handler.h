@@ -4,7 +4,6 @@
 
 typedef struct
 {
-    Server* server;
     Client* client;
 } ClientHandlerData;
 

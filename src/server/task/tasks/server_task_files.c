@@ -6,10 +6,11 @@
 Error* server_task_files(TaskHandlerData* data)
 {
     Error* err;
-    Server* server = data->server;
-    SharedFileList* files = data->server->shared_file_list;
+    Server* server = get_server();
+    Client* client = data->client;
+    SharedFileList* files = server->shared_file_list;
 
-    pthread_mutex_lock(&data->server->shared_file_list_mutex);
+    pthread_mutex_lock(&server->shared_file_list_mutex);
     TaskFilesData* files_data = &data->task_request.tagged_task.data.files;
 
     char buffer[512];
@@ -36,10 +37,10 @@ Error* server_task_files(TaskHandlerData* data)
         string_list_add(str_list, buffer);
     }
 
-    pthread_mutex_unlock(&data->server->shared_file_list_mutex);
+    pthread_mutex_unlock(&server->shared_file_list_mutex);
 
     // Sends string list to client
-    err = send_string_list(&data->client->task_connection, str_list);
+    err = send_string_list(&client->task_connection, str_list);
     string_list_destroy(str_list);
     return err;
 }

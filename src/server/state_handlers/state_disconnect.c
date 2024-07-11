@@ -3,8 +3,8 @@
 
 Error* handle_state_disconnect(ServerStateData* handler_data, AppState* _)
 {
+    Server* server = get_server();
     Client* client = handler_data->client;
-    Server* server = handler_data->server;
 
     // Tells all the clients that client disconnected
     {
