@@ -32,5 +32,8 @@ void shared_file_init(
 
 Error* shared_file_remove_from_disk(SharedFile* file)
 {
-    return CREATE_ERR_OK;
+    if (!file_exists(file->filepath))
+        return CREATE_ERR(ERR_FILE, "File doesn't exist");
+
+    return file_remove(file->filepath);
 }

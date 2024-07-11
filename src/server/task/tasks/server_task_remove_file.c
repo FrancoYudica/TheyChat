@@ -20,8 +20,17 @@ Error* server_task_remove_file(TaskHandlerData* data)
         uint32_t removed_count = 0;
         while ((file = shared_file_list_iterator_next(it))) {
             if (file->client_id == client->id) {
-                bool removed = shared_file_list_remove(server->shared_file_list, file->id);
-                removed_count += (uint32_t)removed;
+
+                // Tries to remove
+                err = server_remove_shared_file(file->id);
+
+                // Displays error
+                if (IS_NET_ERROR(err)) {
+                    print_error(err);
+                    free_error(err);
+                    err = CREATE_ERR_OK;
+                } else
+                    removed_count++;
             }
         }
 
@@ -49,6 +58,15 @@ Error* server_task_remove_file(TaskHandlerData* data)
             server->shared_file_list,
             remove_file_data->file_id);
 
+        // Not found
+        if (file == NULL) {
+            message = create_status_msg(
+                false,
+                "There isn't any file of id: \"%d\"",
+                remove_file_data->file_id);
+            return send_message(&message, &data->client->task_connection);
+        }
+
         // Client doesn't have permissions to remove this file
         if (file->client_id != client->id) {
             message = create_status_msg(
@@ -62,7 +80,15 @@ Error* server_task_remove_file(TaskHandlerData* data)
         strcpy(filename, file->filename);
 
         // Tries to remove file
-        bool removed = shared_file_list_remove(server->shared_file_list, file->id);
+        err = server_remove_shared_file(file->id);
+        bool removed = !IS_NET_ERROR(err);
+
+        // Displays error
+        if (!removed) {
+            print_error(err);
+            free_error(err);
+            err = CREATE_ERR_OK;
+        }
 
         // Creates status message
         if (removed) {
