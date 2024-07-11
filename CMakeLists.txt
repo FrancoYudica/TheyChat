@@ -84,6 +84,7 @@ set(SERVER_SOURCES
     src/server/client_handler.c
     src/server/server_state_data.c
     src/server/broadcast_message.c
+    src/server/shared_file.c
     src/server/shared_file_list.c
     
     src/server/state_handlers/state_connect.c

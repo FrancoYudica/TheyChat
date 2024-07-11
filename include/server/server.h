@@ -32,7 +32,11 @@ typedef struct
     pthread_mutex_t broadcast_mutex;
 } Server;
 
+Server* get_server();
+
 /// @brief Notifies all clients the connected clients
-void server_client_count_update(Server* server);
+void server_client_count_update();
+
+Error* server_remove_shared_file(uint32_t id);
 
 #endif

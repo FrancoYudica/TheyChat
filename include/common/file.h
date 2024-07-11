@@ -3,6 +3,9 @@
 
 #include <stdbool.h>
 
+#include "constants.h"
+#include "they_chat_error.h"
+
 #ifdef _WIN32
 #define PATH_SEPARATOR '\\'
 #elif defined(__unix__)
@@ -13,6 +16,7 @@ const char* filepath_get_filename(const char* filepath);
 bool file_exists(const char* filepath);
 bool file_can_read(const char* filepath);
 bool file_can_write(const char* filepath);
+Error* file_remove(const char* filepath);
 
 /// @brief Given the folder and a path, concatenates as "folder/file"
 void filepath_concat(char* dest, const char* folder, const char* file);

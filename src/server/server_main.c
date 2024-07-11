@@ -81,7 +81,7 @@ int main(int argc, char** argv)
 
 Server* server_create(uint16_t port, uint32_t max_client_count)
 {
-    Server* server = (Server*)malloc(sizeof(Server));
+    Server* server = get_server();
     memset(server, 0, sizeof(Server));
 
     server->port = port;

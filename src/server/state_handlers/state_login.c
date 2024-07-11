@@ -50,7 +50,7 @@ Error* handle_state_login(ServerStateData* handler_data, AppState* next_state)
         send_broadcast((const Message*)&message, handler_data->server);
     }
 
-    server_client_count_update(handler_data->server);
+    server_client_count_update();
 
     debug_print_client(client);
     printf(" logged in!\n");

@@ -11,6 +11,7 @@ Error* server_task_remove_file(TaskHandlerData* data)
     Client* client = data->client;
     TaskRemoveFileData* remove_file_data = &data->task_request.tagged_task.data.remove;
 
+    // Removes all client files
     if (remove_file_data->remove_all) {
         SharedFile* file = NULL;
         SharedFileListIterator* it = shared_file_list_iterator_create(server->shared_file_list);
@@ -41,8 +42,12 @@ Error* server_task_remove_file(TaskHandlerData* data)
         }
         return send_message(&message, &data->client->task_connection);
 
-    } else {
-        SharedFile* file = shared_file_list_find_by_id(server->shared_file_list, remove_file_data->file_id);
+    }
+    // Removes the file specified by ID
+    else {
+        SharedFile* file = shared_file_list_find_by_id(
+            server->shared_file_list,
+            remove_file_data->file_id);
 
         // Client doesn't have permissions to remove this file
         if (file->client_id != client->id) {

@@ -14,4 +14,7 @@
 #define STATUS_MSG_SUCCESS 1
 #define STATUS_MSG_FAILURE 0
 
+#define STR_HELPER(x) #x
+#define STR(x) STR_HELPER(x)
+
 #endif

@@ -8,7 +8,7 @@
 
 static const char* s_error_names[] = {
     [ERR_OK] = "ERR_OK",
-    [ERR_OPEN_FILE] = "ERR_OPEN_FILE",
+    [ERR_FILE] = "ERR_FILE",
     [ERR_CLOSE_FD] = "ERR_CLOSE_FD",
     [ERR_NET_SOCKET_CREATION_FAILED] = "ERR_NET_SOCKET_CREATION_FAILED",
     [ERR_NET_UNABLE_TO_CONNECT] = "ERR_NET_UNABLE_TO_CONNECT",

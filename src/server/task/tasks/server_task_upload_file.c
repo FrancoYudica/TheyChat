@@ -2,6 +2,7 @@
 #include "net/net_communication.h"
 #include "net/file_transfer.h"
 #include "broadcast_message.h"
+#include "file.h"
 
 Error* server_task_upload_file(TaskHandlerData* data)
 {
@@ -16,16 +17,15 @@ Error* server_task_upload_file(TaskHandlerData* data)
     pthread_mutex_lock(&server->shared_file_list_mutex);
     uint32_t next_file_id = shared_file_list_get_next_id(server->shared_file_list);
     pthread_mutex_unlock(&server->shared_file_list_mutex);
-
-    char filename[10];
-    sprintf(filename, "%i", next_file_id);
+    char id_filename[10];
+    sprintf(id_filename, "%i", next_file_id);
 
     // Receives file and places under resources folder
     uint64_t file_size = 0;
     err = receive_file(
         &data->client->task_connection,
-        "resources",
-        filename,
+        SHARED_FILES_LOCATION,
+        id_filename,
         &file_size);
 
     if (IS_NET_ERROR(err))
@@ -33,13 +33,18 @@ Error* server_task_upload_file(TaskHandlerData* data)
 
     pthread_mutex_lock(&server->shared_file_list_mutex);
 
+    // Formats filepath as /resources/download/file_id
+    char id_filepath[MAX_FILEPATH_SIZE];
+    filepath_concat(id_filepath, SHARED_FILES_LOCATION, id_filename);
+
     // Adds shared file to the list
     SharedFile* file = shared_file_list_add(server->shared_file_list);
-    strcpy(file->filename, file_upload->filename);
-    file->shared_time = time(NULL);
-    file->size = file_size;
-    file->client_id = client->id;
-    strcpy(file->client_name, client->name);
+    shared_file_init(
+        file,
+        file_upload->filename,
+        id_filepath,
+        client->id,
+        file_size);
 
     pthread_mutex_unlock(&server->shared_file_list_mutex);
 

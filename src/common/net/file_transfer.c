@@ -12,7 +12,7 @@ Error* send_file(
     // Opens file
     FILE* file = fopen(filepath, "rb");
     if (file == NULL)
-        return CREATE_ERR(ERR_OPEN_FILE, "Unable to open file while sending");
+        return CREATE_ERR(ERR_FILE, "Unable to open file while sending");
 
     // Calculates file size in bytes
     fseek(file, 0, SEEK_END);
@@ -90,7 +90,7 @@ Error* receive_file(
     // Create file locally
     FILE* file = fopen(filepath, "wb");
     if (file == NULL)
-        return CREATE_ERRNO(ERR_OPEN_FILE, "Error while opening receive file");
+        return CREATE_ERRNO(ERR_FILE, "Error while opening receive file");
 
     // Receives all the bytes
     size_t total_bytes_received = 0;

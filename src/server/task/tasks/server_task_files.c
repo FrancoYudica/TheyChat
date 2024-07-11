@@ -20,6 +20,10 @@ Error* server_task_files(TaskHandlerData* data)
     SharedFileListIterator* it = shared_file_list_iterator_create(server->shared_file_list);
     SharedFile* file;
     while ((file = shared_file_list_iterator_next(it))) {
+
+        // Client that shared the file
+        Client* file_client = client_list_find_by_id(server->client_list, file->client_id);
+
         // Format the string with fixed-width fields
         sprintf(
             buffer,
@@ -27,7 +31,7 @@ Error* server_task_files(TaskHandlerData* data)
             10, file->id,
             20, file->filename,
             10, file->size,
-            10, file->client_name);
+            10, file_client->name);
 
         string_list_add(str_list, buffer);
     }

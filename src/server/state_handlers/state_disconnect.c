@@ -23,7 +23,7 @@ Error* handle_state_disconnect(ServerStateData* handler_data, AppState* _)
     pthread_mutex_unlock(&server->client_list_mutex);
 
     // Notifies all clients that a client was removed
-    server_client_count_update(server);
+    server_client_count_update();
 
     return CREATE_ERR_OK;
 }

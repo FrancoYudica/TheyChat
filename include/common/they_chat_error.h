@@ -7,7 +7,7 @@
 /// @brief Type used to retrieve status after network operations
 typedef enum {
     ERR_OK = 0,
-    ERR_OPEN_FILE,
+    ERR_FILE,
     ERR_CLOSE_FD,
 
     // Network errors
