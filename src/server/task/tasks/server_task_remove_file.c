@@ -3,6 +3,38 @@
 #include "string/string_list.h"
 #include "utils/string_list_transferring.h"
 
+static Error* remove_all_client_files(
+    Client* client,
+    uint32_t* removed_count)
+{
+    Error* err = CREATE_ERR_OK;
+    Server* server = get_server();
+    *removed_count = 0;
+
+    SharedFile* file = NULL;
+    SharedFileListIterator* it = shared_file_list_iterator_create(server->shared_file_list);
+
+    // Removes all the files that belong to the client
+    while ((file = shared_file_list_iterator_next(it))) {
+        if (file->client_id == client->id) {
+
+            // Tries to remove
+            err = server_remove_shared_file(file->id);
+
+            // Displays error
+            if (IS_NET_ERROR(err)) {
+                print_error(err);
+                free_error(err);
+                err = CREATE_ERR_OK;
+            } else
+                *removed_count += 1;
+        }
+    }
+
+    shared_file_list_iterator_destroy(it);
+    return err;
+}
+
 Error* server_task_remove_file(TaskHandlerData* data)
 {
     Error* err;
@@ -13,29 +45,8 @@ Error* server_task_remove_file(TaskHandlerData* data)
 
     // Removes all client files
     if (remove_file_data->remove_all) {
-        SharedFile* file = NULL;
-        SharedFileListIterator* it = shared_file_list_iterator_create(server->shared_file_list);
-
-        // Removes all the files that belong to the client
         uint32_t removed_count = 0;
-        while ((file = shared_file_list_iterator_next(it))) {
-            if (file->client_id == client->id) {
-
-                // Tries to remove
-                err = server_remove_shared_file(file->id);
-
-                // Displays error
-                if (IS_NET_ERROR(err)) {
-                    print_error(err);
-                    free_error(err);
-                    err = CREATE_ERR_OK;
-                } else
-                    removed_count++;
-            }
-        }
-
-        shared_file_list_iterator_destroy(it);
-
+        remove_all_client_files(client, &removed_count);
         // If no files where removed
         if (removed_count == 0) {
             message = create_status_msg(

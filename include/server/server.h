@@ -34,6 +34,10 @@ typedef struct
 
 Server* get_server();
 
+Error* server_init(uint16_t port, uint32_t max_client_count);
+Error* server_run();
+Error* server_free();
+
 /// @brief Notifies all clients the connected clients
 void server_client_count_update();
 

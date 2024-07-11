@@ -44,12 +44,8 @@ Error* server_task_download_file(TaskHandlerData* data)
         return send_message(&message, &data->client->task_connection);
     }
 
-    // The filepath is resources/file_id
-    char filepath[MAX_FILEPATH_SIZE];
-    sprintf(filepath, "resources%c%i", PATH_SEPARATOR, file->id);
-
     // If the file doesn't exists, tells the client
-    if (!file_exists(filepath)) {
+    if (!file_exists(file->filepath)) {
         message = create_status_msg(
             false,
             "Unable to download file. File named \"%s\" doesn't exist in disk",
@@ -65,7 +61,7 @@ Error* server_task_download_file(TaskHandlerData* data)
         return err;
 
     return send_file(
-        filepath,
+        file->filepath,
         &data->client->task_connection,
         file->filename);
 }

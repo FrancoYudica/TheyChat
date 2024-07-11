@@ -12,26 +12,11 @@
 #include "broadcast_message.h"
 #include "client_handler.h"
 
-/// @brief Allocates memory for server and initializes fields
-Server* server_create(uint16_t port, uint32_t max_client_count);
-
-/// @brief Frees server and related memory
-Error* server_free(Server* server);
-
-/// @brief Initializes the server socket
-Error* server_init_network(Server* server);
-
-/// @brief Accepts client connections, and create a handle thread
-/// for each new connection.
-Error* server_accept_clients(Server* server);
-
-static Server* server;
-
 void handle_sigint(int sig)
 {
-    Error* err = server_free(server);
-    print_error(err);
-    exit(0);
+    Error* err = server_free();
+    if (IS_NET_ERROR(err))
+        print_error(err);
 }
 
 int main(int argc, char** argv)
@@ -65,144 +50,14 @@ int main(int argc, char** argv)
     signal(SIGINT, handle_sigint);
 
     // Creates server with the input parameters
-    server = server_create(port, max_client_count);
-
-    Error* err = server_init_network(server);
+    Error* err = server_init(port, max_client_count);
     ASSERT_NET_ERROR(err);
 
-    err = server_accept_clients(server);
+    err = server_run();
     ASSERT_NET_ERROR(err);
 
-    server_free(server);
+    err = server_free();
     ASSERT_NET_ERROR(err);
 
     return EXIT_SUCCESS;
-}
-
-Server* server_create(uint16_t port, uint32_t max_client_count)
-{
-    Server* server = get_server();
-    memset(server, 0, sizeof(Server));
-
-    server->port = port;
-    server->max_client_count = max_client_count;
-    pthread_mutex_init(&server->broadcast_mutex, NULL);
-
-    server->client_list = client_list_create();
-    server->shared_file_list = shared_file_list_create();
-
-    pthread_mutex_init(&server->client_list_mutex, NULL);
-    pthread_mutex_init(&server->shared_file_list_mutex, NULL);
-
-    server->client_thread_pool = thpool_create(max_client_count);
-    server->task_thread_pool = thpool_create(max_client_count);
-    return server;
-}
-
-Error* server_free(Server* server)
-{
-    printf("Freeing server memory\n");
-    Error* err = net_close(server->context);
-
-    if (IS_NET_ERROR(err))
-        print_error(err);
-
-    printf("    - Context closed\n");
-    thpool_destroy(server->client_thread_pool);
-    printf("    - Client thpool destroyed\n");
-    thpool_destroy(server->task_thread_pool);
-    printf("    - Task thpool destroyed\n");
-    client_list_destroy(server->client_list);
-    printf("    - Client list destroyed\n");
-    shared_file_list_destroy(server->shared_file_list);
-    printf("    - Shared file list destroyed\n");
-    pthread_mutex_destroy(&server->client_list_mutex);
-    pthread_mutex_destroy(&server->shared_file_list_mutex);
-    pthread_mutex_destroy(&server->broadcast_mutex);
-    printf("    - Mutexes destroyed\n");
-    net_shutdown();
-    printf("    - Network shutdown\n");
-    return err;
-}
-
-Error* server_init_network(Server* server)
-{
-
-    // Initializes network module.
-    net_init();
-    Error* err;
-
-#ifdef THEY_CHAT_SSL
-    printf("Loading SSL certificate and key\n");
-    // Certificate and private key paths
-    const char* home_path = getenv("HOME");
-    char cert_file[128];
-    char key_file[128];
-    sprintf(cert_file, "%s/.ssl/TheyChat/certificate.pem", home_path);
-    sprintf(key_file, "%s/.ssl/TheyChat/private.key", home_path);
-
-    printf("- Certificate path: %s\n", cert_file);
-    printf("- Private key path: %s\n", key_file);
-    // Initializes socket with certificates
-    err = net_server_create_socket(cert_file, key_file, server->port, &server->context);
-
-#else
-    // Not using SSL, certificates not needed
-    err = net_server_create_socket(NULL, NULL, server->port, &server->context);
-#endif
-    return err;
-}
-
-Error* server_accept_clients(Server* server)
-{
-
-    // Sets up listen
-    Error* err = net_listen(server->context, 5);
-    if (IS_NET_ERROR(err))
-        return err;
-
-    printf("Listening on port %i. Waiting for client connections...\n", server->port);
-
-    // Message sent to client in case there aren't any free
-    // threads, and stays in client queue
-    Message client_on_queue_msg = create_client_on_queue();
-
-    while (true) {
-
-        // Accepts client connections
-        ConnectionContext* client_status_context = NULL;
-        err = net_accept_connection(server->context, &client_status_context);
-
-        if (IS_NET_ERROR(err))
-            break;
-
-        printf("Accepted client status connection\n");
-
-        ConnectionContext* client_task_context = NULL;
-        err = net_accept_connection(server->context, &client_task_context);
-
-        if (IS_NET_ERROR(err))
-            break;
-
-        printf("Accepted client task connection\n");
-
-        // Registers client
-        pthread_mutex_lock(&server->client_list_mutex);
-        Client* client = client_list_add(server->client_list);
-        pthread_mutex_unlock(&server->client_list_mutex);
-
-        // Initializes client network data
-        init_client_network(client, client_status_context, client_task_context);
-
-        // Tells client that all threads are busy, and it's on queue
-        if (thpool_all_threads_busy(server->client_thread_pool))
-            send_message((Message*)&client_on_queue_msg, &client->status_connection);
-
-        // Creates handler data and queues a new task
-        ClientHandlerData* handler_data = (ClientHandlerData*)malloc(sizeof(ClientHandlerData));
-        handler_data->server = server;
-        handler_data->client = client;
-        thpool_submit(server->client_thread_pool, (thread_task_t)handle_client_task, handler_data);
-    }
-    return err;
 }
