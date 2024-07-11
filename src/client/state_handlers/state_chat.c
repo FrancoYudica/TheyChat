@@ -19,7 +19,7 @@ void* handle_messages(void* arg)
         // Waits for server message
         s_receive_error = wait_for_message(&client->status_connection, &message);
 
-        if (IS_NET_ERROR(s_receive_error)) {
+        if (IS_ERROR(s_receive_error)) {
 
             // Displays error it it's not a disconnection
             if (s_receive_error->code == ERR_NET_CONNECTION_CLOSED) {
@@ -131,7 +131,7 @@ Error* handle_state_chat()
 
     s_receiving = false;
 
-    if (IS_NET_ERROR(s_receive_error))
+    if (IS_ERROR(s_receive_error))
         return s_receive_error;
 
     return CREATE_ERR_OK;

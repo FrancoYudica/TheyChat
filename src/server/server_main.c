@@ -15,7 +15,7 @@
 void handle_sigint(int sig)
 {
     Error* err = server_free();
-    if (IS_NET_ERROR(err))
+    if (IS_ERROR(err))
         print_error(err);
 }
 

@@ -28,7 +28,7 @@ Error* server_task_upload_file(TaskHandlerData* data)
         id_filename,
         &file_size);
 
-    if (IS_NET_ERROR(err))
+    if (IS_ERROR(err))
         return err;
 
     pthread_mutex_lock(&server->shared_file_list_mutex);

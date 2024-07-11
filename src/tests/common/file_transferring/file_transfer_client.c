@@ -33,7 +33,7 @@ Error* server_init_network()
 
 void check_error(Error* err)
 {
-    if (IS_NET_ERROR(err)) {
+    if (IS_ERROR(err)) {
         printf("%s\n", err->message);
         free_network_connection(&net_connection);
         exit(EXIT_FAILURE);

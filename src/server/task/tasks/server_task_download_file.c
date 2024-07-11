@@ -58,7 +58,7 @@ Error* server_task_download_file(TaskHandlerData* data)
     message = create_status_msg(true, NULL);
     err = send_message(&message, &client->task_connection);
 
-    if (IS_NET_ERROR(err))
+    if (IS_ERROR(err))
         return err;
 
     return send_file(

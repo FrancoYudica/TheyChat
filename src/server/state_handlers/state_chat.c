@@ -15,7 +15,7 @@ Error* handle_state_chat(ServerStateData* state_data, AppState* next_state)
 
         err = wait_for_message(&client->status_connection, &message);
 
-        if (IS_NET_ERROR(err)) {
+        if (IS_ERROR(err)) {
 
             if (err->code == ERR_NET_CONNECTION_CLOSED)
                 break;
@@ -45,7 +45,7 @@ Error* handle_state_chat(ServerStateData* state_data, AppState* next_state)
         else
             printf("Only MSGT_USER_CHAT and MSGT_TASK_REQUEST should be received in chat handler. There is something wrong...\n");
 
-        if (IS_NET_ERROR(err))
+        if (IS_ERROR(err))
             break;
     }
 

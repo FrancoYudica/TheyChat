@@ -17,7 +17,7 @@ Error* handle_state_login(ServerStateData* handler_data, AppState* next_state)
             &message,
             MSGT_USER_LOGIN);
 
-        if (IS_NET_ERROR(err))
+        if (IS_ERROR(err))
             return err;
 
         const char* username = message.payload.user_login.username;
@@ -31,7 +31,7 @@ Error* handle_state_login(ServerStateData* handler_data, AppState* next_state)
             sprintf(text_buffer, "A user named \"%s\" already exists", username);
             message = create_status_msg(STATUS_MSG_FAILURE, text_buffer);
             err = send_message(&message, &client->status_connection);
-            if (IS_NET_ERROR(err))
+            if (IS_ERROR(err))
                 return err;
         }
     }
@@ -39,7 +39,7 @@ Error* handle_state_login(ServerStateData* handler_data, AppState* next_state)
     message = create_status_msg(STATUS_MSG_SUCCESS, "Login success");
     err = send_message(&message, &client->status_connection);
 
-    if (IS_NET_ERROR(err))
+    if (IS_ERROR(err))
         return err;
 
     // Tells all the clients that a new client connected.

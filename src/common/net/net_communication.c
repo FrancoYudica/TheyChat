@@ -29,7 +29,7 @@ Error* send_message(
             serialized_buffer_size - total_bytes_sent,
             &bytes_sent);
 
-        if (IS_NET_ERROR(err))
+        if (IS_ERROR(err))
             return err;
 
         total_bytes_sent += bytes_sent;
@@ -69,7 +69,7 @@ static Error* receive(NetworkConnection* connection)
         empty_region_size,
         &bytes_read);
 
-    if (IS_NET_ERROR(err))
+    if (IS_ERROR(err))
         return err;
 
     network_stream->written_bytes += bytes_read;
@@ -89,7 +89,7 @@ Error* wait_for_message(
     // Receives data until a complete message arrives
     while (!popped) {
         Error* err = receive(connection);
-        if (IS_NET_ERROR(err))
+        if (IS_ERROR(err))
             return err;
 
         popped = stream_pop_message(&connection->stream, message);
@@ -105,7 +105,7 @@ Error* wait_for_message_type(
 {
 
     Error* err = wait_for_message(connection, message);
-    if (IS_NET_ERROR(err))
+    if (IS_ERROR(err))
         return err;
 
     if (message->type != type) {

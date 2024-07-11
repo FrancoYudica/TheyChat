@@ -22,7 +22,7 @@ static Error* remove_all_client_files(
             err = server_remove_shared_file(file->id);
 
             // Displays error
-            if (IS_NET_ERROR(err)) {
+            if (IS_ERROR(err)) {
                 print_error(err);
                 free_error(err);
                 err = CREATE_ERR_OK;
@@ -92,7 +92,7 @@ Error* server_task_remove_file(TaskHandlerData* data)
 
         // Tries to remove file
         err = server_remove_shared_file(file->id);
-        bool removed = !IS_NET_ERROR(err);
+        bool removed = !IS_ERROR(err);
 
         // Displays error
         if (!removed) {

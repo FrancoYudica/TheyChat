@@ -20,7 +20,7 @@ Error* server_task_download_file(TaskStatusPayload status)
         &message,
         MSGT_STATUS);
 
-    if (IS_NET_ERROR(err))
+    if (IS_ERROR(err))
         return err;
 
     // If status is false, it probably means that the
@@ -45,7 +45,7 @@ Error* server_task_download_file(TaskStatusPayload status)
         &downloaded_bytes);
 
     // If there isn't any error, tells client
-    if (!IS_NET_ERROR(err)) {
+    if (!IS_ERROR(err)) {
         ui_push_text_entry(
             TEXT_ENTRY_TYPE_SERVER,
             "Downloaded %d bytes! File located in \"%s%c%s\"",

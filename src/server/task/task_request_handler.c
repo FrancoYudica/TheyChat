@@ -22,7 +22,7 @@ void task_request_handler(TaskHandlerData* data)
     msg.payload.task_status.tagged_task = *tagged_task;
     err = send_message(&msg, &data->client->task_connection);
 
-    if (IS_NET_ERROR(err)) {
+    if (IS_ERROR(err)) {
         print_error(err);
         free_error(err);
         err = CREATE_ERR_OK;
@@ -55,7 +55,7 @@ void task_request_handler(TaskHandlerData* data)
         break;
     }
 
-    if (IS_NET_ERROR(err)) {
+    if (IS_ERROR(err)) {
         print_error(err);
         free_error(err);
         err = CREATE_ERR_OK;

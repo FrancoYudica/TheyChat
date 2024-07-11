@@ -37,11 +37,11 @@ int main(int argc, char** argv)
         printf("Should give at least one argument to check that it's not ran by an automatic test\n");
         return 0;
     }
-    if (IS_NET_ERROR(server_init_network()))
+    if (IS_ERROR(server_init_network()))
         return 1;
 
     Error* err = net_listen(net_connection.context, 5);
-    if (IS_NET_ERROR(err)) {
+    if (IS_ERROR(err)) {
         printf("%s\n", err->message);
         return 1;
     }
@@ -51,7 +51,7 @@ int main(int argc, char** argv)
     NetworkConnection client_connection;
     err = net_accept_connection(net_connection.context, &client_connection.context);
 
-    if (IS_NET_ERROR(err)) {
+    if (IS_ERROR(err)) {
         printf("%s\n", err->message);
         return 1;
     }
@@ -59,7 +59,7 @@ int main(int argc, char** argv)
 
     printf("Client connected! Sending file...\n");
     err = send_file(filepath, &client_connection, NULL);
-    if (IS_NET_ERROR(err)) {
+    if (IS_ERROR(err)) {
         printf("%s\n", err->message);
         return 1;
     }

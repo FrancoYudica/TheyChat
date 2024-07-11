@@ -20,7 +20,7 @@ typedef enum {
     ERR_NET_STREAM_OVERFLOW
 } ErrorCode;
 
-#define IS_NET_ERROR(X) ((X) != NULL)
+#define IS_ERROR(X) ((X) != NULL)
 
 typedef struct
 {

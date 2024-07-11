@@ -52,7 +52,7 @@ static void* handle_input(void*)
 
         pthread_mutex_unlock(&s_mutex);
 
-        if (IS_NET_ERROR(s_err)) {
+        if (IS_ERROR(s_err)) {
             ui_push_text_entry(
                 TEXT_ENTRY_TYPE_WARNING,
                 "%s",

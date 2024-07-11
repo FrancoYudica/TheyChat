@@ -42,7 +42,7 @@ static void* thread_handler(void*)
             &msg,
             MSGT_TASK_STATUS);
 
-        if (IS_NET_ERROR(s_error)) {
+        if (IS_ERROR(s_error)) {
 
             if (s_error->code != ERR_NET_PEER_DISCONNECTED)
                 ui_push_text_entry(
@@ -98,7 +98,7 @@ static void* thread_handler(void*)
         }
 
         // If there is any error after executing
-        if (IS_NET_ERROR(s_error)) {
+        if (IS_ERROR(s_error)) {
             ui_push_text_entry(
                 TEXT_ENTRY_TYPE_WARNING,
                 "Error during task execution - %s",

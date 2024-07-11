@@ -11,7 +11,7 @@ Error* send_string_list(
     message = create_seq_start_msg();
     err = send_message(&message, net_connection);
 
-    if (IS_NET_ERROR(err))
+    if (IS_ERROR(err))
         return err;
 
     StringListIterator* it = string_list_iterator_create(list);
@@ -27,13 +27,13 @@ Error* send_string_list(
         // Frees heap memory
         free(message.payload.heap_sequence.payload);
 
-        if (IS_NET_ERROR(err))
+        if (IS_ERROR(err))
             break;
     }
 
     string_list_iterator_destroy(it);
 
-    if (IS_NET_ERROR(err))
+    if (IS_ERROR(err))
         return err;
 
     // Sequence end
@@ -55,7 +55,7 @@ Error* receive_string_list(
         &message,
         MSGT_SEQUENCE_START);
 
-    if (IS_NET_ERROR(err))
+    if (IS_ERROR(err))
         return err;
 
     while (true) {
@@ -65,7 +65,7 @@ Error* receive_string_list(
             net_connection,
             &message);
 
-        if (IS_NET_ERROR(err))
+        if (IS_ERROR(err))
             return err;
 
         enum MessageType message_type = message.type;

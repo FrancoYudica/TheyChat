@@ -28,7 +28,7 @@ Error* send_file(
     message = create_file_header_message(filename, file_size);
     err = send_message(&message, net_connection);
 
-    if (IS_NET_ERROR(err)) {
+    if (IS_ERROR(err)) {
         fclose(file);
         return err;
     }
@@ -43,7 +43,7 @@ Error* send_file(
         message = create_file_content_message((const uint8_t*)buffer, bytes_read);
         err = send_message(&message, net_connection);
 
-        if (IS_NET_ERROR(err))
+        if (IS_ERROR(err))
             break;
     }
 
@@ -67,7 +67,7 @@ Error* receive_file(
     Message message;
     Error* err = wait_for_message_type(net_connection, &message, MSGT_FILE_HEADER);
 
-    if (IS_NET_ERROR(err))
+    if (IS_ERROR(err))
         return err;
 
     // Copies header, since message memory will be overwritten
@@ -97,7 +97,7 @@ Error* receive_file(
     while (total_bytes_received < header.size) {
         err = wait_for_message_type(net_connection, &message, MSGT_FILE_CONTENT);
 
-        if (IS_NET_ERROR(err))
+        if (IS_ERROR(err))
             break;
 
         // Ensures that all bytes are written

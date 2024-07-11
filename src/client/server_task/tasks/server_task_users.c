@@ -11,7 +11,7 @@ Error* server_task_users(TaskStatusPayload status)
     ChatEntry* entry = chat_entry_create_list("Connected users:");
     err = receive_string_list(&client->task_connection, entry->data.list.list);
 
-    if (!IS_NET_ERROR(err))
+    if (!IS_ERROR(err))
         ui_add_chat_entry(entry);
 
     return err;

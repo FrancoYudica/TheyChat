@@ -75,7 +75,7 @@ void print_error(const Error* err)
 
 void _assert_net_error(Error* err)
 {
-    if (IS_NET_ERROR(err)) {
+    if (IS_ERROR(err)) {
         print_error(err);
         free_error(err);
         exit(EXIT_FAILURE);

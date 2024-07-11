@@ -16,7 +16,7 @@ Error* server_task_remove_file(TaskStatusPayload status)
         &message,
         MSGT_STATUS);
 
-    if (IS_NET_ERROR(err))
+    if (IS_ERROR(err))
         return err;
 
     StatusPayload* status_data = &message.payload.status;

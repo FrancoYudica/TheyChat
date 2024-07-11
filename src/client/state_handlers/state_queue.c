@@ -14,7 +14,7 @@ static void* wait_for_accept(void*)
     while (waiting_in_queue) {
         err = wait_for_message(&client->status_connection, &message);
 
-        if (IS_NET_ERROR(err))
+        if (IS_ERROR(err))
             return NULL;
 
         // Client connected successfully;

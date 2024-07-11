@@ -12,7 +12,7 @@ static Error* input_callback(const char* input)
     // Waits confirmation of the login
     Error* err = wait_for_message_type(&client->status_connection, &message, MSGT_STATUS);
 
-    if (IS_NET_ERROR(err))
+    if (IS_ERROR(err))
         return err;
 
     if (message.payload.status.status == STATUS_MSG_FAILURE) {

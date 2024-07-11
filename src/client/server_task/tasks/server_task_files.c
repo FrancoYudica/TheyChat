@@ -11,7 +11,7 @@ Error* server_task_files(TaskStatusPayload status)
     ChatEntry* entry = chat_entry_create_list("Files:");
     err = receive_string_list(&client->task_connection, entry->data.list.list);
 
-    if (!IS_NET_ERROR(err)) {
+    if (!IS_ERROR(err)) {
 
         if (string_list_length(entry->data.list.list) == 0) {
             chat_entry_free(entry);

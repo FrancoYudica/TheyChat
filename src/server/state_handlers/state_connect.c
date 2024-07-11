@@ -8,7 +8,7 @@ Error* handle_state_connect(ServerStateData* handler_data, AppState* next_state)
         (const Message*)&message,
         &handler_data->client->status_connection);
 
-    if (IS_NET_ERROR(err))
+    if (IS_ERROR(err))
         return err;
 
     *next_state = APP_STATE_LOGIN;

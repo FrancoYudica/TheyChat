@@ -60,7 +60,7 @@ Error* server_run()
 {
     // Sets up listen
     Error* err = net_listen(s_server.context, 5);
-    if (IS_NET_ERROR(err))
+    if (IS_ERROR(err))
         return err;
 
     printf("Listening on port %i. Waiting for client connections...\n", s_server.port);
@@ -75,7 +75,7 @@ Error* server_run()
         ConnectionContext* client_status_context = NULL;
         err = net_accept_connection(s_server.context, &client_status_context);
 
-        if (IS_NET_ERROR(err)) {
+        if (IS_ERROR(err)) {
 
             // When application ins't running, the error means that
             // the connection was closed
@@ -90,7 +90,7 @@ Error* server_run()
         ConnectionContext* client_task_context = NULL;
         err = net_accept_connection(s_server.context, &client_task_context);
 
-        if (IS_NET_ERROR(err))
+        if (IS_ERROR(err))
             break;
 
         printf("Accepted client task connection\n");
@@ -130,7 +130,7 @@ static void remove_all_shared_files()
         err = server_remove_shared_file(file->id);
 
         // Displays error
-        if (IS_NET_ERROR(err)) {
+        if (IS_ERROR(err)) {
             print_error(err);
             free_error(err);
             err = CREATE_ERR_OK;
@@ -195,7 +195,7 @@ Error* server_remove_shared_file(uint32_t id)
 
     // Removes from disk
     Error* err = shared_file_remove_from_disk(file);
-    if (IS_NET_ERROR(err))
+    if (IS_ERROR(err))
         return err;
 
     // Removes from list

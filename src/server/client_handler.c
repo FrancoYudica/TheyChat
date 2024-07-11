@@ -57,7 +57,7 @@ static void server_states_handler_fsm(ServerStateData* state_data, AppState init
         Error* err = handler(state_data, &next_state);
 
         // Manually sets disconnect state if there is any error
-        if (IS_NET_ERROR(err)) {
+        if (IS_ERROR(err)) {
 
             if (err->code != ERR_NET_PEER_DISCONNECTED) {
                 printf("Net error code: %i for in client: ", err->code);

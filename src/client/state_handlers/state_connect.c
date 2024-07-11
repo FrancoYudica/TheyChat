@@ -20,7 +20,7 @@ Error* handle_state_connect()
             &client->status_connection.context);
 
         // Unable to connect, goes back to offline state
-        if (IS_NET_ERROR(err)) {
+        if (IS_ERROR(err)) {
             ui_push_text_entry(
                 TEXT_ENTRY_TYPE_WARNING,
                 "Unable to establish status connection. Error: \"%s\"",
@@ -43,7 +43,7 @@ Error* handle_state_connect()
             &client->task_connection.context);
 
         // Unable to connect, goes back to offline state
-        if (IS_NET_ERROR(err)) {
+        if (IS_ERROR(err)) {
             ui_push_text_entry(
                 TEXT_ENTRY_TYPE_WARNING,
                 "Unable to establish task connection. Error: \"%s\"",
@@ -62,7 +62,7 @@ Error* handle_state_connect()
         &client->status_connection,
         &message);
 
-    if (IS_NET_ERROR(err))
+    if (IS_ERROR(err))
         return err;
 
     if (message.type == MSGT_CLIENT_ON_QUEUE) {
