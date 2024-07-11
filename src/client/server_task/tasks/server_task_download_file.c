@@ -4,6 +4,8 @@
 #include "net/file_transfer.h"
 #include "file.h"
 
+#define DOWNLOADS_FOLDER_PATH "resources/downloads"
+
 Error* server_task_download_file(TaskStatusPayload status)
 {
     Message message;
@@ -38,7 +40,7 @@ Error* server_task_download_file(TaskStatusPayload status)
     uint64_t downloaded_bytes = 0;
     err = receive_file(
         &client->task_connection,
-        "resources",
+        DOWNLOADS_FOLDER_PATH,
         received_filename,
         &downloaded_bytes);
 
@@ -46,8 +48,9 @@ Error* server_task_download_file(TaskStatusPayload status)
     if (!IS_NET_ERROR(err)) {
         ui_push_text_entry(
             TEXT_ENTRY_TYPE_SERVER,
-            "Downloaded %d bytes! File located in \"resources%c%s\"",
+            "Downloaded %d bytes! File located in \"%s%c%s\"",
             downloaded_bytes,
+            DOWNLOADS_FOLDER_PATH,
             PATH_SEPARATOR,
             received_filename);
     }

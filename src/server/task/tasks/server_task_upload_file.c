@@ -33,7 +33,7 @@ Error* server_task_upload_file(TaskHandlerData* data)
 
     pthread_mutex_lock(&server->shared_file_list_mutex);
 
-    // Formats filepath as /resources/download/file_id
+    // Formats filepath as /resources/uploads/file_id
     char id_filepath[MAX_FILEPATH_SIZE];
     filepath_concat(id_filepath, SHARED_FILES_LOCATION, id_filename);
 

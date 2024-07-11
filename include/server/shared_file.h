@@ -5,7 +5,7 @@
 #include "constants.h"
 #include "they_chat_error.h"
 
-#define SHARED_FILES_LOCATION "resources/downloads"
+#define SHARED_FILES_LOCATION "resources/uploads"
 
 /// @brief Represents a file shared by a client
 typedef struct
@@ -13,7 +13,7 @@ typedef struct
     /// @brief Unique file ID
     uint32_t id;
 
-    // Server relative filepath. As /resources/downloads/file_id
+    // Server relative filepath. As /resources/uploads/file_id
     char filepath[MAX_FILEPATH_SIZE];
 
     // filename of client's computer
