@@ -4,6 +4,8 @@
 
 TheyChat is a client-server chat application developed solely by me. The application allows multiple clients to connect to a server, join chat rooms, and exchange messages. The project is built using CMake and is designed to run on POSIX systems, utilizing pthreads for multithreading and ncurses for a simple client UI. Communication between the client and server is encrypted using SSL.
 
+![ ](demo_screenshot_0.png)
+
 ## Features
 
 - **Multithreaded Server**: Handles multiple clients concurrently using pthreads.
