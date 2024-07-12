@@ -84,6 +84,9 @@ static void server_states_handler_fsm(ServerStateData* state_data, AppState init
 void handle_client_task(ClientHandlerData* handler_data)
 {
 
+    /// @todo Check if client is still connected. Client could not be
+    /// connected if disconnected during queue
+
     // Sets up state data
     ServerStateData state_data = create_server_data(handler_data->client_id);
 
