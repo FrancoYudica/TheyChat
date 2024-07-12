@@ -7,7 +7,7 @@ Error* server_task_files(TaskHandlerData* data)
 {
     Error* err;
     Server* server = get_server();
-    Client* client = data->client;
+    Client* client = client_list_find_by_id(server->client_list, data->client_id);
     SharedFileList* files = server->shared_file_list;
 
     pthread_mutex_lock(&server->shared_file_list_mutex);

@@ -5,7 +5,7 @@
 
 typedef struct
 {
-    Client* client;
+    uint32_t client_id;
     TaskRequestPayload task_request;
 } TaskHandlerData;
 

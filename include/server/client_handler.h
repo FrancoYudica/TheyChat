@@ -4,7 +4,7 @@
 
 typedef struct
 {
-    Client* client;
+    uint32_t client_id;
 } ClientHandlerData;
 
 /// @brief Handles all client interactions

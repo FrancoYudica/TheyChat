@@ -13,6 +13,14 @@ void task_request_handler(TaskHandlerData* data)
 {
     Message msg;
     Error* err;
+    Server* server = get_server();
+    Client* client = client_list_find_by_id(server->client_list, data->client_id);
+
+    // Ensures that client is connected
+    if (client == NULL) {
+        printf("Client disconnected before task executed\n");
+        return;
+    }
 
     TaggedTask* tagged_task = &data->task_request.tagged_task;
 
@@ -20,7 +28,7 @@ void task_request_handler(TaskHandlerData* data)
     msg = create_task_status_msg(tagged_task->task_type, TASK_STATUS_EXECUTING);
     // Copies task request task
     msg.payload.task_status.tagged_task = *tagged_task;
-    err = send_message(&msg, &data->client->task_connection);
+    err = send_message(&msg, &client->task_connection);
 
     if (IS_ERROR(err)) {
         print_error(err);

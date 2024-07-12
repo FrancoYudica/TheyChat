@@ -9,7 +9,7 @@ Error* server_task_upload_file(TaskHandlerData* data)
     Error* err;
     Message message;
     Server* server = get_server();
-    Client* client = data->client;
+    Client* client = client_list_find_by_id(server->client_list, data->client_id);
     TaggedTask* tagged_task = &data->task_request.tagged_task;
     TaskFileUploadData* file_upload = &tagged_task->data.file_upload;
 
@@ -23,7 +23,7 @@ Error* server_task_upload_file(TaskHandlerData* data)
     // Receives file and places under resources folder
     uint64_t file_size = 0;
     err = receive_file(
-        &data->client->task_connection,
+        &client->task_connection,
         SHARED_FILES_LOCATION,
         id_filename,
         &file_size);
@@ -49,7 +49,7 @@ Error* server_task_upload_file(TaskHandlerData* data)
     // Tells all clients that the file was successfully sent
     message = create_server_notification(
         "%s uploaded a file: \"%s\", id: %d of %d bytes",
-        data->client->name,
+        client->name,
         file->filename,
         file->id,
         file->size);

@@ -8,7 +8,7 @@ Error* server_task_remove_file(TaskHandlerData* data)
     Error* err;
     Message message;
     Server* server = get_server();
-    Client* client = data->client;
+    Client* client = client_list_find_by_id(server->client_list, data->client_id);
     TaskRemoveFileData* remove_file_data = &data->task_request.tagged_task.data.remove;
 
     // Removes all client files

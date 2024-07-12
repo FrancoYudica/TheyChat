@@ -21,9 +21,11 @@ static void server_states_handler_fsm(ServerStateData* state_data, AppState init
 
     // Function pointer of currently used state handler function
     Error* (*handler)(ServerStateData*, AppState*);
+    Server* server = get_server();
+    Client* client = client_list_find_by_id(server->client_list, state_data->client_id);
 
-    while (true) {
-        debug_print_client(state_data->client);
+    while (current_state != APP_STATE_END) {
+        debug_print_client(client);
         printf("entered state: %s\n", get_application_state_name(current_state));
         // Gets next state handler
         switch (current_state) {
@@ -40,17 +42,15 @@ static void server_states_handler_fsm(ServerStateData* state_data, AppState init
             break;
 
         case APP_STATE_DISCONNECT:
-
-            // Disconnects and exits function
-            handle_state_disconnect(state_data, NULL);
-            return;
+            handler = handle_state_disconnect;
+            break;
 
         default:
             printf("Unimplemented state handler type: %i\n", current_state);
             break;
         }
 
-        state_data->client->current_state = current_state;
+        client->current_state = current_state;
 
         // Executes handler
         AppState next_state = APP_STATE_NULL;
@@ -61,7 +61,7 @@ static void server_states_handler_fsm(ServerStateData* state_data, AppState init
 
             if (err->code != ERR_NET_PEER_DISCONNECTED) {
                 printf("Net error code: %i for in client: ", err->code);
-                debug_print_client(state_data->client);
+                debug_print_client(client);
                 printf("\n");
                 print_error(err);
                 free_error(err);
@@ -85,7 +85,7 @@ void handle_client_task(ClientHandlerData* handler_data)
 {
 
     // Sets up state data
-    ServerStateData state_data = create_server_data(handler_data->client);
+    ServerStateData state_data = create_server_data(handler_data->client_id);
 
     // handler_data it's no longer used
     free(handler_data);

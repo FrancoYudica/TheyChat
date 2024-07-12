@@ -1,11 +1,13 @@
 #include "state_handler_utils.h"
 #include "broadcast_message.h"
 
-Error* handle_state_disconnect(ServerStateData* handler_data, AppState* _)
+Error* handle_state_disconnect(
+    ServerStateData* state_data,
+    AppState* app_state)
 {
     Message message;
     Server* server = get_server();
-    Client* client = handler_data->client;
+    Client* client = client_list_find_by_id(server->client_list, state_data->client_id);
 
     // Removes all client files
     uint32_t removed_count = 0;
@@ -33,6 +35,8 @@ Error* handle_state_disconnect(ServerStateData* handler_data, AppState* _)
 
     // Notifies all clients that a client was removed
     server_client_count_update();
+
+    *app_state = APP_STATE_END;
 
     return CREATE_ERR_OK;
 }

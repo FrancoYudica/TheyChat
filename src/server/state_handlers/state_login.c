@@ -1,12 +1,14 @@
 #include "state_handler_utils.h"
 #include "broadcast_message.h"
 
-Error* handle_state_login(ServerStateData* handler_data, AppState* next_state)
+Error* handle_state_login(
+    ServerStateData* state_data,
+    AppState* next_state)
 {
     Error* err;
     Message message;
     Server* server = get_server();
-    Client* client = handler_data->client;
+    Client* client = client_list_find_by_id(server->client_list, state_data->client_id);
     bool logged = false;
 
     while (!logged) {

@@ -5,12 +5,14 @@
 
 extern void task_request_handler(TaskHandlerData* data);
 
-Error* handle_state_chat(ServerStateData* state_data, AppState* next_state)
+Error* handle_state_chat(
+    ServerStateData* state_data,
+    AppState* next_state)
 {
     Error* err = CREATE_ERR_OK;
     Message message;
     Server* server = get_server();
-    Client* client = state_data->client;
+    Client* client = client_list_find_by_id(server->client_list, state_data->client_id);
     while (true) {
 
         err = wait_for_message(&client->status_connection, &message);
@@ -34,7 +36,7 @@ Error* handle_state_chat(ServerStateData* state_data, AppState* next_state)
 
         else if (message.type == MSGT_TASK_REQUEST) {
             TaskHandlerData* handler_data = malloc(sizeof(TaskHandlerData));
-            handler_data->client = client;
+            handler_data->client_id = client->id;
             handler_data->task_request = message.payload.task_request;
             thpool_submit(
                 server->task_thread_pool,
