@@ -46,8 +46,6 @@ Error* server_task_upload_file(TaskHandlerData* data)
         client->id,
         file_size);
 
-    pthread_mutex_unlock(&server->shared_file_list_mutex);
-
     // Tells all clients that the file was successfully sent
     message = create_server_notification(
         "%s uploaded a file: \"%s\", id: %d of %d bytes",
@@ -55,6 +53,8 @@ Error* server_task_upload_file(TaskHandlerData* data)
         file->filename,
         file->id,
         file->size);
+
+    pthread_mutex_unlock(&server->shared_file_list_mutex);
 
     send_broadcast(&message, server);
 

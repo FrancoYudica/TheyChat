@@ -14,6 +14,8 @@ Error* server_task_download_file(TaskHandlerData* data)
 
     SharedFile* file = NULL;
 
+    pthread_mutex_lock(&server->shared_file_list_mutex);
+
     // When the unique file ID is specified
     if (download_data->by_id) {
         uint32_t file_id = atoi(download_data->filename);
@@ -29,12 +31,16 @@ Error* server_task_download_file(TaskHandlerData* data)
                 false,
                 "There are multiple files named \"%s\". Use \"/download id {file_id}\" instead. Note that the id are displayed using \"/files\" command",
                 download_data->filename);
+
+            pthread_mutex_unlock(&server->shared_file_list_mutex);
             return send_message(&message, &client->task_connection);
         }
         // When there is just one file with that name
         else if (filename_count == 1)
             file = shared_file_list_find_by_name(server->shared_file_list, download_data->filename);
     }
+
+    pthread_mutex_unlock(&server->shared_file_list_mutex);
 
     // When file isn't in memory
     if (file == NULL) {

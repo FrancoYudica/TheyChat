@@ -22,6 +22,7 @@ Error* server_task_files(TaskHandlerData* data)
     SharedFile* file;
     while ((file = shared_file_list_iterator_next(it))) {
 
+        pthread_mutex_lock(&server->client_list_mutex);
         // Client that shared the file
         Client* file_client = client_list_find_by_id(server->client_list, file->client_id);
 
@@ -33,6 +34,8 @@ Error* server_task_files(TaskHandlerData* data)
             20, file->filename,
             10, file->size,
             10, file_client->name);
+
+        pthread_mutex_unlock(&server->client_list_mutex);
 
         string_list_add(str_list, buffer);
     }

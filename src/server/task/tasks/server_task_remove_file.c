@@ -14,7 +14,11 @@ Error* server_task_remove_file(TaskHandlerData* data)
     // Removes all client files
     if (remove_file_data->remove_all) {
         uint32_t removed_count = 0;
+
+        pthread_mutex_lock(&server->shared_file_list_mutex);
         server_remove_client_files(client->id, &removed_count);
+        pthread_mutex_unlock(&server->shared_file_list_mutex);
+
         // If no files where removed
         if (removed_count == 0) {
             message = create_status_msg(
@@ -33,6 +37,8 @@ Error* server_task_remove_file(TaskHandlerData* data)
     }
     // Removes the file specified by ID
     else {
+
+        pthread_mutex_lock(&server->shared_file_list_mutex);
         SharedFile* file = shared_file_list_find_by_id(
             server->shared_file_list,
             remove_file_data->file_id);
@@ -43,6 +49,7 @@ Error* server_task_remove_file(TaskHandlerData* data)
                 false,
                 "There isn't any file of id: \"%d\"",
                 remove_file_data->file_id);
+            pthread_mutex_unlock(&server->shared_file_list_mutex);
             return send_message(&message, &client->task_connection);
         }
 
@@ -52,6 +59,7 @@ Error* server_task_remove_file(TaskHandlerData* data)
                 false,
                 "You don't have permissions to remove file of id: \"%d\" since it's not yours",
                 file->id);
+            pthread_mutex_unlock(&server->shared_file_list_mutex);
             return send_message(&message, &client->task_connection);
         }
 
@@ -60,6 +68,8 @@ Error* server_task_remove_file(TaskHandlerData* data)
 
         // Tries to remove file
         err = server_remove_shared_file(file->id);
+        pthread_mutex_unlock(&server->shared_file_list_mutex);
+
         bool removed = !IS_ERROR(err);
 
         // Displays error
