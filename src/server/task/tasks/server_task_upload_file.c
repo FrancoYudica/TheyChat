@@ -56,7 +56,7 @@ Error* server_task_upload_file(TaskHandlerData* data)
 
     pthread_mutex_unlock(&server->shared_file_list_mutex);
 
-    send_broadcast(&message, server);
+    send_broadcast(&message);
 
     return err;
 }

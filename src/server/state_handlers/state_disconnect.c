@@ -23,7 +23,7 @@ Error* handle_state_disconnect(
             client->name,
             removed_count);
 
-    send_broadcast_exclude(&message, server, client);
+    send_broadcast_exclude(&message, client);
 
     free_network_connection(&client->status_connection);
     free_network_connection(&client->task_connection);

@@ -1,8 +1,9 @@
 #include "broadcast_message.h"
 #include "net/net_communication.h"
 
-void send_broadcast(const Message* msg, Server* server)
+void send_broadcast(const Message* msg)
 {
+    Server* server = get_server();
     Client* client;
     ClientList* clients = server->client_list;
     client_list_interator_rewind(clients);
@@ -19,8 +20,9 @@ void send_broadcast(const Message* msg, Server* server)
     pthread_mutex_unlock(&server->broadcast_mutex);
 }
 
-void send_broadcast_exclude(const Message* msg, Server* server, Client* exclude_client)
+void send_broadcast_exclude(const Message* msg, Client* exclude_client)
 {
+    Server* server = get_server();
     Client* client;
     ClientList* clients = server->client_list;
     client_list_interator_rewind(clients);

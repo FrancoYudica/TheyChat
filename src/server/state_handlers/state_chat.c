@@ -31,7 +31,7 @@ Error* handle_state_chat(
         // Broadcasts the message to all clients
         if (message.type == MSGT_USER_CHAT) {
             strcpy(message.payload.user_chat.ip, client->ip);
-            send_broadcast((const Message*)&message, server);
+            send_broadcast(&message);
         }
 
         else if (message.type == MSGT_TASK_REQUEST) {

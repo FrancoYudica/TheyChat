@@ -183,7 +183,7 @@ void server_client_count_update()
     // Sends to all clients the currently connected clients
     uint32_t connected_client_count = client_list_length(s_server.client_list);
     Message connected_clients = create_connected_clients_msg(connected_client_count);
-    send_broadcast((const Message*)&connected_clients, get_server());
+    send_broadcast(&connected_clients);
 }
 
 Error* server_remove_shared_file(uint32_t id)

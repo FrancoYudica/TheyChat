@@ -49,7 +49,7 @@ Error* handle_state_login(
         char text[128];
         sprintf(text, "Used named \"%s\" logged in!", client->name);
         message = create_server_notification(text);
-        send_broadcast((const Message*)&message, server);
+        send_broadcast(&message);
     }
 
     server_client_count_update();
