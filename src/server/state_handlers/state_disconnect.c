@@ -3,16 +3,25 @@
 
 Error* handle_state_disconnect(ServerStateData* handler_data, AppState* _)
 {
+    Message message;
     Server* server = get_server();
     Client* client = handler_data->client;
 
-    // Tells all the clients that client disconnected
-    {
-        char text[128];
-        sprintf(text, "Used named \"%s\" disconnected!", client->name);
-        Message msg = create_server_notification(text);
-        send_broadcast_exclude((const Message*)&msg, server, client);
-    }
+    // Removes all client files
+    uint32_t removed_count = 0;
+    server_remove_client_files(client->id, &removed_count);
+
+    if (removed_count == 0)
+        message = create_server_notification(
+            "\"%s\" disconnected!",
+            client->name);
+    else
+        message = create_server_notification(
+            "\"%s\" disconnected!. It's %d files where removed",
+            client->name,
+            removed_count);
+
+    send_broadcast_exclude(&message, server, client);
 
     free_network_connection(&client->status_connection);
     free_network_connection(&client->task_connection);

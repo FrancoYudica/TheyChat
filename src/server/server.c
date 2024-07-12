@@ -205,3 +205,31 @@ Error* server_remove_shared_file(uint32_t id)
 
     return CREATE_ERR_OK;
 }
+
+void server_remove_client_files(uint32_t client_id, uint32_t* removed_count)
+{
+    Error* err = CREATE_ERR_OK;
+    *removed_count = 0;
+
+    SharedFile* file = NULL;
+    SharedFileListIterator* it = shared_file_list_iterator_create(s_server.shared_file_list);
+
+    // Removes all the files that belong to the client
+    while ((file = shared_file_list_iterator_next(it))) {
+        if (file->client_id == client_id) {
+
+            // Tries to remove
+            err = server_remove_shared_file(file->id);
+
+            // Displays error
+            if (IS_ERROR(err)) {
+                print_error(err);
+                free_error(err);
+                err = CREATE_ERR_OK;
+            } else
+                *removed_count += 1;
+        }
+    }
+
+    shared_file_list_iterator_destroy(it);
+}

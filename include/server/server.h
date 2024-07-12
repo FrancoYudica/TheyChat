@@ -41,6 +41,8 @@ Error* server_free();
 /// @brief Notifies all clients the connected clients
 void server_client_count_update();
 
-Error* server_remove_shared_file(uint32_t id);
+Error* server_remove_shared_file(uint32_t file_id);
+
+void server_remove_client_files(uint32_t client_id, uint32_t* removed_count);
 
 #endif
