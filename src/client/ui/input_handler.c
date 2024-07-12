@@ -5,6 +5,7 @@
 #include "ui/ui.h"
 #include "string/utils.h"
 #include "messages/message_types.h"
+#include "states_fsm.h"
 
 // Input callback, called after user entered input.
 static Error* (*s_input_callback)(const char*);
@@ -57,6 +58,8 @@ static void* handle_input(void*)
                 TEXT_ENTRY_TYPE_WARNING,
                 "%s",
                 s_err->message);
+            free_error(s_err);
+            state_handler_set_next(APP_STATE_DISCONNECT);
         }
         usleep(50000); // Sleep for 5ms to prevent high CPU usage
     }

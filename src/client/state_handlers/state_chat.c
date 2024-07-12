@@ -3,37 +3,56 @@
 #include "states_fsm.h"
 
 static pthread_t s_receive_thread;
-static Error* s_receive_error = CREATE_ERR_OK;
-static bool s_receiving = false;
 
 /// @brief Receives messages from the server
 void* handle_messages(void* arg)
 {
+    Error* err = CREATE_ERR_OK;
     Client* client = get_client();
 
     Message message;
-    s_receiving = true;
 
-    while (s_receiving) {
+    while (state_handler_get_current() == APP_STATE_CHAT) {
 
         // Waits for server message
-        s_receive_error = wait_for_message(&client->status_connection, &message);
+        err = wait_for_message(&client->status_connection, &message);
 
-        if (IS_ERROR(s_receive_error)) {
+        // Checks for errors
+        if (IS_ERROR(err)) {
 
-            // Displays error it it's not a disconnection
-            if (s_receive_error->code == ERR_NET_CONNECTION_CLOSED) {
-                free_error(s_receive_error);
-                s_receive_error = CREATE_ERR_OK;
-            } else {
+            switch (err->code) {
+
+            // Connection closed manually by the client
+            case ERR_NET_CONNECTION_CLOSED:
+                free_error(err);
+                break;
+
+            // When server disconnects
+            case ERR_NET_PEER_DISCONNECTED:
+                free_error(err);
+                ui_push_text_entry(
+                    TEXT_ENTRY_TYPE_WARNING,
+                    "Server disconnected");
+                state_handler_set_next(APP_STATE_DISCONNECT);
+                break;
+
+            // When any other error happens
+            default:
                 ui_push_text_entry(
                     TEXT_ENTRY_TYPE_WARNING,
                     "%s",
-                    s_receive_error->message);
-                return NULL;
+                    err->message);
+
+                free_error(err);
+                state_handler_set_next(APP_STATE_DISCONNECT);
+                break;
             }
+
+            // After any error, exits the thread
+            return NULL;
         }
 
+        // Displays status
         switch (message.type) {
         case MSGT_USER_CHAT: {
 
@@ -128,11 +147,6 @@ Error* handle_state_chat()
     state_handler_wait_next_state_cond();
     pthread_detach(s_receive_thread);
     unregister_thread(s_receive_thread);
-
-    s_receiving = false;
-
-    if (IS_ERROR(s_receive_error))
-        return s_receive_error;
 
     return CREATE_ERR_OK;
 }

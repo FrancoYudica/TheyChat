@@ -4,14 +4,15 @@ static Error* input_callback(const char* input)
 {
     // Sends message telling that the username
     static Message message;
-
+    Error* err;
     Client* client = get_client();
     message = create_user_login_msg(input);
-    send_message((const Message*)&message, &client->status_connection);
+    err = send_message((const Message*)&message, &client->status_connection);
+    if (IS_ERROR(err))
+        return err;
 
     // Waits confirmation of the login
-    Error* err = wait_for_message_type(&client->status_connection, &message, MSGT_STATUS);
-
+    err = wait_for_message_type(&client->status_connection, &message, MSGT_STATUS);
     if (IS_ERROR(err))
         return err;
 

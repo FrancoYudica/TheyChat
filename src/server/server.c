@@ -178,6 +178,11 @@ Error* server_free()
     return err;
 }
 
+bool server_is_running()
+{
+    return s_running;
+}
+
 void server_client_count_update()
 {
     // Sends to all clients the currently connected clients

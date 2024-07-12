@@ -6,6 +6,7 @@
 #include "server_task/server_task_handler.h"
 #include "net/net_communication.h"
 #include "ui/ui.h"
+#include "states_fsm.h"
 
 static pthread_t s_thread;
 static Error* s_error;
@@ -42,6 +43,9 @@ static void* thread_handler(void*)
             &msg,
             MSGT_TASK_STATUS);
 
+        if (!s_running || state_handler_get_current() != APP_STATE_CHAT)
+            break;
+
         if (IS_ERROR(s_error)) {
 
             if (s_error->code != ERR_NET_PEER_DISCONNECTED)
@@ -51,7 +55,8 @@ static void* thread_handler(void*)
                     s_error->message);
 
             free_error(s_error);
-            continue;
+            state_handler_set_next(APP_STATE_DISCONNECT);
+            break;
         }
 
         TaskStatusPayload* task_status = &msg.payload.task_status;

@@ -16,6 +16,7 @@ extern Error* handle_state_disconnect();
 extern Error* handle_state_quit();
 
 static AppState s_current_state = APP_STATE_NULL;
+static AppState s_next_state = APP_STATE_NULL;
 static pthread_mutex_t s_cond_mutex;
 static pthread_cond_t s_next_state_cond;
 static void (*s_state_exit_callback)(void);
@@ -25,14 +26,14 @@ void state_handler_fsm(AppState initial_state)
     pthread_mutex_init(&s_cond_mutex, NULL);
     pthread_cond_init(&s_next_state_cond, NULL);
 
-    s_current_state = initial_state;
+    s_next_state = initial_state;
 
     // Function pointer of currently used state handler function
     Error* (*handler)(void);
 
-    while (s_current_state != APP_STATE_END) {
+    while (s_next_state != APP_STATE_END) {
         // Gets next state handler
-        switch (s_current_state) {
+        switch (s_next_state) {
         case APP_STATE_OFFLINE:
             handler = handle_state_offline;
             break;
@@ -68,8 +69,8 @@ void state_handler_fsm(AppState initial_state)
         }
 
         // Executes handler
-        AppState executing_state = s_current_state;
-        s_current_state = APP_STATE_NULL;
+        s_current_state = s_next_state;
+        s_next_state = APP_STATE_NULL;
         Error* err = handler();
 
         // Manually sets disconnect state if there is any error
@@ -97,8 +98,8 @@ void state_handler_set_next(AppState next_state)
     // Ensures that setting the state doesn't override any
     // other state previously set. In a good architecture,
     // this shouldn't fail, since next states aren't overwritten
-    assert(s_current_state == APP_STATE_NULL || next_state == APP_STATE_NULL);
-    s_current_state = next_state;
+    assert(s_next_state == APP_STATE_NULL || next_state == APP_STATE_NULL || s_next_state == next_state);
+    s_next_state = next_state;
     pthread_cond_signal(&s_next_state_cond);
 }
 

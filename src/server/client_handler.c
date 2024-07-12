@@ -83,7 +83,7 @@ static void server_states_handler_fsm(ServerStateData* state_data, AppState init
 
 void handle_client_task(ClientHandlerData* handler_data)
 {
-
+    set_thread_name(pthread_self(), "Client handler");
     /// @todo Check if client is still connected. Client could not be
     /// connected if disconnected during queue
 
@@ -95,4 +95,6 @@ void handle_client_task(ClientHandlerData* handler_data)
 
     // Handle states
     server_states_handler_fsm(&state_data, APP_STATE_CONNECT);
+
+    unregister_thread(pthread_self());
 }
