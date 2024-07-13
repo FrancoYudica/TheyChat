@@ -114,7 +114,7 @@ void ui_chat_window_render()
 
         // Renders time
         wattron(s_chat_window, COLOR_PAIR(COLOR_PAIR_CHAT_ALTERNATIVE));
-        sprintf(prefix_buffer, "%d %s - ", row + s_chat_entries_offset, entry->time_str);
+        sprintf(prefix_buffer, "%d %s ", row + s_chat_entries_offset, entry->time_str);
         mvwprintw(s_chat_window, row, col, "%s", prefix_buffer);
         wattroff(s_chat_window, COLOR_PAIR(COLOR_PAIR_CHAT_ALTERNATIVE));
 
@@ -203,18 +203,22 @@ static void render_text_entry(
     uint32_t col)
 {
     const TextChatEntry* text = &entry->data.text;
+    char buffer[MAX_CHAT_TEXT_BYTES + 4];
 
     // Gets color pair
     uint8_t color_pair = 0;
     switch (text->text_type) {
     case TEXT_ENTRY_TYPE_LOG:
         color_pair = COLOR_PAIR_CHAT_TEXT;
+        sprintf(buffer, "> %s", text->text);
         break;
     case TEXT_ENTRY_TYPE_SERVER:
         color_pair = COLOR_PAIR_CHAT_SERVER;
+        sprintf(buffer, "** %s", text->text);
         break;
     case TEXT_ENTRY_TYPE_WARNING:
         color_pair = COLOR_PAIR_CHAT_WARNING;
+        sprintf(buffer, "! %s", text->text);
         break;
     default:
         break;
@@ -228,7 +232,7 @@ static void render_text_entry(
 
     // Renders text
     wattron(s_chat_window, COLOR_PAIR(color_pair));
-    mvwprint_multiline(s_chat_window, row, col, max_row, max_column, text->text);
+    mvwprint_multiline(s_chat_window, row, col, max_row, max_column, buffer);
     wattroff(s_chat_window, COLOR_PAIR(color_pair));
 }
 
