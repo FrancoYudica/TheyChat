@@ -22,7 +22,7 @@ Error* handle_state_offline()
 
     ui_set_connected(false);
     ui_set_input_prompt("Type:");
-    ui_push_text_entry(TEXT_ENTRY_TYPE_SERVER, "Welcome to They Chat!, you can execute commands now. Use /h to see all commands");
+    ui_push_text_entry(TEXT_ENTRY_TYPE_SERVER, "Welcome to They Chat!. Use /h for help");
 
     // Renders the entire UI
     ui_refresh();

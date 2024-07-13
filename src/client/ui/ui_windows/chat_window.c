@@ -157,8 +157,17 @@ void ui_chat_window_scroll_up()
 }
 void ui_chat_window_scroll_down()
 {
-    s_chat_entries_offset++;
+    if (s_chat_entries_offset < chat_entries_get_size(s_chat_entries) - 1)
+        s_chat_entries_offset++;
 }
+void ui_chat_window_clear()
+{
+    pthread_mutex_lock(&ui.render_mutex);
+    chat_entries_free(s_chat_entries);
+    s_chat_entries = chat_entries_create();
+    pthread_mutex_unlock(&ui.render_mutex);
+}
+
 static void render_user_text_entry(
     const ChatEntry* entry,
     uint32_t* row,

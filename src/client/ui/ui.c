@@ -158,6 +158,10 @@ void ui_set_input_prompt(const char* text)
 {
     ui_input_window_set_prompt(text);
 }
+void ui_clear_chat()
+{
+    ui_chat_window_clear();
+}
 
 void ui_push_text_entry(enum TextEntryType type, const char* format, ...)
 {

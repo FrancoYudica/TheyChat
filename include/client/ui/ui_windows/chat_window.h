@@ -9,5 +9,6 @@ void ui_chat_window_render();
 void ui_chat_window_add_entry(ChatEntry* chat_entry);
 void ui_chat_window_scroll_up();
 void ui_chat_window_scroll_down();
+void ui_chat_window_clear();
 
 #endif

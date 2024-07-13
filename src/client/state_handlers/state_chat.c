@@ -114,7 +114,7 @@ static void state_chat_exit()
     ui_push_text_entry(
         TEXT_ENTRY_TYPE_LOG,
         "%s",
-        "Exiting chat...");
+        "Exited chat");
 
     server_task_handler_free();
 }
@@ -127,6 +127,13 @@ Error* handle_state_chat()
     server_task_handler_init();
 
     Client* client = get_client();
+
+    ui_clear_chat();
+
+    ui_push_text_entry(
+        TEXT_ENTRY_TYPE_LOG,
+        "Entered in chat as \"%s\"",
+        client->username);
 
     // Renders the entire UI
     ui_refresh();
