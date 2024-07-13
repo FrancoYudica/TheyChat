@@ -69,6 +69,7 @@ void* handle_messages(void* arg)
         case MSGT_SERVER_NOTIFICATION: {
             ServerNotificationPayload* server_notification = &message.payload.server_notification;
             ui_push_text_entry(TEXT_ENTRY_TYPE_SERVER, "%s", server_notification->text);
+            break;
         }
         case MSGT_CONNECTED_CLIENTS: {
             ui_set_connected_count(message.payload.connected_clients.client_count);

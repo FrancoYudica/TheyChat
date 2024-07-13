@@ -52,8 +52,6 @@ Error* handle_state_login(
         send_broadcast(&message);
     }
 
-    server_client_count_update();
-
     debug_print_client(client);
     printf(" logged in!\n");
     *next_state = APP_STATE_CHAT;

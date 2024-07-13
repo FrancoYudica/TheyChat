@@ -13,6 +13,10 @@ Error* handle_state_chat(
     Message message;
     Server* server = get_server();
     Client* client = client_list_find_by_id(server->client_list, state_data->client_id);
+
+    // Tells all the clients that a new client connected
+    server_client_count_update();
+
     while (true) {
 
         err = wait_for_message(&client->status_connection, &message);
