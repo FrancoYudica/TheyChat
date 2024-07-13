@@ -30,6 +30,8 @@ static void* handle_input(void*)
 
     while (s_running) {
 
+        usleep(50000); // Sleep for 5ms to prevent high CPU usage
+
         // Renders input window, and blocks current thread until input is received
         input[0] = '\0';
         ui_try_pop_input(input);
@@ -61,7 +63,6 @@ static void* handle_input(void*)
             free_error(s_err);
             state_handler_set_next(APP_STATE_DISCONNECT);
         }
-        usleep(50000); // Sleep for 5ms to prevent high CPU usage
     }
     unregister_thread(pthread_self());
 
