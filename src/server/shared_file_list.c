@@ -1,7 +1,7 @@
 #include <malloc.h>
 #include <string.h>
 #include "shared_file_list.h"
-#include "collections/linked_list.h"
+#include "linked_list.h"
 
 struct SharedFileList {
     LinkedList* list;

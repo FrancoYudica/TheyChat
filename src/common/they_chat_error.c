@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <pthread.h>
 #include "they_chat_error.h"
-#include "collections/linked_list.h"
+#include "linked_list.h"
 
 static const char* s_error_names[] = {
     [ERR_OK] = "ERR_OK",

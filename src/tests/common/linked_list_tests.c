@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
-#include "collections/linked_list.h"
+#include "linked_list.h"
 
 typedef struct {
     int id;

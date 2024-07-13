@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#include "string/string_list.h"
+#include "utils/string_list.h"
 
 void test_string_list_create()
 {

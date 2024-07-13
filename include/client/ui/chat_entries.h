@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 #include "ui/chat_entry_types.h"
-#include "string/string_list.h"
+#include "utils/string_list.h"
 
 typedef struct chat_entries ChatEntries;
 

@@ -3,7 +3,7 @@
 #include "client.h"
 #include "they_chat_error.h"
 #include "messages/message.h"
-#include "server_task/server_task_handler.h"
+#include "server_task_handler.h"
 #include "net/net_communication.h"
 #include "ui/ui.h"
 #include "states_fsm.h"

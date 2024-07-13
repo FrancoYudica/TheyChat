@@ -3,7 +3,7 @@
 #include <pthread.h>
 #include "ui/input_handler.h"
 #include "ui/ui.h"
-#include "string/utils.h"
+#include "utils/string_utils.h"
 #include "messages/message_types.h"
 #include "states_fsm.h"
 

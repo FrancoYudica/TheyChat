@@ -1,5 +1,5 @@
-#include "string/string_list.h"
-#include "collections/linked_list.h"
+#include "utils/string_list.h"
+#include "linked_list.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>

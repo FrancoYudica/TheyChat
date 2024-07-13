@@ -1,6 +1,6 @@
-#include "task/task_handler_data.h"
+#include "task_handler_data.h"
 #include "net/net_communication.h"
-#include "string/string_list.h"
+#include "utils/string_list.h"
 #include "utils/string_list_transferring.h"
 
 Error* server_task_remove_file(TaskHandlerData* data)

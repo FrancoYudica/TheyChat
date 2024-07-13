@@ -1,7 +1,7 @@
 #include <pthread.h>
 #include "state_handler_utils.h"
 #include "broadcast_message.h"
-#include "task/task_handler_data.h"
+#include "task_handler_data.h"
 
 extern void task_request_handler(TaskHandlerData* data);
 

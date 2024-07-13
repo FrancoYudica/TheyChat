@@ -14,7 +14,7 @@
 #include "ui/chat_entry_types.h"
 #include "ui/ui.h"
 #include "ui/input_handler.h"
-#include "command/command.h"
-#include "string/utils.h"
+#include "command.h"
+#include "utils/string_utils.h"
 
 #endif

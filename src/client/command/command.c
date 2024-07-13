@@ -1,4 +1,4 @@
-#include "command/command.h"
+#include "command.h"
 #include "ui/ui.h"
 
 // Help handler is different, requires variable argument list

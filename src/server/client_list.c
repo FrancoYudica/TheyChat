@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "client.h"
-#include "collections/linked_list.h"
+#include "linked_list.h"
 
 struct ClientList {
     LinkedList* list;

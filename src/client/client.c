@@ -10,7 +10,7 @@
 #include "client.h"
 #include "states_fsm.h"
 #include "ui/ui.h"
-#include "server_task/server_task_handler.h"
+#include "server_task_handler.h"
 
 int main()
 {

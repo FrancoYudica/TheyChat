@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "messages/message.h"
-#include "string/string_list.h"
+#include "utils/string_list.h"
 
 enum ChatEntryType {
     CHAT_ENTRY_USER_TEXT,

@@ -30,17 +30,15 @@ set(COMMON_SOURCES
     src/common/net/serialization/net_serializer.c
     src/common/net/serialization/net_message_serializer.c
 
-    # String
-    src/common/string/utils.c
-    src/common/string/string_list.c
-
     # Collections
-    src/common/collections/linked_list.c
+    src/common/linked_list.c
 
     # File
     src/common/file.c
 
     # Utils
+    src/common/utils/string_utils.c
+    src/common/utils/string_list.c
     src/common/utils/string_list_transferring.c
 
 )
@@ -48,10 +46,10 @@ set(COMMON_SOURCES
 # Changes encryption at compile time
 if(THEY_CHAT_SSL)
     # If SSL is enabled, add ssl_primitives.c to the common sources
-    list(APPEND COMMON_SOURCES src/common/net/primitives_impl/ssl_primitives.c)
+    list(APPEND COMMON_SOURCES src/common/net/net_primitives/ssl_primitives.c)
 else()
     # If SSL is not enabled, add standard_primitives.c to the common sources
-    list(APPEND COMMON_SOURCES src/common/net/primitives_impl/standard_primitives.c)
+    list(APPEND COMMON_SOURCES src/common/net/net_primitives/standard_primitives.c)
 endif()
 
 # Add the library

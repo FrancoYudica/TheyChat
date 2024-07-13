@@ -1,5 +1,5 @@
 #include "state_handler_utils.h"
-#include "server_task/server_task_handler.h"
+#include "server_task_handler.h"
 #include "states_fsm.h"
 
 static pthread_t s_receive_thread;
