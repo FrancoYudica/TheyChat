@@ -46,6 +46,10 @@ Error* dispatch_command(const char* input, uint32_t cmd_count, ...)
         }
         ui_set_log_text("Can't execute command: \"%s\" in this context", argv[0]);
     }
+
+    if (IS_ERROR(err))
+        ui_set_log_text("Error during \"%s\" command execution", command->name);
+
     va_end(args);
     return err;
 }
@@ -68,7 +72,7 @@ static void help_handler(uint32_t cmd_count, va_list args)
         [CMD_FILES] = { "\"/files\"", "Shows a list of server downloadable files" },
         [CMD_UPLOAD] = { "\"/upload\"", "Uploads a downloadable file into the server. \"/upload {filepath}\"" },
         [CMD_DOWNLOAD] = { "\"/download\"", "Downloads a file. \"/download {filename}\" or \"/download id {file_id}\"" },
-        [CMD_REMOVE] = { "\"/remove\"", "User can remove their uploaded files by running: \"/remove {file_id}\"" }
+        [CMD_REMOVE] = { "\"/remove\"", "Removes uploaded file/s: \"/remove {file_id}\" or \"/remove all\"" }
     };
 
     ChatEntry* entry = chat_entry_create_list("Listing commands:");

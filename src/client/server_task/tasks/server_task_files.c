@@ -16,6 +16,7 @@ Error* server_task_files(TaskStatusPayload status)
         if (string_list_length(entry->data.list.list) == 0) {
             chat_entry_free(entry);
             ui_push_text_entry(TEXT_ENTRY_TYPE_SERVER, "There are no files uploaded");
+
         } else
             ui_add_chat_entry(entry);
     }

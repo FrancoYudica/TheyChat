@@ -17,6 +17,8 @@ Error* download_handler(uint8_t argc, char** argv)
         ui_push_text_entry(
             TEXT_ENTRY_TYPE_WARNING,
             "Command \"/download\" requires {filename} argument as \"/download file.txt\"");
+
+        ui_set_log_text("Check /download command format");
         return CREATE_ERR_OK;
     }
 
@@ -30,6 +32,8 @@ Error* download_handler(uint8_t argc, char** argv)
                 TEXT_ENTRY_TYPE_WARNING,
                 "Invalid argument \"%s\"",
                 argv[1]);
+
+            ui_set_log_text("Check /download command format");
             return CREATE_ERR_OK;
         }
 
@@ -38,6 +42,8 @@ Error* download_handler(uint8_t argc, char** argv)
         ui_push_text_entry(
             TEXT_ENTRY_TYPE_WARNING,
             "Invalid \"/download\" command format");
+
+        ui_set_log_text("Check /download command format");
         return CREATE_ERR_OK;
     }
 
@@ -50,5 +56,9 @@ Error* download_handler(uint8_t argc, char** argv)
     // Sets filename
     strcpy(download_data->filename, filename);
     err = send_message(&message, &client->status_connection);
+
+    if (!IS_ERROR(err))
+        ui_set_log_text("download task request sent to server");
+
     return err;
 }

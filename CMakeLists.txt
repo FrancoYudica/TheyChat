@@ -36,6 +36,9 @@ set(COMMON_SOURCES
     # File
     src/common/file.c
 
+    src/common/task_types.c
+
+
     # Utils
     src/common/utils/string_utils.c
     src/common/utils/string_list.c

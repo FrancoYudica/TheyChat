@@ -18,14 +18,14 @@ Error* upload_handler(uint8_t argc, char** argv)
     }
 
     const char* filepath = argv[1];
-
+    bool can_upload = true;
     // Ensures that the file exists
     if (!file_exists(filepath)) {
         ui_push_text_entry(
             TEXT_ENTRY_TYPE_WARNING,
             "Couldn't find filepath: \"%s\". Check that the filepath is absolute, or relative to client executable",
             filepath);
-        return CREATE_ERR_OK;
+        can_upload = false;
     }
 
     // Ensures that the file is readable
@@ -34,6 +34,11 @@ Error* upload_handler(uint8_t argc, char** argv)
             TEXT_ENTRY_TYPE_WARNING,
             "Client doesn't have permissions to read the provided file: \"%s\"",
             filepath);
+        can_upload = false;
+    }
+
+    if (!can_upload) {
+        ui_set_log_text("Unable to upload file: \"%s\"", filepath);
         return CREATE_ERR_OK;
     }
 

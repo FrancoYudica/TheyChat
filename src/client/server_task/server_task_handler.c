@@ -108,10 +108,14 @@ static void* thread_handler(void*)
                 TEXT_ENTRY_TYPE_WARNING,
                 "Error during task execution - %s",
                 s_error->message);
+            ui_set_log_text(
+                "Error during %s task execution",
+                task_get_name(task_status->tagged_task.task_type));
+
         } else {
             ui_set_log_text(
-                "Task \"%d\" executed successfully",
-                task_status->tagged_task.task_type);
+                "%s task executed successfully",
+                task_get_name(task_status->tagged_task.task_type));
         }
     }
     unregister_thread(pthread_self());

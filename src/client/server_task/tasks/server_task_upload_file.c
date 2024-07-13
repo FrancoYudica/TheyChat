@@ -33,5 +33,17 @@ Error* server_task_upload_file(TaskStatusPayload status)
     }
 
     err = send_file(filepath, &client->task_connection, NULL);
+
+    if (IS_ERROR(err))
+        ui_push_text_entry(
+            TEXT_ENTRY_TYPE_SERVER,
+            "Unable to upload file: \"%s\"",
+            filepath);
+    else
+        ui_push_text_entry(
+            TEXT_ENTRY_TYPE_SERVER,
+            "File: \"%s\" uploaded successfully",
+            filepath);
+
     return err;
 }

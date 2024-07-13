@@ -23,7 +23,7 @@ Error* server_task_remove_file(TaskHandlerData* data)
         if (removed_count == 0) {
             message = create_status_msg(
                 false,
-                "User %s haven't uploaded ant file",
+                "User %s haven't uploaded any file",
                 client->name);
         } else {
             message = create_status_msg(

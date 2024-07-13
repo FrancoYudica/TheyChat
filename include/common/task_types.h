@@ -10,4 +10,6 @@ enum TaskType {
     TASK_REMOVE_FILE
 };
 
+const char* task_get_name(enum TaskType type);
+
 #endif

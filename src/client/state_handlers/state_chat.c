@@ -106,7 +106,6 @@ static Error* input_callback(const char* input)
 
     message = create_user_chat_msg(input, client->username);
     Error* error = send_message((const Message*)&message, &client->status_connection);
-    ui_set_log_text("Sent `%s` to server.", input);
     return error;
 }
 

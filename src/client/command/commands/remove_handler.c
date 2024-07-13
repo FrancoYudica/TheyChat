@@ -9,6 +9,8 @@ Error* remove_handler(uint8_t argc, char** argv)
         ui_push_text_entry(
             TEXT_ENTRY_TYPE_WARNING,
             "Missing arguments while executing \"/remove\" command.");
+
+        ui_set_log_text("Unable to execute /remove command");
         return CREATE_ERR_OK;
     }
 
@@ -26,5 +28,9 @@ Error* remove_handler(uint8_t argc, char** argv)
         remove_data->file_id = atoi(argv[1]);
 
     err = send_message(&message, &client->status_connection);
+
+    if (!IS_ERROR(err))
+        ui_set_log_text("remove task request sent to server");
+
     return err;
 }

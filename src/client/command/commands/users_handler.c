@@ -21,5 +21,9 @@ Error* users_handler(uint8_t argc, char** argv)
     }
 
     err = send_message(&message, &client->status_connection);
+
+    if (!IS_ERROR(err))
+        ui_set_log_text("users task request sent to server");
+
     return err;
 }

@@ -35,7 +35,7 @@ Error* server_task_download_file(TaskStatusPayload status)
     }
 
     // Downloads file
-    ui_set_log_text("Downloading file...");
+    ui_set_log_text("Downloading file: \"%s\"", download_data->filename);
     char received_filename[MAX_FILENAME_SIZE];
     uint64_t downloaded_bytes = 0;
     err = receive_file(
@@ -45,7 +45,12 @@ Error* server_task_download_file(TaskStatusPayload status)
         &downloaded_bytes);
 
     // If there isn't any error, tells client
-    if (!IS_ERROR(err)) {
+    if (IS_ERROR(err)) {
+        ui_push_text_entry(
+            TEXT_ENTRY_TYPE_WARNING,
+            "Unable to download file");
+
+    } else {
         ui_push_text_entry(
             TEXT_ENTRY_TYPE_SERVER,
             "Downloaded %d bytes! File located in \"%s%c%s\"",
