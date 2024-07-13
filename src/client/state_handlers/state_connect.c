@@ -22,7 +22,7 @@ Error* handle_state_connect()
         // Unable to connect, goes back to offline state
         if (IS_ERROR(err)) {
             ui_push_text_entry(
-                TEXT_ENTRY_TYPE_WARNING,
+                TEXT_ENTRY_TYPE_ERROR,
                 "Unable to establish status connection. Error: \"%s\"",
                 err->message);
             state_handler_set_next(APP_STATE_OFFLINE);
@@ -45,7 +45,7 @@ Error* handle_state_connect()
         // Unable to connect, goes back to offline state
         if (IS_ERROR(err)) {
             ui_push_text_entry(
-                TEXT_ENTRY_TYPE_WARNING,
+                TEXT_ENTRY_TYPE_ERROR,
                 "Unable to establish task connection. Error: \"%s\"",
                 err->message);
             state_handler_set_next(APP_STATE_OFFLINE);

@@ -7,7 +7,7 @@ Error* remove_handler(uint8_t argc, char** argv)
 
     if (argc == 1) {
         ui_push_text_entry(
-            TEXT_ENTRY_TYPE_WARNING,
+            TEXT_ENTRY_TYPE_ERROR,
             "Missing arguments while executing \"/remove\" command.");
 
         ui_set_log_text("Unable to execute /remove command");

@@ -75,7 +75,7 @@ void state_handler_fsm(AppState initial_state)
 
         // Manually sets disconnect state if there is any error
         if (IS_ERROR(err)) {
-            ui_push_text_entry(TEXT_ENTRY_TYPE_WARNING, "An error ocurred: \"%s\"", err->message);
+            ui_push_text_entry(TEXT_ENTRY_TYPE_ERROR, "An error ocurred: \"%s\"", err->message);
             s_current_state = APP_STATE_DISCONNECT;
             free_error(err);
         }

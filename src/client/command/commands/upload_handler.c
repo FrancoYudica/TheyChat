@@ -12,7 +12,7 @@ Error* upload_handler(uint8_t argc, char** argv)
     // Ensures that the name is provided
     if (argc != 2) {
         ui_push_text_entry(
-            TEXT_ENTRY_TYPE_WARNING,
+            TEXT_ENTRY_TYPE_ERROR,
             "Command /upload requires {filepath} argument as \"/upload file.txt\"");
         return CREATE_ERR_OK;
     }
@@ -22,7 +22,7 @@ Error* upload_handler(uint8_t argc, char** argv)
     // Ensures that the file exists
     if (!file_exists(filepath)) {
         ui_push_text_entry(
-            TEXT_ENTRY_TYPE_WARNING,
+            TEXT_ENTRY_TYPE_ERROR,
             "Couldn't find filepath: \"%s\". Check that the filepath is absolute, or relative to client executable",
             filepath);
         can_upload = false;
@@ -31,7 +31,7 @@ Error* upload_handler(uint8_t argc, char** argv)
     // Ensures that the file is readable
     if (!file_can_read(filepath)) {
         ui_push_text_entry(
-            TEXT_ENTRY_TYPE_WARNING,
+            TEXT_ENTRY_TYPE_ERROR,
             "Client doesn't have permissions to read the provided file: \"%s\"",
             filepath);
         can_upload = false;

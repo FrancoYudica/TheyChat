@@ -24,7 +24,7 @@ typedef struct
 enum TextEntryType {
     TEXT_ENTRY_TYPE_LOG,
     TEXT_ENTRY_TYPE_SERVER,
-    TEXT_ENTRY_TYPE_WARNING
+    TEXT_ENTRY_TYPE_ERROR
 };
 typedef struct
 {

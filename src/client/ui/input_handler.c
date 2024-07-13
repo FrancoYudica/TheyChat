@@ -55,7 +55,7 @@ static void* handle_input(void*)
 
         if (IS_ERROR(s_err)) {
             ui_push_text_entry(
-                TEXT_ENTRY_TYPE_WARNING,
+                TEXT_ENTRY_TYPE_ERROR,
                 "%s",
                 s_err->message);
             free_error(s_err);

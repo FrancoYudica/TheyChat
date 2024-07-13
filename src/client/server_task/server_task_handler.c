@@ -50,7 +50,7 @@ static void* thread_handler(void*)
 
             if (s_error->code != ERR_NET_PEER_DISCONNECTED)
                 ui_push_text_entry(
-                    TEXT_ENTRY_TYPE_WARNING,
+                    TEXT_ENTRY_TYPE_ERROR,
                     "%s",
                     s_error->message);
 
@@ -64,7 +64,7 @@ static void* thread_handler(void*)
         // Ensures that the received task is executing
         if (task_status->task_status != TASK_STATUS_EXECUTING) {
             ui_push_text_entry(
-                TEXT_ENTRY_TYPE_WARNING,
+                TEXT_ENTRY_TYPE_ERROR,
                 "Received task of type \"%d\" and it's not executing...",
                 task_status->tagged_task.task_type);
             continue;
@@ -96,7 +96,7 @@ static void* thread_handler(void*)
 
         default:
             ui_push_text_entry(
-                TEXT_ENTRY_TYPE_WARNING,
+                TEXT_ENTRY_TYPE_ERROR,
                 "Trying to execute unimplemented task type \"%d\"...",
                 task_status->tagged_task.task_type);
             break;
@@ -105,7 +105,7 @@ static void* thread_handler(void*)
         // If there is any error after executing
         if (IS_ERROR(s_error)) {
             ui_push_text_entry(
-                TEXT_ENTRY_TYPE_WARNING,
+                TEXT_ENTRY_TYPE_ERROR,
                 "Error during task execution - %s",
                 s_error->message);
             ui_set_log_text(

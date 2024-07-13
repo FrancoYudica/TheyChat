@@ -17,7 +17,7 @@ Error* server_task_upload_file(TaskStatusPayload status)
     // Ensures that the file exists
     if (!file_exists(filepath)) {
         ui_push_text_entry(
-            TEXT_ENTRY_TYPE_WARNING,
+            TEXT_ENTRY_TYPE_ERROR,
             "Couldn't find filepath: \"%s\". Check that the filepath is absolute, or relative to client executable",
             filepath);
         return CREATE_ERR_OK;
@@ -26,7 +26,7 @@ Error* server_task_upload_file(TaskStatusPayload status)
     // Ensures that the file is readable
     if (!file_can_read(filepath)) {
         ui_push_text_entry(
-            TEXT_ENTRY_TYPE_WARNING,
+            TEXT_ENTRY_TYPE_ERROR,
             "Client doesn't have permissions to read the provided file: \"%s\"",
             filepath);
         return CREATE_ERR_OK;

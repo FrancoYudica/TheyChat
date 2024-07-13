@@ -15,7 +15,7 @@ Error* download_handler(uint8_t argc, char** argv)
     // Ensures that the name is provided
     if (argc == 1) {
         ui_push_text_entry(
-            TEXT_ENTRY_TYPE_WARNING,
+            TEXT_ENTRY_TYPE_ERROR,
             "Command \"/download\" requires {filename} argument as \"/download file.txt\"");
 
         ui_set_log_text("Check /download command format");
@@ -29,7 +29,7 @@ Error* download_handler(uint8_t argc, char** argv)
 
         if (strcmp(argv[1], "id")) {
             ui_push_text_entry(
-                TEXT_ENTRY_TYPE_WARNING,
+                TEXT_ENTRY_TYPE_ERROR,
                 "Invalid argument \"%s\"",
                 argv[1]);
 
@@ -40,7 +40,7 @@ Error* download_handler(uint8_t argc, char** argv)
         by_id = true;
     } else {
         ui_push_text_entry(
-            TEXT_ENTRY_TYPE_WARNING,
+            TEXT_ENTRY_TYPE_ERROR,
             "Invalid \"/download\" command format");
 
         ui_set_log_text("Check /download command format");

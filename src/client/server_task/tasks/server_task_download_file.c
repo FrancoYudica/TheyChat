@@ -47,7 +47,7 @@ Error* server_task_download_file(TaskStatusPayload status)
     // If there isn't any error, tells client
     if (IS_ERROR(err)) {
         ui_push_text_entry(
-            TEXT_ENTRY_TYPE_WARNING,
+            TEXT_ENTRY_TYPE_ERROR,
             "Unable to download file");
 
     } else {

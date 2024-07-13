@@ -31,7 +31,7 @@ void* handle_messages(void* arg)
             case ERR_NET_PEER_DISCONNECTED:
                 free_error(err);
                 ui_push_text_entry(
-                    TEXT_ENTRY_TYPE_WARNING,
+                    TEXT_ENTRY_TYPE_ERROR,
                     "Server disconnected");
                 state_handler_set_next(APP_STATE_DISCONNECT);
                 break;
@@ -39,7 +39,7 @@ void* handle_messages(void* arg)
             // When any other error happens
             default:
                 ui_push_text_entry(
-                    TEXT_ENTRY_TYPE_WARNING,
+                    TEXT_ENTRY_TYPE_ERROR,
                     "%s",
                     err->message);
 

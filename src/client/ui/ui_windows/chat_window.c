@@ -216,7 +216,7 @@ static void render_text_entry(
         color_pair = COLOR_PAIR_CHAT_SERVER;
         sprintf(buffer, "** %s", text->text);
         break;
-    case TEXT_ENTRY_TYPE_WARNING:
+    case TEXT_ENTRY_TYPE_ERROR:
         color_pair = COLOR_PAIR_CHAT_WARNING;
         sprintf(buffer, "! %s", text->text);
         break;
