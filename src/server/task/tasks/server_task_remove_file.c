@@ -2,6 +2,7 @@
 #include "net/net_communication.h"
 #include "utils/string_list.h"
 #include "utils/string_list_transferring.h"
+#include "broadcast_message.h"
 
 Error* server_task_remove_file(TaskHandlerData* data)
 {
@@ -25,14 +26,29 @@ Error* server_task_remove_file(TaskHandlerData* data)
                 false,
                 "User %s haven't uploaded any file",
                 client->name);
+            return send_message(&message, &client->task_connection);
+
         } else {
+
+            // Sends status to client
             message = create_status_msg(
                 true,
-                "Removed %d %s's files",
-                removed_count,
-                client->name);
+                "Removed %d files",
+                removed_count);
+            err = send_message(&message, &client->task_connection);
+
+            if (IS_ERROR(err))
+                return err;
+
+            // If no error, sends broadcast telling all clients
+            message = create_server_notification(
+                "%s removed %d files",
+                client->name,
+                removed_count);
+
+            send_broadcast_exclude(&message, client);
+            return CREATE_ERR_OK;
         }
-        return send_message(&message, &client->task_connection);
 
     }
     // Removes the file specified by ID
@@ -77,8 +93,16 @@ Error* server_task_remove_file(TaskHandlerData* data)
             print_error(err);
             free_error(err);
             err = CREATE_ERR_OK;
-        }
+        } else {
 
+            // If no error, sends broadcast telling all clients
+            message = create_server_notification(
+                "%s removed file: \"%s\"",
+                client->name,
+                filename);
+
+            send_broadcast_exclude(&message, client);
+        }
         // Creates status message
         if (removed) {
             message = create_status_msg(
