@@ -70,7 +70,7 @@ void print_error(const Error* err)
     if (err == NULL)
         printf("No error\n");
 
-    printf("%s", err->message);
+    printf("%s\n", err->message);
 }
 
 void _assert_net_error(Error* err)

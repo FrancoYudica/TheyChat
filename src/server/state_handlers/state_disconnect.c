@@ -7,7 +7,15 @@ Error* handle_state_disconnect(
 {
     Message message;
     Server* server = get_server();
+    pthread_mutex_lock(&server->client_list_mutex);
     Client* client = client_list_find_by_id(server->client_list, state_data->client_id);
+
+    *app_state = APP_STATE_END;
+
+    if (client == NULL) {
+        pthread_mutex_unlock(&server->client_list_mutex);
+        return CREATE_ERR_OK;
+    }
 
     // Removes all client files
     uint32_t removed_count = 0;
@@ -29,14 +37,11 @@ Error* handle_state_disconnect(
     free_network_connection(&client->task_connection);
 
     // Removes client
-    pthread_mutex_lock(&server->client_list_mutex);
     client_list_remove(server->client_list, client->id);
     pthread_mutex_unlock(&server->client_list_mutex);
 
     // Notifies all clients that a client was removed
     server_client_count_update();
-
-    *app_state = APP_STATE_END;
 
     return CREATE_ERR_OK;
 }

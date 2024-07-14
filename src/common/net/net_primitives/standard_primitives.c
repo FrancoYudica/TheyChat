@@ -113,6 +113,7 @@ Error* net_listen(
 
     return CREATE_ERR_OK;
 }
+
 Error* net_accept_connection(
     ConnectionContext* context,
     ConnectionContext** client_context_ref)
@@ -142,6 +143,10 @@ Error* net_send(
     uint32_t len,
     uint32_t* bytes_sent)
 {
+
+    if (atomic_load(&context->closing))
+        return CREATE_ERR(ERR_NET_CONNECTION_CLOSED, "Trying to send when connection is closed");
+
     int32_t sent = send(context->socketfd, buffer, len, 0);
 
     if (sent == -1)
@@ -209,12 +214,12 @@ Error* net_receive(
 
 Error* net_close(ConnectionContext* context)
 {
+    atomic_store(&context->closing, true);
+
     // Shut down the socket to signal the receive thread to stop
     if (shutdown(context->socketfd, SHUT_RDWR) == -1) {
         return CREATE_ERRNO(ERR_NET_FAILURE, "shutdown() failure");
     }
-
-    atomic_store(&context->closing, true);
 
     // Waits 2ms, in case there is any thread receiving
     usleep(20000);

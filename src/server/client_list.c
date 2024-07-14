@@ -73,6 +73,9 @@ bool client_list_remove(ClientList* client_list, uint32_t client_id)
 
 Client* client_list_find_by_id(ClientList* client_list, uint32_t client_id)
 {
+    if (client_list == NULL)
+        return NULL;
+
     LinkedListIterator* it = linked_list_iterator_create(client_list->list);
     Client* client = NULL;
 
@@ -89,6 +92,9 @@ Client* client_list_find_by_id(ClientList* client_list, uint32_t client_id)
 
 Client* client_list_find_by_name(ClientList* client_list, const char* name)
 {
+    if (client_list == NULL)
+        return NULL;
+
     LinkedListIterator* it = linked_list_iterator_create(client_list->list);
     Client* client = NULL;
 
@@ -105,6 +111,9 @@ Client* client_list_find_by_name(ClientList* client_list, const char* name)
 
 size_t client_list_length(ClientList* client_list)
 {
+    if (client_list == NULL)
+        return 0;
+
     return linked_list_length(client_list->list);
 }
 

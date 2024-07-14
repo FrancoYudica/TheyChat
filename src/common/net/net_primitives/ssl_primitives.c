@@ -184,6 +184,9 @@ Error* net_send(
     uint32_t size,
     uint32_t* bytes_sent)
 {
+    if (atomic_load(&context->closing))
+        return CREATE_ERR(ERR_NET_CONNECTION_CLOSED, "Trying to send when connection is closed");
+
     int bytes = SSL_write(context->ssl, buffer, size);
     if (bytes <= 0)
         return CREATE_ERRNO(ERR_NET_FAILURE, "SSL_write failure");
@@ -248,11 +251,11 @@ Error* net_receive(
 
 Error* net_close(ConnectionContext* context)
 {
+    atomic_store(&context->closing, true);
+
     // Shut down the socket to signal the receive thread to stop
     if (context->ssl != NULL && SSL_shutdown(context->ssl) != 0)
         return CREATE_ERRNO(ERR_NET_FAILURE, "SSL_shutdown() failure");
-
-    atomic_store(&context->closing, true);
 
     // Waits 2ms, in case there is any thread receiving
     usleep(20000);

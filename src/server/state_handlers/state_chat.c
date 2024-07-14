@@ -21,13 +21,17 @@ Error* handle_state_chat(
 
         err = wait_for_message(&client->status_connection, &message);
 
-        if (!server_is_running())
+        // Server stopped runnning
+        if (!server_is_running()) {
+            err = CREATE_ERR_OK;
             break;
+        }
 
         if (IS_ERROR(err)) {
 
-            if (err->code == ERR_NET_CONNECTION_CLOSED)
+            if (err->code == ERR_NET_CONNECTION_CLOSED) {
                 break;
+            }
 
             return err;
         }

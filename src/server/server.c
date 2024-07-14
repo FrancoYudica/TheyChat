@@ -43,8 +43,8 @@ Error* server_init(
     signal(SIGINT, handle_termination_signal);
     signal(SIGKILL, handle_termination_signal);
     signal(SIGHUP, handle_termination_signal);
-    signal(SIGHUP, handle_termination_signal);
     signal(SIGPIPE, handle_termination_signal);
+    signal(SIGQUIT, handle_termination_signal);
 
     // Initializes network module.
     net_init();
@@ -69,9 +69,9 @@ Error* server_init(
 
 #else
     // Not using SSL, certificates not needed
-    printf("Status socket\n");
+    printf("Setting up status socket\n");
     err = net_server_create_socket(NULL, NULL, s_server.status_port, &s_server.status_context);
-    printf("Task socket\n");
+    printf("Setting up task socket\n");
     err = net_server_create_socket(NULL, NULL, s_server.task_port, &s_server.task_context);
 #endif
     return err;
@@ -178,29 +178,52 @@ Error* server_free()
 
     printf("\nFreeing server memory\n");
 
+    // Destroys clients
+    {
+        ClientList* clients = s_server.client_list;
+
+        pthread_mutex_lock(&s_server.client_list_mutex);
+        client_list_interator_rewind(clients);
+
+        // Iterates through all clients and fills string list
+        Client* client;
+        while ((client = client_list_interator_next(clients))) {
+
+            // Closes connections
+            free_network_connection(&client->status_connection);
+            free_network_connection(&client->task_connection);
+        }
+
+        client_list_destroy(s_server.client_list);
+        s_server.client_list = NULL;
+        printf("    - Clients disconnected and destroyed\n");
+
+        pthread_mutex_unlock(&s_server.client_list_mutex);
+    }
+
     Error* err = net_close(s_server.status_context);
+    s_server.status_context = NULL;
     if (IS_ERROR(err))
         print_error(err);
-
     err = net_close(s_server.task_context);
+    s_server.task_context = NULL;
     if (IS_ERROR(err))
         print_error(err);
-
     printf("    - Status and task contexts closed\n");
 
     thpool_destroy(s_server.client_thread_pool);
+    s_server.client_thread_pool = NULL;
     printf("    - Client thpool destroyed\n");
 
     thpool_destroy(s_server.task_thread_pool);
+    s_server.task_thread_pool = NULL;
     printf("    - Task thpool destroyed\n");
-
-    client_list_destroy(s_server.client_list);
-    printf("    - Client list destroyed\n");
 
     remove_all_shared_files();
     printf("    - All shared files removed from disk\n");
 
     shared_file_list_destroy(s_server.shared_file_list);
+    s_server.shared_file_list = NULL;
     printf("    - Shared file list destroyed\n");
 
     pthread_mutex_destroy(&s_server.client_list_mutex);
@@ -281,6 +304,7 @@ static void handle_termination_signal(int signal)
         print_error(err);
 
     char* signal_descriptions[] = {
+        [SIGTERM] = "Termination request",
         [SIGHUP] = "Hangup detected on controlling terminal or death of controlling process",
         [SIGQUIT] = "Quit from keyboard",
         [SIGKILL] = "Kill signal",
