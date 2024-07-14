@@ -1,3 +1,4 @@
+#include <signal.h>
 #include "server.h"
 #include "file.h"
 #include "messages/message_types.h"
@@ -13,12 +14,18 @@ Server* get_server()
     return &s_server;
 }
 
-Error* server_init(uint16_t port, uint32_t max_client_count)
+static void handle_termination_signal(int signal);
+
+Error* server_init(
+    uint16_t status_port,
+    uint16_t task_port,
+    uint32_t max_client_count)
 {
     memset(&s_server, 0, sizeof(Server));
 
     // Initializes server data
-    s_server.port = port;
+    s_server.status_port = status_port;
+    s_server.task_port = task_port;
     s_server.max_client_count = max_client_count;
 
     s_server.client_list = client_list_create();
@@ -30,6 +37,14 @@ Error* server_init(uint16_t port, uint32_t max_client_count)
 
     s_server.client_thread_pool = thpool_create(max_client_count);
     s_server.task_thread_pool = thpool_create(max_client_count);
+
+    // Sets up termination signals
+    signal(SIGTERM, handle_termination_signal);
+    signal(SIGINT, handle_termination_signal);
+    signal(SIGKILL, handle_termination_signal);
+    signal(SIGHUP, handle_termination_signal);
+    signal(SIGHUP, handle_termination_signal);
+    signal(SIGPIPE, handle_termination_signal);
 
     // Initializes network module.
     net_init();
@@ -46,12 +61,18 @@ Error* server_init(uint16_t port, uint32_t max_client_count)
 
     printf("- Certificate path: %s\n", cert_file);
     printf("- Private key path: %s\n", key_file);
-    // Initializes socket with certificates
-    err = net_server_create_socket(cert_file, key_file, s_server.port, &s_server.context);
+    // Initializes sockets with certificates
+    printf("Status socket\n");
+    err = net_server_create_socket(cert_file, key_file, s_server.status_port, &s_server.status_context);
+    printf("Task socket\n");
+    err = net_server_create_socket(cert_file, key_file, s_server.task_port, &s_server.task_context);
 
 #else
     // Not using SSL, certificates not needed
-    err = net_server_create_socket(NULL, NULL, s_server.port, &s_server.context);
+    printf("Status socket\n");
+    err = net_server_create_socket(NULL, NULL, s_server.status_port, &s_server.status_context);
+    printf("Task socket\n");
+    err = net_server_create_socket(NULL, NULL, s_server.task_port, &s_server.task_context);
 #endif
     return err;
 }
@@ -59,11 +80,18 @@ Error* server_init(uint16_t port, uint32_t max_client_count)
 Error* server_run()
 {
     // Sets up listen
-    Error* err = net_listen(s_server.context, 5);
+    Error* err = net_listen(s_server.status_context, 5);
     if (IS_ERROR(err))
         return err;
 
-    printf("Listening on port %i. Waiting for client connections...\n", s_server.port);
+    err = net_listen(s_server.task_context, 5);
+    if (IS_ERROR(err))
+        return err;
+
+    printf(
+        "Listening on status port \"%i\" and task port \"%i\". Waiting for client connections...\n",
+        s_server.status_port,
+        s_server.task_port);
 
     // Message sent to client in case there aren't any free
     // threads, and stays in client queue
@@ -73,7 +101,7 @@ Error* server_run()
 
         // Accepts client connections
         ConnectionContext* client_status_context = NULL;
-        err = net_accept_connection(s_server.context, &client_status_context);
+        err = net_accept_connection(s_server.status_context, &client_status_context);
 
         if (IS_ERROR(err)) {
 
@@ -88,7 +116,7 @@ Error* server_run()
         printf("Accepted client status connection\n");
 
         ConnectionContext* client_task_context = NULL;
-        err = net_accept_connection(s_server.context, &client_task_context);
+        err = net_accept_connection(s_server.task_context, &client_task_context);
 
         if (IS_ERROR(err))
             break;
@@ -150,8 +178,15 @@ Error* server_free()
 
     printf("\nFreeing server memory\n");
 
-    Error* err = net_close(s_server.context);
-    printf("    - Context closed\n");
+    Error* err = net_close(s_server.status_context);
+    if (IS_ERROR(err))
+        print_error(err);
+
+    err = net_close(s_server.task_context);
+    if (IS_ERROR(err))
+        print_error(err);
+
+    printf("    - Status and task contexts closed\n");
 
     thpool_destroy(s_server.client_thread_pool);
     printf("    - Client thpool destroyed\n");
@@ -237,4 +272,40 @@ void server_remove_client_files(uint32_t client_id, uint32_t* removed_count)
     }
 
     shared_file_list_iterator_destroy(it);
+}
+
+static void handle_termination_signal(int signal)
+{
+    Error* err = server_free();
+    if (IS_ERROR(err))
+        print_error(err);
+
+    char* signal_descriptions[] = {
+        [SIGHUP] = "Hangup detected on controlling terminal or death of controlling process",
+        [SIGQUIT] = "Quit from keyboard",
+        [SIGKILL] = "Kill signal",
+        [SIGPIPE] = "Broken pipe: write to pipe with no readers",
+        [SIGABRT] = "Abort signal from abort(3). Perhaps by assert",
+        [SIGINT] = "Interrupt from keyboard (typically Ctrl+C)"
+    };
+
+    FILE* file = fopen("end_log.txt", "w");
+
+    // Writes time
+    {
+        time_t t = time(NULL);
+        struct tm* tm = localtime((time_t*)&t);
+        char str_time[32];
+        strftime(
+            str_time,
+            sizeof(str_time),
+            "%Y/%m/%d %H:%M:%S\n",
+            tm);
+
+        fwrite(str_time, 1, strlen(str_time), file);
+    }
+
+    // Writes signal
+    fwrite(signal_descriptions[signal], 1, strlen(signal_descriptions[signal]), file);
+    fclose(file);
 }

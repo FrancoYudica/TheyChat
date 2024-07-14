@@ -76,6 +76,7 @@ static void init_connection_context(ConnectionContext* context)
 {
     memset(context, 0, sizeof(ConnectionContext));
     context->socketfd = 0;
+    context->closing = false;
     atomic_store(&context->closing, false);
 }
 
@@ -155,6 +156,7 @@ Error* net_accept_connection(
 {
     ConnectionContext* client_context = malloc(sizeof(ConnectionContext));
     *client_context_ref = client_context;
+    init_connection_context(client_context);
 
     // Accepts connection with usual socketfd
     struct sockaddr_in client_addr;

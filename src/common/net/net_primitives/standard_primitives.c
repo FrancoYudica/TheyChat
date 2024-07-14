@@ -119,6 +119,7 @@ Error* net_accept_connection(
 {
     ConnectionContext* client_context = malloc(sizeof(ConnectionContext));
     *client_context_ref = client_context;
+    init_connection_context(client_context);
 
     static socklen_t client_len = sizeof(struct sockaddr_in);
 

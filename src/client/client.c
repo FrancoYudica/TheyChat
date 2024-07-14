@@ -25,7 +25,7 @@ int main()
     // Initializes connection details
     strcpy(client->connection_details.server_ip, "127.0.0.1");
     client->connection_details.status_port = DEFAULT_STATUS_PORT;
-    client->connection_details.task_port = DEFAULT_COMMAND_PORT;
+    client->connection_details.task_port = DEFAULT_TASK_PORT;
 #ifdef THEY_CHAT_SSL
     client->connection_details.tls_enabled = true;
 #else
