@@ -5,7 +5,7 @@
 
 const char* filepath_get_filename(const char* filepath)
 {
-    const char* filename = strrchr(filepath, PATH_SEPARATOR);
+    const char* filename = strrchr(filepath, PATH_SEPARATOR[0]);
     return (filename != NULL) ? filename + 1 : filepath;
 }
 
@@ -38,7 +38,7 @@ void filepath_concat(
 {
     sprintf(
         dest,
-        "%s%c%s",
+        "%s%s%s",
         folder,
         PATH_SEPARATOR,
         file);

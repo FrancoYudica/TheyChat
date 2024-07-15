@@ -5,7 +5,7 @@
 #include "constants.h"
 #include "they_chat_error.h"
 
-#define SHARED_FILES_LOCATION "resources/uploads"
+#define SHARED_FILES_LOCATION "resources" PATH_SEPARATOR "uploads"
 
 /// @brief Represents a file shared by a client
 typedef struct

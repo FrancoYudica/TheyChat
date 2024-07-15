@@ -4,7 +4,7 @@
 #include "net/file_transfer.h"
 #include "file.h"
 
-#define DOWNLOADS_FOLDER_PATH "resources/downloads"
+#define DOWNLOADS_FOLDER_PATH "resources" PATH_SEPARATOR "downloads"
 
 Error* server_task_download_file(TaskStatusPayload status)
 {
@@ -53,7 +53,7 @@ Error* server_task_download_file(TaskStatusPayload status)
     } else {
         ui_push_text_entry(
             TEXT_ENTRY_TYPE_SERVER,
-            "Downloaded %d bytes! File located in \"%s%c%s\"",
+            "Downloaded %d bytes! File located in \"%s%s%s\"",
             downloaded_bytes,
             DOWNLOADS_FOLDER_PATH,
             PATH_SEPARATOR,
