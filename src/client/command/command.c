@@ -68,7 +68,7 @@ static void help_handler(uint32_t cmd_count, va_list args)
         [CMD_CONNECT] = { "\"/c\" or \"/connect\"", "Establishes connection with server. \"/connect {server_ip} {port}\"" },
         [CMD_DISCONNECT] = { "\"/d\" or \"/disconnect\"", "Disconnects from server, and transitions to offline state" },
         [CMD_QUIT] = { "\"/q\" or \"/quit\"", "Quits the application" },
-        [CMD_USERS] = { "\"/users\"", "Lists all connected users" },
+        [CMD_USERS] = { "\"/users\"", "Lists all connected users. Can add \"ip\" and/or \"id\" arguments" },
         [CMD_FILES] = { "\"/files\"", "Shows a list of server downloadable files" },
         [CMD_UPLOAD] = { "\"/upload\"", "Uploads a downloadable file into the server. \"/upload {filepath}\"" },
         [CMD_DOWNLOAD] = { "\"/download\"", "Downloads a file. \"/download {filename}\" or \"/download id {file_id}\"" },
