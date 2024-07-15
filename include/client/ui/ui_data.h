@@ -1,6 +1,12 @@
 #ifndef __UI_DATA_H__
 #define __UI_DATA_H__
+
+#ifdef __unix__
 #include <ncurses.h>
+#elif defined(_WIN32) || defined(_WIN64)
+#include <ncursesw/curses.h>
+#endif
+
 #include <pthread.h>
 #include "messages/message.h"
 

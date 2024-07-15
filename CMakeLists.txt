@@ -13,6 +13,11 @@ set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
 option(THEY_CHAT_SSL "Compile with SSL support" ON)
 option(THEY_CHAT_COMPILE_TESTS "Compile TheyChat tests" ON)
 
+# SSL is supported on unix systems only
+if(UNIX AND THEY_CHAT_SSL)
+    set(USING_SSL ON)
+endif ()
+
 add_subdirectory(libs)
 
 # Define the source files for the library
@@ -42,7 +47,6 @@ set(COMMON_SOURCES
 
     src/common/task_types.c
 
-
     # Utils
     src/common/utils/string_utils.c
     src/common/utils/string_list.c
@@ -51,7 +55,7 @@ set(COMMON_SOURCES
 )
 
 # Changes encryption at compile time
-if(THEY_CHAT_SSL)
+if(USING_SSL)
     # If SSL is enabled, add ssl_primitives.c to the common sources
     list(APPEND COMMON_SOURCES src/common/net/net_primitives/ssl_primitives.c)
 else()
@@ -63,7 +67,7 @@ endif()
 add_library(chat_lib ${COMMON_SOURCES})
 
 # Conditionally add the preprocessor definition
-if(THEY_CHAT_SSL)
+if(USING_SSL)
     target_compile_definitions(chat_lib INTERFACE THEY_CHAT_SSL)
 endif()
 
@@ -150,6 +154,7 @@ set(CLIENT_SOURCES
     src/client/state_handlers/state_quit.c
     
     src/client/ui/ui.c
+    src/client/ui/terminal_resize.c
     src/client/ui/chat_entry_types.c
     src/client/ui/chat_entries.c
     src/client/ui/input_handler.c

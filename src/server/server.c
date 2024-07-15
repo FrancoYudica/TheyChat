@@ -41,10 +41,12 @@ Error* server_init(
     // Sets up termination signals
     signal(SIGTERM, handle_termination_signal);
     signal(SIGINT, handle_termination_signal);
+#ifdef __unix__
     signal(SIGKILL, handle_termination_signal);
     signal(SIGHUP, handle_termination_signal);
     signal(SIGPIPE, handle_termination_signal);
     signal(SIGQUIT, handle_termination_signal);
+#endif
 
     // Initializes network module.
     net_init();
@@ -303,6 +305,7 @@ static void handle_termination_signal(int signal)
     if (IS_ERROR(err))
         print_error(err);
 
+#ifdef __unix__
     char* signal_descriptions[] = {
         [SIGTERM] = "Termination request",
         [SIGHUP] = "Hangup detected on controlling terminal or death of controlling process",
@@ -312,6 +315,14 @@ static void handle_termination_signal(int signal)
         [SIGABRT] = "Abort signal from abort(3). Perhaps by assert",
         [SIGINT] = "Interrupt from keyboard (typically Ctrl+C)"
     };
+#else
+    char* signal_descriptions[] = {
+        [SIGTERM] = "Termination request",
+        [SIGABRT] = "Abort signal from abort(3). Perhaps by assert",
+        [SIGINT] = "Interrupt from keyboard (typically Ctrl+C)"
+    };
+
+#endif
 
     FILE* file = fopen("end_log.txt", "w");
 

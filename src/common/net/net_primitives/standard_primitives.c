@@ -22,6 +22,13 @@ struct ConnectionContext {
 
 void net_init()
 {
+
+#if defined(_WIN32) || defined(_WIN64)
+WSADATA wsaData;
+if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+}
+#endif
+
 }
 
 static void init_connection_context(ConnectionContext* context)
@@ -216,10 +223,14 @@ Error* net_close(ConnectionContext* context)
 {
     atomic_store(&context->closing, true);
 
-    // Shut down the socket to signal the receive thread to stop
-    if (shutdown(context->socketfd, SHUT_RDWR) == -1) {
+    // // Shut down the socket to signal the receive thread to stop
+#ifdef __unix__
+    if (shutdown(context->socketfd, SHUT_RDWR) == -1) 
         return CREATE_ERRNO(ERR_NET_FAILURE, "shutdown() failure");
-    }
+#elif defined(_WIN32) || defined(_WIN64)
+    if (shutdown(context->socketfd, SD_BOTH) == SOCKET_ERROR)
+        return CREATE_ERR(ERR_NET_FAILURE, "shutdown() failure");
+#endif
 
     // Waits 2ms, in case there is any thread receiving
     usleep(20000);
@@ -227,13 +238,20 @@ Error* net_close(ConnectionContext* context)
     int32_t fd = context->socketfd;
     free(context);
 
+    // Closes socket
+#ifdef __unix__
     if (close(fd) == -1)
         return CREATE_ERRNO(ERR_CLOSE_FD, "Error while closing ConnectionContext socket file descriptor");
+#elif defined(_WIN32) || defined(_WIN64)
+    if (closesocket(fd) == SOCKET_ERROR)
+        return CREATE_ERR(ERR_CLOSE_FD, "Error while closing ConnectionContext socket file descriptor");
+#endif
 
     return CREATE_ERR_OK;
 }
 void net_shutdown()
 {
+    WSACleanup();
 }
 
 Error* net_get_ip(

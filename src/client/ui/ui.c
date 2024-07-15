@@ -1,4 +1,3 @@
-#include <sys/ioctl.h>
 #include <unistd.h>
 #include <signal.h>
 #include <stdio.h>
@@ -58,14 +57,12 @@ static void initialize_color_pairs()
     init_pair(COLOR_PAIR_CHAT_WARNING, CHAT_WARNING_COLOR, CHAT_BG_COLOR);
 }
 
+extern void terminal_resize();
+
 static void window_resize(int)
 {
     pthread_mutex_lock(&ui.render_mutex);
-    struct winsize w;
-    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
-    erase();
-    resizeterm(w.ws_row, w.ws_col);
-    refresh();
+    terminal_resize();
     pthread_mutex_unlock(&ui.render_mutex);
 
     ui_header_window_resize();
@@ -98,9 +95,10 @@ void ui_init()
     // Enable function keys (F1, F2, arrow keys, etc.)
     keypad(stdscr, TRUE);
 
+#ifdef __unix__
     // Window resize signal handler
     signal(SIGWINCH, window_resize);
-
+#endif
     // Initializes input handler, a new thread to receive input
     input_handler_init();
 }
