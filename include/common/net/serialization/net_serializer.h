@@ -17,22 +17,20 @@
  * @param src_size Size of the source byte array.
  */
 void ns_push_byte_array(uint8_t** dest, const uint8_t* src, size_t src_size);
-
-/**
- * @brief Converts uint32_t to network byte order and copies it to a buffer.
- *
- * @param dest Pointer to the buffer pointer to be updated.
- * @param n Pointer to the uint32_t value.
- */
-void ns_push_long(uint8_t** dest, const uint32_t* n);
-
 /**
  * @brief Converts uint16_t to network byte order and copies it to a buffer.
  *
  * @param dest Pointer to the buffer pointer to be updated.
  * @param n Pointer to the uint16_t value.
  */
-void ns_push_short(uint8_t** dest, const uint16_t* n);
+void ns_push_16(uint8_t** dest, const uint16_t* n);
+/**
+ * @brief Converts uint32_t to network byte order and copies it to a buffer.
+ *
+ * @param dest Pointer to the buffer pointer to be updated.
+ * @param n Pointer to the uint32_t value.
+ */
+void ns_push_32(uint8_t** dest, const uint32_t* n);
 
 /**
  * @brief Converts uint64_t to network byte order and copies it to a buffer.
@@ -40,7 +38,7 @@ void ns_push_short(uint8_t** dest, const uint16_t* n);
  * @param dest Pointer to the buffer pointer to be updated.
  * @param n Pointer to the uint64_t value.
  */
-void ns_push_long_long(uint8_t** dest, const uint64_t* n);
+void ns_push_64(uint8_t** dest, const uint64_t* n);
 
 /**
  * @brief Extracts a byte array from a buffer and updates the pointer.
@@ -52,20 +50,20 @@ void ns_push_long_long(uint8_t** dest, const uint64_t* n);
 void ns_pop_byte_array(uint8_t** src, uint8_t* dest, size_t dest_size);
 
 /**
- * @brief Extracts a uint32_t from the buffer, converting from network to host byte order.
- *
- * @param src Pointer to the buffer pointer to be updated.
- * @param n Pointer to the uint32_t value.
- */
-void ns_pop_long(uint8_t** src, uint32_t* n);
-
-/**
  * @brief Extracts a uint16_t from the buffer, converting from network to host byte order.
  *
  * @param src Pointer to the buffer pointer to be updated.
  * @param n Pointer to the uint16_t value.
  */
-void ns_pop_short(uint8_t** src, uint16_t* n);
+void ns_pop_16(uint8_t** src, uint16_t* n);
+
+/**
+ * @brief Extracts a uint32_t from the buffer, converting from network to host byte order.
+ *
+ * @param src Pointer to the buffer pointer to be updated.
+ * @param n Pointer to the uint32_t value.
+ */
+void ns_pop_32(uint8_t** src, uint32_t* n);
 
 /**
  * @brief Extracts a uint64_t from the buffer, converting from network to host byte order.
@@ -73,6 +71,6 @@ void ns_pop_short(uint8_t** src, uint16_t* n);
  * @param src Pointer to the buffer pointer to be updated.
  * @param n Pointer to the uint64_t value.
  */
-void ns_pop_long_long(uint8_t** src, uint64_t* n);
+void ns_pop_64(uint8_t** src, uint64_t* n);
 
 #endif

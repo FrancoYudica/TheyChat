@@ -1,6 +1,6 @@
 
 #include "net/net_primitives.h"
-#include <arpa/inet.h>
+#include "net/socket.h"
 #include <memory.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -160,7 +160,7 @@ Error* net_accept_connection(
 
     // Accepts connection with usual socketfd
     struct sockaddr_in client_addr;
-    socklen_t client_len = sizeof(client_addr);
+    uint32_t client_len = sizeof(client_addr);
     client_context->socketfd = accept(server_context->socketfd, (struct sockaddr*)&client_addr, &client_len);
 
     if (client_context->socketfd == -1)
@@ -286,7 +286,7 @@ Error* net_get_ip(ConnectionContext* context, char* ip_buffer, size_t ip_buffer_
 
     // Get the peer address
     struct sockaddr_in peer_addr;
-    socklen_t peer_addr_len = sizeof(peer_addr);
+    uint32_t peer_addr_len = sizeof(peer_addr);
 
     if (getpeername(fd, (struct sockaddr*)&peer_addr, &peer_addr_len) < 0)
         return CREATE_ERRNO(ERR_NET_FAILURE, "Error while getting peer address");

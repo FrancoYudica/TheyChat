@@ -1,5 +1,5 @@
 #include <stdbool.h>
-#include <arpa/inet.h>
+#include "net/socket.h"
 #include <stdlib.h>
 #include "net/net_primitives.h"
 #include "net/net_communication.h"

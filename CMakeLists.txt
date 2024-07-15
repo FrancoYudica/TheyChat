@@ -26,6 +26,7 @@ set(COMMON_SOURCES
     src/common/messages/messages_types.c
     
     # Networking
+    src/common/net/endian.c
     src/common/net/net_communication.c
     src/common/net/net_connection.c
     src/common/net/net_stream.c

@@ -1,6 +1,6 @@
 
 #include "net/net_primitives.h"
-#include <arpa/inet.h>
+#include "net/socket.h"
 #include <memory.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -122,7 +122,7 @@ Error* net_accept_connection(
     *client_context_ref = client_context;
     init_connection_context(client_context);
 
-    static socklen_t client_len = sizeof(struct sockaddr_in);
+    static uint32_t client_len = sizeof(struct sockaddr_in);
 
     // Accepts client connection
     int32_t client_sock_fd = accept(

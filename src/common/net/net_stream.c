@@ -1,7 +1,7 @@
 #include "net/net_stream.h"
 #include "net/serialization/net_message_serializer.h"
 #include "messages/message_types.h"
-#include "arpa/inet.h"
+#include "net/socket.h"
 
 static uint32_t ns_access_message_length(const uint8_t* buffer);
 

@@ -8,8 +8,8 @@ void ns_serialize_message(const Message* message, uint8_t* buffer, size_t* buffe
     uint8_t* buffer_ptr = buffer;
 
     // Serializes message type
-    ns_push_long(&buffer_ptr, &message->type);
-    ns_push_long(&buffer_ptr, &message->net_payload_length);
+    ns_push_32(&buffer_ptr, &message->type);
+    ns_push_32(&buffer_ptr, &message->net_payload_length);
 
     // Serializes properties for the corresponding message type
     switch (message->type) {
@@ -24,7 +24,7 @@ void ns_serialize_message(const Message* message, uint8_t* buffer, size_t* buffe
         ns_push_byte_array(&buffer_ptr, (const uint8_t*)user_chat->username, sizeof(user_chat->username));
         ns_push_byte_array(&buffer_ptr, (const uint8_t*)user_chat->text, sizeof(user_chat->text));
         ns_push_byte_array(&buffer_ptr, (const uint8_t*)user_chat->ip, sizeof(user_chat->ip));
-        ns_push_long_long(&buffer_ptr, (const uint64_t*)&user_chat->time);
+        ns_push_64(&buffer_ptr, (const uint64_t*)&user_chat->time);
         break;
     }
 
@@ -37,12 +37,12 @@ void ns_serialize_message(const Message* message, uint8_t* buffer, size_t* buffe
     case MSGT_FILE_HEADER: {
         const FileHeaderPayload* file_header = &message->payload.file_header;
         ns_push_byte_array(&buffer_ptr, (const uint8_t*)file_header->name, sizeof(file_header->name));
-        ns_push_long(&buffer_ptr, &file_header->size);
+        ns_push_32(&buffer_ptr, &file_header->size);
         break;
     }
     case MSGT_FILE_CONTENT: {
         const FileContentPayload* file_content = &message->payload.file_content;
-        ns_push_long(&buffer_ptr, (const uint32_t*)&file_content->content_size);
+        ns_push_32(&buffer_ptr, (const uint32_t*)&file_content->content_size);
         ns_push_byte_array(&buffer_ptr, (const uint8_t*)file_content->binary_payload, sizeof(file_content->binary_payload));
         break;
     }
@@ -75,7 +75,7 @@ void ns_serialize_message(const Message* message, uint8_t* buffer, size_t* buffe
 
     case MSGT_SERVER_NOTIFICATION: {
         const ServerNotificationPayload* server_notification = &message->payload.server_notification;
-        ns_push_long_long(&buffer_ptr, (const uint64_t*)&server_notification->time);
+        ns_push_64(&buffer_ptr, (const uint64_t*)&server_notification->time);
         ns_push_byte_array(&buffer_ptr, (const uint8_t*)server_notification->text, sizeof(server_notification->text));
         break;
     }
@@ -92,7 +92,7 @@ void ns_serialize_message(const Message* message, uint8_t* buffer, size_t* buffe
 
         case MSGT_TASK_STATUS: {
             const TaskStatusPayload* task = &message->payload.task_status;
-            ns_push_long(&buffer_ptr, (const uint32_t*)&task->task_status);
+            ns_push_32(&buffer_ptr, (const uint32_t*)&task->task_status);
             tagged_task = &message->payload.task_status.tagged_task;
             break;
         }
@@ -103,7 +103,7 @@ void ns_serialize_message(const Message* message, uint8_t* buffer, size_t* buffe
         }
 
         // Pushes tagged task data
-        ns_push_long(&buffer_ptr, (const uint32_t*)&tagged_task->task_type);
+        ns_push_32(&buffer_ptr, (const uint32_t*)&tagged_task->task_type);
 
         switch (tagged_task->task_type) {
         case TASK_USERS:
@@ -126,7 +126,7 @@ void ns_serialize_message(const Message* message, uint8_t* buffer, size_t* buffe
 
         case TASK_REMOVE_FILE:
             ns_push_byte_array(&buffer_ptr, (const uint8_t*)&tagged_task->data.remove.remove_all, sizeof(tagged_task->data.remove.remove_all));
-            ns_push_long(&buffer_ptr, (const uint32_t*)&tagged_task->data.remove.file_id);
+            ns_push_32(&buffer_ptr, (const uint32_t*)&tagged_task->data.remove.file_id);
             break;
 
         default:
@@ -153,8 +153,8 @@ void ns_deserialize_message(const uint8_t* buffer, Message* message)
     uint8_t* buffer_ptr = (uint8_t*)buffer;
 
     // Pops type and length
-    ns_pop_long(&buffer_ptr, &message->type);
-    ns_pop_long(&buffer_ptr, &message->net_payload_length);
+    ns_pop_32(&buffer_ptr, &message->type);
+    ns_pop_32(&buffer_ptr, &message->net_payload_length);
 
     // Serializes properties for the corresponding message type
     switch (message->type) {
@@ -169,7 +169,7 @@ void ns_deserialize_message(const uint8_t* buffer, Message* message)
         ns_pop_byte_array(&buffer_ptr, (uint8_t*)user_chat->username, sizeof(user_chat->username));
         ns_pop_byte_array(&buffer_ptr, (uint8_t*)user_chat->text, sizeof(user_chat->text));
         ns_pop_byte_array(&buffer_ptr, (uint8_t*)user_chat->ip, sizeof(user_chat->ip));
-        ns_pop_long_long(&buffer_ptr, (uint64_t*)&user_chat->time);
+        ns_pop_64(&buffer_ptr, (uint64_t*)&user_chat->time);
         break;
     }
 
@@ -182,12 +182,12 @@ void ns_deserialize_message(const uint8_t* buffer, Message* message)
     case MSGT_FILE_HEADER: {
         FileHeaderPayload* file_header = &message->payload.file_header;
         ns_pop_byte_array(&buffer_ptr, (uint8_t*)file_header->name, sizeof(file_header->name));
-        ns_pop_long(&buffer_ptr, &file_header->size);
+        ns_pop_32(&buffer_ptr, &file_header->size);
         break;
     }
     case MSGT_FILE_CONTENT: {
         FileContentPayload* file_content = &message->payload.file_content;
-        ns_pop_long(&buffer_ptr, (uint32_t*)&file_content->content_size);
+        ns_pop_32(&buffer_ptr, (uint32_t*)&file_content->content_size);
         ns_pop_byte_array(&buffer_ptr, (uint8_t*)file_content->binary_payload, sizeof(file_content->binary_payload));
         break;
     }
@@ -223,7 +223,7 @@ void ns_deserialize_message(const uint8_t* buffer, Message* message)
     }
     case MSGT_SERVER_NOTIFICATION: {
         ServerNotificationPayload* server_notification = &message->payload.server_notification;
-        ns_pop_long_long(&buffer_ptr, (uint64_t*)&server_notification->time);
+        ns_pop_64(&buffer_ptr, (uint64_t*)&server_notification->time);
         ns_pop_byte_array(&buffer_ptr, (uint8_t*)server_notification->text, sizeof(server_notification->text));
         break;
     }
@@ -241,7 +241,7 @@ void ns_deserialize_message(const uint8_t* buffer, Message* message)
 
         case MSGT_TASK_STATUS: {
             TaskStatusPayload* task = &message->payload.task_status;
-            ns_pop_long(&buffer_ptr, (uint32_t*)&task->task_status);
+            ns_pop_32(&buffer_ptr, (uint32_t*)&task->task_status);
             tagged_task = &message->payload.task_status.tagged_task;
             break;
         }
@@ -252,7 +252,7 @@ void ns_deserialize_message(const uint8_t* buffer, Message* message)
         }
 
         // Pushes tagged task data
-        ns_pop_long(&buffer_ptr, (uint32_t*)&tagged_task->task_type);
+        ns_pop_32(&buffer_ptr, (uint32_t*)&tagged_task->task_type);
 
         switch (tagged_task->task_type) {
         case TASK_USERS:
@@ -274,7 +274,7 @@ void ns_deserialize_message(const uint8_t* buffer, Message* message)
             break;
         case TASK_REMOVE_FILE:
             ns_pop_byte_array(&buffer_ptr, (uint8_t*)&tagged_task->data.remove.remove_all, sizeof(tagged_task->data.remove.remove_all));
-            ns_pop_long(&buffer_ptr, (uint32_t*)&tagged_task->data.remove.file_id);
+            ns_pop_32(&buffer_ptr, (uint32_t*)&tagged_task->data.remove.file_id);
             break;
         default:
             printf("Unimplemented serialization for task message type %i\n", tagged_task->task_type);
