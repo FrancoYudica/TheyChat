@@ -83,7 +83,7 @@ The following process builds server and client:
 This project provides precompiled binaries for various platforms to facilitate easy installation and usage. Below are the available binaries along with their dynamic linking requirements
 
 #### Linux x86_64
-[Linux x86_64](https://github.com/FrancoYudica/TheyChat/tree/main/bin/linux_x86_64) binaries requires `libncurses` and `libssl` libraries. 
+[Linux x86_64](https://github.com/FrancoYudica/TheyChat/tree/main/releases) binaries requires `libncurses` and `libssl` libraries. 
 > [!WARNING]
 > Ensure these libraries are installed on your system, and the resources folder is downloaded as well.
 > These binaries are tested in Ubuntu, but should work in Debian, Fedora, CentOS, Arch and more.
