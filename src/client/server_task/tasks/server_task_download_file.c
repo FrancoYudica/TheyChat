@@ -37,6 +37,7 @@ Error* server_task_download_file(TaskStatusPayload status)
     // Downloads file
     ui_set_log_text("Downloading file: \"%s\"", download_data->filename);
     char received_filename[MAX_FILENAME_SIZE];
+    received_filename[0] = '\0';
     uint64_t downloaded_bytes = 0;
     err = receive_file(
         &client->task_connection,
