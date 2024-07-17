@@ -37,7 +37,7 @@ The primary goal of this project is to facilitate learning and to gain a compreh
 - **ncurses** (`ncurses` installed)
 
 ### Building the Project
-
+The following process builds server and client:
 1. Clone the repository:
     ```sh
     git clone --recursive https://github.com/FrancoYudica/TheyChat.git
@@ -59,10 +59,8 @@ The primary goal of this project is to facilitate learning and to gain a compreh
     - `THEY_CHAT_SSL`: Enable or disable SSL encryption.
       ```sh
       cmake -DTHEY_CHAT_SSL=ON ..
-      ```
-    
-        > [!IMPORTANT]  
-        > If `THEY_CHAT_SSL` is enabled and you want to run the sever, a certificate and key file should be provided. By default, the application expects the certificate and key to be located in `~/.ssl/TheyChat/` directory with filenames `certificate.pem` and `private.key` respectively.
+      ```         
+        If `THEY_CHAT_SSL` is enabled and you want to run the sever, a certificate and key file should be provided. By default, the application expects the certificate and key to be located in `~/.ssl/TheyChat/` directory with filenames `certificate.pem` and `private.key` respectively.
 
         To generate the certificate and key, you can use the `generate_ssl.sh` script. This script creates the necessary files in the `~/.ssl/TheyChat/` directory. The generated certificate is a self-signed certificate, created for testing purposes.
 
@@ -79,16 +77,15 @@ The primary goal of this project is to facilitate learning and to gain a compreh
     ```sh
     make
     ```
-    > [!NOTE]  
-    > This last command will build server and client.
-    
+   
 
-## Precompiled binaries
+### Precompiled binaries
 This project provides precompiled binaries for various platforms to facilitate easy installation and usage. Below are the available binaries along with their dynamic linking requirements
 
-### Linux x86_64
-[Linux x86_64](https://github.com/FrancoYudica/TheyChat/bin) binaries requires `libncurses` and `libssl` libraries. Ensure these libraries are installed on your system.
-> [!NOTE]  
+#### Linux x86_64
+[Linux x86_64](https://github.com/FrancoYudica/TheyChat/tree/main/bin/linux_x86_64) binaries requires `libncurses` and `libssl` libraries. 
+> [!WARNING]
+> Ensure these libraries are installed on your system, and the resources folder is downloaded as well.
 > These binaries are tested in Ubuntu, but should work in Debian, Fedora, CentOS, Arch and more.
 
 ### Running programs
@@ -96,7 +93,7 @@ For **server** navigate to the build/server directory and run executable: ```./s
 
 For **client** navigate to the build/client directory and run executable: ```./client```
 
-> [!NOTE]  
+> [!TIP]  
 > Note that both programs accept arguments, such as status port, task port and more.
 
 ## Usage
@@ -106,7 +103,9 @@ Once the program is executed, it listens for incoming client connections, handli
 The only accepted inputs are signals that terminate the program, such as ctrl+c or closing the terminal. Note that if the server is exited with one of the accepted signals, it closes all the connections and cleanly frees all memory.
 
 ### Client
-Client is a command based program, meaning that all the interactions are executed with defined commands. If you want to check the available commands, execute `/h`. Keep in mind that the available commands change in different states of the program. 
+Client is a command based program, meaning that all the interactions are executed with defined commands. 
+> [!TIP]  
+> If you want to check the available commands, execute `/h`. Keep in mind that the available commands change in different states of the program. 
 
 It starts in the **offline state**, and the connection with the server should be established with the `/connect` command, where the server IP is expected as argument. Once connected to the server, the program enters **login state**, asks for a unique username, and then enters the **chat state**. Once you are done using client program you can use `/quit` or `/disconnect` in case you want to got to the **offline state**.
 
@@ -125,7 +124,8 @@ It starts in the **offline state**, and the connection with the server should be
 Since TheyChat uses a client-server architecture, clients should first upload files to the server. When any client uploads a file, all the other clients can download the file, by it's name (if it's unique) or it's id.
 Also, uploaded files can be removed from the server, and a notification will be sent to all clients.
 Downloaded files are located inside ```resources/downloads``` folder.
-You should keep in mind that when client disconnects, all it's uploaded files are removed.
+> [!IMPORTANT]
+> You should keep in mind that when client disconnects, all it's uploaded files are removed from the server.
 
 ## Windows support
 > [!CAUTION]
