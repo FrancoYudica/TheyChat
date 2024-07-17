@@ -6,8 +6,10 @@ project(ChatApp VERSION 1.0)
 set(CMAKE_C_STANDARD 17)
 set(CMAKE_C_STANDARD_REQUIRED True)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pg")
-set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    add_compile_options(-pg)
+    add_link_options(-pg)
+endif()
 
 # Define an option to compile with or without SSL
 option(THEY_CHAT_SSL "Compile with SSL support" ON)

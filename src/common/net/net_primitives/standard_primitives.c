@@ -251,7 +251,9 @@ Error* net_close(ConnectionContext* context)
 }
 void net_shutdown()
 {
+#if defined(_WIN32) || defined(_WIN64)
     WSACleanup();
+#endif
 }
 
 Error* net_get_ip(
