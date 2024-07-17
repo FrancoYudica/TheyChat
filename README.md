@@ -61,11 +61,10 @@ The primary goal of this project is to facilitate learning and to gain a compreh
       cmake -DTHEY_CHAT_SSL=ON ..
       ```
     
-        If `THEY_CHAT_SSL` is enabled and you want to run the sever, a certificate and key file should be provided. By default, the application expects the certificate and key to be located in `~/.ssl/TheyChat/` directory with filenames `certificate.pem` and `private.key` respectively.
+        > [!IMPORTANT]  
+        > If `THEY_CHAT_SSL` is enabled and you want to run the sever, a certificate and key file should be provided. By default, the application expects the certificate and key to be located in `~/.ssl/TheyChat/` directory with filenames `certificate.pem` and `private.key` respectively.
 
         To generate the certificate and key, you can use the `generate_ssl.sh` script. This script creates the necessary files in the `~/.ssl/TheyChat/` directory. The generated certificate is a self-signed certificate, created for testing purposes.
-
-        To run the script, navigate to the directory where the script is located and execute it:
 
         ```sh
         chmod +x generate_ssl.sh
@@ -80,14 +79,25 @@ The primary goal of this project is to facilitate learning and to gain a compreh
     ```sh
     make
     ```
-    This last command will build server and client.
+    > [!NOTE]  
+    > This last command will build server and client.
+    
+
+## Precompiled binaries
+This project provides precompiled binaries for various platforms to facilitate easy installation and usage. Below are the available binaries along with their dynamic linking requirements
+
+### Linux x86_64
+[Linux x86_64](https://github.com/FrancoYudica/TheyChat/bin) binaries requires `libncurses` and `libssl` libraries. Ensure these libraries are installed on your system.
+> [!NOTE]  
+> These binaries are tested in Ubuntu, but should work in Debian, Fedora, CentOS, Arch and more.
 
 ### Running programs
 For **server** navigate to the build/server directory and run executable: ```./server```
 
 For **client** navigate to the build/client directory and run executable: ```./client```
 
-Note that both programs accept arguments, such as status port, task port and more.
+> [!NOTE]  
+> Note that both programs accept arguments, such as status port, task port and more.
 
 ## Usage
 
@@ -118,7 +128,8 @@ Downloaded files are located inside ```resources/downloads``` folder.
 You should keep in mind that when client disconnects, all it's uploaded files are removed.
 
 ## Windows support
-The server and client can be compiled and executed on Windows. However, it is not recommended, especially for the client side, where ncurses is not as powerful as on systems such as Ubuntu. Additionally, the CMakeLists.txt is not intended for Windows, meaning that modifications (such as setting ncurses location) should be made for it to work properly.
+> [!CAUTION]
+> The server and client can be compiled and executed on Windows. However, it is not recommended, especially for the client side, where ncurses is not as powerful as on systems such as Ubuntu. Additionally, the CMakeLists.txt is not intended for Windows, meaning that modifications (such as setting ncurses location) should be made for it to work properly.
 
 
 ## License

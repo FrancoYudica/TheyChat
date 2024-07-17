@@ -19,8 +19,8 @@ endif()
 find_package(Curses REQUIRED)
 include_directories(${CURSES_INCLUDE_DIR})
 
-# Link the PDCurses library
-target_link_libraries(dependencies_lib INTERFACE ${CURSES_LIBRARY}) # Adjust the path accordingly
+# Link the curses library
+target_link_libraries(dependencies_lib INTERFACE ${CURSES_LIBRARY})
 
 # Add OpenSSL library ------------------------------------------------
 if (USING_SSL)
