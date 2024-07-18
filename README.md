@@ -88,7 +88,6 @@ There are two versions:
 - [Linux x86_64 SSL](https://github.com/FrancoYudica/TheyChat/blob/main/releases/TheyChat_linux_x86_64_ssl.zip) communication encrypted with OpenSSL.
 
 Both binaries requires `libncurses` and `libssl` libraries. 
-Note that there is also 
 > [!WARNING]
 > These binaries are tested in Ubuntu, but should work in Debian, Fedora, CentOS, Arch and more.
 
