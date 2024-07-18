@@ -73,6 +73,11 @@ The following process builds server and client:
       cmake -DTHEY_CHAT_COMPILE_TESTS=ON ..
       ```
 
+    - `THEY_CHAT_STATIC_LINK`: Compile libraries as static.
+      ```sh
+      cmake -THEY_CHAT_STATIC_LINK=ON ..
+      ```
+
 4. Build the project:
     ```sh
     make
@@ -80,14 +85,14 @@ The following process builds server and client:
    
 
 ### Precompiled binaries
-This project provides precompiled binaries for various platforms to facilitate easy installation and usage. Below are the available binaries along with their dynamic linking requirements
+This project provides precompiled binaries for various platforms to facilitate easy installation and usage.
+All the dependencies, except for `libc` are statically linked.
 
 #### Linux x86_64
 There are two versions:
 - [Linux x86_64](https://github.com/FrancoYudica/TheyChat/blob/main/releases/TheyChat_linux_x86_64.zip) communication not encrypted.
 - [Linux x86_64 SSL](https://github.com/FrancoYudica/TheyChat/blob/main/releases/TheyChat_linux_x86_64_ssl.zip) communication encrypted with OpenSSL.
 
-Both binaries requires `libncurses` and `libssl` libraries. 
 > [!WARNING]
 > These binaries are tested in Ubuntu, but should work in Debian, Fedora, CentOS, Arch and more.
 
