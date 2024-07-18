@@ -13,6 +13,7 @@ endif()
 
 # Define an option to compile with or without SSL
 option(THEY_CHAT_SSL "Compile with SSL support" ON)
+option(THEY_CHAT_STATIC_LINK "Compile libraries as static" ON)
 option(THEY_CHAT_COMPILE_TESTS "Compile TheyChat tests" ON)
 
 # SSL is supported on unix systems only
@@ -20,7 +21,6 @@ if(UNIX AND THEY_CHAT_SSL)
     set(USING_SSL ON)
 endif ()
 
-add_subdirectory(libs)
 
 # Define the source files for the library
 set(COMMON_SOURCES
@@ -226,3 +226,5 @@ if (THEY_CHAT_COMPILE_TESTS)
     )
 
 endif()
+
+add_subdirectory(libs)
